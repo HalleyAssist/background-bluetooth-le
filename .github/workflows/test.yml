@@ -58,6 +58,8 @@ jobs:
         with:
           java-version: 21
           distribution: adopt
+          
+      - run: chmod +x android/gradlew
 
       - run: yarn
 
