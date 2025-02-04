@@ -10,14 +10,39 @@ public class BackgroundBLEPlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "BackgroundBLEPlugin"
     public let jsName = "BackgroundBLE"
     public let pluginMethods: [CAPPluginMethod] = [
-        CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "addDevice", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "removeDevice", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "startForegroundService", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "stopForegroundService", returnType: CAPPluginReturnPromise)
     ]
     private let implementation = BackgroundBLE()
 
-    @objc func echo(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? ""
-        call.resolve([
-            "value": implementation.echo(value)
-        ])
+    @objc override public func checkPermissions(_ call: CAPPluginCall) {
+        // TODO
     }
+
+    @objc override public func requestPermissions(_ call: CAPPluginCall) {
+        // TODO
+    }
+
+    @objc public func addDevice(_ call: CAPPluginCall) {
+        call.unimplemented("Not implemented on iOS")
+    }
+
+    @objc public func removeDevice(_ call: CAPPluginCall) {
+        call.unimplemented("Not implemented on iOS")
+    }
+
+    @objc public func startForegroundService(_ call: CAPPluginCall) {
+        call.unimplemented("Not implemented on iOS")
+    }
+
+    @objc public func stopForegroundService(_ call: CAPPluginCall) {
+        call.unimplemented("Not implemented on iOS")
+    }
+
+    @objc public func isRunning(_ call: CAPPluginCall) {
+        call.unimplemented("Not implemented on iOS")
+    }
+
 }

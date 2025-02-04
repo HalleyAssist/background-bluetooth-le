@@ -10,7 +10,7 @@ This guide provides instructions for contributing to this Capacitor plugin.
 1. Install the dependencies.
 
     ```shell
-    npm install
+    yarn
     ```
 
 1. Install SwiftLint if you're on macOS.
@@ -21,7 +21,7 @@ This guide provides instructions for contributing to this Capacitor plugin.
 
 ### Scripts
 
-#### `npm run build`
+#### `yarn run build`
 
 Build the plugin web assets and generate plugin API documentation using [`@capacitor/docgen`](https://github.com/ionic-team/capacitor-docgen).
 
@@ -29,13 +29,13 @@ It will compile the TypeScript code from `src/` into ESM JavaScript in `dist/esm
 
 Then, Rollup will bundle the code into a single file at `dist/plugin.js`. This file is used in apps without bundlers by including it as a script in `index.html`.
 
-#### `npm run verify`
+#### `yarn run verify`
 
 Build and validate the web and native projects.
 
 This is useful to run in CI to verify that the plugin builds for all platforms.
 
-#### `npm run lint` / `npm run fmt`
+#### `yarn run lint` / `yarn run fmt`
 
 Check formatting and code quality, autoformat/autofix if possible.
 
