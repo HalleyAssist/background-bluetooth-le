@@ -5,7 +5,6 @@ import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
 import com.getcapacitor.Logger;
 
 public class NotificationActionBroadcastReceiver extends BroadcastReceiver {

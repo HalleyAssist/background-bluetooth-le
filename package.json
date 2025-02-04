@@ -36,31 +36,36 @@
     "verify:ios": "xcodebuild -scheme BackgroundBluetoothLe -destination generic/platform=iOS",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
     "verify:web": "yarn run build",
-    "lint": "yarn run eslint && yarn run prettier -- --check && yarn run swiftlint -- lint",
-    "fmt": "yarn run eslint -- --fix && yarn run prettier -- --write && yarn run swiftlint -- --fix --format",
-    "eslint": "eslint . --ext ts",
+    "lint": "yarn run eslint && yarn run prettier --check",
+    "fmt": "yarn run eslint --fix && yarn run prettier --write",
+    "eslint": "eslint .",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\" --plugin=prettier-plugin-java",
     "swiftlint": "node-swiftlint",
     "docgen": "docgen --api BackgroundBLEPlugin --output-readme README.md --output-json dist/docs.json",
     "build": "yarn run clean && yarn run docgen && tsc && rollup -c rollup.config.mjs",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
-    "prepublishOnly": "yarn run build"
+    "prepublishOnly": "yarn run build",
+    "postinstall": "yarn run build"
   },
   "devDependencies": {
     "@capacitor/android": "^7.0.0",
     "@capacitor/core": "^7.0.0",
     "@capacitor/docgen": "^0.3.0",
     "@capacitor/ios": "^7.0.0",
+    "@eslint/js": "^9.19.0",
     "@ionic/prettier-config": "^4.0.0",
     "@ionic/swiftlint-config": "^2.0.0",
+    "@types/node": "^22.13.1",
     "eslint": "^9.19.0",
+    "globals": "^15.14.0",
     "prettier": "^3.4.2",
     "prettier-plugin-java": "^2.6.6",
     "rimraf": "^6.0.1",
     "rollup": "^4.34.1",
     "swiftlint": "^2.0.0",
-    "typescript": "~4.2.4"
+    "typescript": "5.6.3",
+    "typescript-eslint": "^8.23.0"
   },
   "peerDependencies": {
     "@capacitor/core": ">=7.0.0"

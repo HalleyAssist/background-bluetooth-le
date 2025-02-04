@@ -1,6 +1,6 @@
 # Background Bluetooth Low Energy
 
-Runs a BLE scan in the background, and displays seen devices in a notification.
+Run a BLE scan in the background, and display seen devices in a notification.
 
 **Android only**
 
@@ -164,7 +164,7 @@ setScanMode(options: SetScanModeOptions) => Promise<void>
 Set the scan mode
 
 The scan mode can be one of the following:
-- OPPORTUNISTIC: A special Bluetooth LE scan mode. 
+- OPPORTUNISTIC: A special Bluetooth LE scan mode.
                  Applications using this scan mode will passively listen for other scan results without starting BLE scans themselves.
 - LOW_POWER:     Perform Bluetooth LE scan in low power mode.
                  This is the default scan mode as it consumes the least power.

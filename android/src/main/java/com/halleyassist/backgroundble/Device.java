@@ -4,9 +4,7 @@ import static android.bluetooth.le.ScanResult.TX_POWER_NOT_PRESENT;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import java.util.Locale;
 
 public class Device {

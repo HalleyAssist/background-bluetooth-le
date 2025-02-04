@@ -22,13 +22,10 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
-
 import com.getcapacitor.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -57,13 +54,13 @@ public class BackgroundBLEService extends Service {
             }
             //  find the device in the list of devices, and update the rssi of the device
             devices
-                    .stream()
-                    .filter(d -> d.deviceName.equals(name))
-                    .findFirst()
-                    .ifPresent(foundDevice -> {
-                        foundDevice.rssi = result.getRssi();
-                        foundDevice.txPower = result.getTxPower();
-                    });
+                .stream()
+                .filter(d -> d.deviceName.equals(name))
+                .findFirst()
+                .ifPresent(foundDevice -> {
+                    foundDevice.rssi = result.getRssi();
+                    foundDevice.txPower = result.getTxPower();
+                });
             //  get the closest device from the list of found devices
             Device closestDevice = getClosestDevice();
             //  get the name of the device from the devices arrayList
@@ -179,11 +176,7 @@ public class BackgroundBLEService extends Service {
     }
 
     private void createNotificationChannel() {
-        NotificationChannel channel = new NotificationChannel(
-                DEFAULT_CHANNEL_ID,
-                "Bluetooth Scanner",
-                NotificationManager.IMPORTANCE_LOW
-        );
+        NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, "Bluetooth Scanner", NotificationManager.IMPORTANCE_LOW);
         notificationManager.createNotificationChannel(channel);
     }
 
@@ -195,12 +188,12 @@ public class BackgroundBLEService extends Service {
         PendingIntent contentIntent = buildContentIntent();
         builder = new Notification.Builder(getApplicationContext(), DEFAULT_CHANNEL_ID);
         builder
-                .setContentTitle(title)
-                .setContentText(body)
-                .setContentIntent(contentIntent)
-                .setOngoing(true)
-                .setSmallIcon(icon)
-                .setOnlyAlertOnce(true);
+            .setContentTitle(title)
+            .setContentText(body)
+            .setContentIntent(contentIntent)
+            .setOngoing(true)
+            .setSmallIcon(icon)
+            .setOnlyAlertOnce(true);
 
         //  create actions: Stop, and Open
         int pendingIntentFlags = getIntentFlags();
@@ -211,23 +204,13 @@ public class BackgroundBLEService extends Service {
         Intent stopIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
         stopIntent.setAction("STOP");
         stopIntent.putExtra("buttonId", 0);
-        PendingIntent stopPendingIntent = PendingIntent.getService(
-                getApplicationContext(),
-                111,
-                stopIntent,
-                pendingIntentFlags
-        );
+        PendingIntent stopPendingIntent = PendingIntent.getService(getApplicationContext(), 111, stopIntent, pendingIntentFlags);
         actions[0] = new Notification.Action.Builder(null, "Stop", stopPendingIntent).build();
         // Open Action
         Intent openIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
         openIntent.setAction("OPEN");
         openIntent.putExtra("buttonId", 1);
-        PendingIntent openPendingIntent = PendingIntent.getService(
-                getApplicationContext(),
-                222,
-                openIntent,
-                pendingIntentFlags
-        );
+        PendingIntent openPendingIntent = PendingIntent.getService(getApplicationContext(), 222, openIntent, pendingIntentFlags);
         actions[1] = new Notification.Action.Builder(null, "Open", openPendingIntent).build();
         // Set actions
         builder.setActions(actions);

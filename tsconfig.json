@@ -4,8 +4,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "inlineSources": true,
-    "lib": ["dom", "es2017"],
-    "module": "esnext",
+    "lib": ["ESNext", "dom"],
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
@@ -14,7 +13,8 @@
     "pretty": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "ESNext",
+    "module": "ES2022"
   },
   "files": ["src/index.ts"]
 }

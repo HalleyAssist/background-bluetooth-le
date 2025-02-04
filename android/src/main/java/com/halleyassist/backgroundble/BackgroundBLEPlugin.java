@@ -3,9 +3,7 @@ package com.halleyassist.backgroundble;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
 import android.Manifest;
-
 import androidx.annotation.NonNull;
-
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Logger;
@@ -16,20 +14,18 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 @CapacitorPlugin(
-        name = "BackgroundBLE",
-        permissions = {
-                @Permission(alias = "bluetooth", strings = {Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_SCAN}),
-                @Permission(alias = "notifications", strings = {Manifest.permission.POST_NOTIFICATIONS})
-        }
+    name = "BackgroundBLE",
+    permissions = {
+        @Permission(alias = "bluetooth", strings = { Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_SCAN }),
+        @Permission(alias = "notifications", strings = { Manifest.permission.POST_NOTIFICATIONS })
+    }
 )
 public class BackgroundBLEPlugin extends Plugin {
 
