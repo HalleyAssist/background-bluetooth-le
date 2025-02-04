@@ -1,0 +1,416 @@
+{
+  "api": {
+    "name": "BackgroundBLEPlugin",
+    "slug": "backgroundbleplugin",
+    "docs": "",
+    "tags": [],
+    "methods": [
+      {
+        "name": "checkPermissions",
+        "signature": "() => Promise<PermissionStatus>",
+        "parameters": [],
+        "returns": "Promise<PermissionStatus>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "PermissionStatus"
+        ],
+        "slug": "checkpermissions"
+      },
+      {
+        "name": "requestPermissions",
+        "signature": "() => Promise<PermissionStatus>",
+        "parameters": [],
+        "returns": "Promise<PermissionStatus>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "PermissionStatus"
+        ],
+        "slug": "requestpermissions"
+      },
+      {
+        "name": "addDevice",
+        "signature": "(options: AddDeviceOptions) => Promise<AddDeviceResult>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "The options to add a device",
+            "type": "AddDeviceOptions"
+          }
+        ],
+        "returns": "Promise<AddDeviceResult>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "options The options to add a device"
+          }
+        ],
+        "docs": "Add a device to the list of devices to scan for",
+        "complexTypes": [
+          "AddDeviceResult",
+          "AddDeviceOptions"
+        ],
+        "slug": "adddevice"
+      },
+      {
+        "name": "addDevices",
+        "signature": "(options: AddDevicesOptions) => Promise<AddDevicesResult>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "The options to add multiple devices",
+            "type": "AddDevicesOptions"
+          }
+        ],
+        "returns": "Promise<AddDevicesResult>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "options The options to add multiple devices"
+          }
+        ],
+        "docs": "Add multiple devices to the list of devices to scan for",
+        "complexTypes": [
+          "AddDevicesResult",
+          "AddDevicesOptions"
+        ],
+        "slug": "adddevices"
+      },
+      {
+        "name": "removeDevice",
+        "signature": "(options: RemoveDeviceOptions) => Promise<RemoveDeviceResult>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "The options to remove a device",
+            "type": "RemoveDeviceOptions"
+          }
+        ],
+        "returns": "Promise<RemoveDeviceResult>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "options The options to remove a device"
+          }
+        ],
+        "docs": "Remove a device from the list of devices to scan for",
+        "complexTypes": [
+          "RemoveDeviceResult",
+          "RemoveDeviceOptions"
+        ],
+        "slug": "removedevice"
+      },
+      {
+        "name": "clearDevices",
+        "signature": "() => Promise<ClearDevicesResult>",
+        "parameters": [],
+        "returns": "Promise<ClearDevicesResult>",
+        "tags": [],
+        "docs": "Clear the list of devices to scan for",
+        "complexTypes": [
+          "ClearDevicesResult"
+        ],
+        "slug": "cleardevices"
+      },
+      {
+        "name": "startForegroundService",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "Start the background scanner",
+        "complexTypes": [],
+        "slug": "startforegroundservice"
+      },
+      {
+        "name": "stopForegroundService",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [],
+        "docs": "Stop the background scanner",
+        "complexTypes": [],
+        "slug": "stopforegroundservice"
+      },
+      {
+        "name": "isRunning",
+        "signature": "() => Promise<IsRunningResult>",
+        "parameters": [],
+        "returns": "Promise<IsRunningResult>",
+        "tags": [],
+        "docs": "is the background scanner running",
+        "complexTypes": [
+          "IsRunningResult"
+        ],
+        "slug": "isrunning"
+      },
+      {
+        "name": "setScanMode",
+        "signature": "(options: SetScanModeOptions) => Promise<void>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "The options to set the scan mode",
+            "type": "SetScanModeOptions"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "options The options to set the scan mode"
+          }
+        ],
+        "docs": "Set the scan mode\n\nThe scan mode can be one of the following:\n- OPPORTUNISTIC: A special Bluetooth LE scan mode.\n                 Applications using this scan mode will passively listen for other scan results without starting BLE scans themselves.\n- LOW_POWER:     Perform Bluetooth LE scan in low power mode.\n                 This is the default scan mode as it consumes the least power.\n- BALANCED:      Perform Bluetooth LE scan in balanced power mode.\n                 Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption.\n- LOW_LATENCY:   Scan for Bluetooth LE devices using a high duty cycle.\n                 It's recommended to only use this mode when the application is running in the foreground.",
+        "complexTypes": [
+          "SetScanModeOptions"
+        ],
+        "slug": "setscanmode"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [
+    {
+      "name": "PermissionStatus",
+      "slug": "permissionstatus",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "bluetooth",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "PermissionState"
+          ],
+          "type": "PermissionState"
+        },
+        {
+          "name": "notifications",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "PermissionState"
+          ],
+          "type": "PermissionState"
+        }
+      ]
+    },
+    {
+      "name": "AddDeviceResult",
+      "slug": "adddeviceresult",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "result",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "AddDeviceOptions",
+      "slug": "adddeviceoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "name",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "AddDevicesResult",
+      "slug": "adddevicesresult",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "result",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "AddDevicesOptions",
+      "slug": "adddevicesoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "devices",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "AddDeviceOptions"
+          ],
+          "type": "AddDeviceOptions[]"
+        }
+      ]
+    },
+    {
+      "name": "RemoveDeviceResult",
+      "slug": "removedeviceresult",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "result",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "RemoveDeviceOptions",
+      "slug": "removedeviceoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "id",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "ClearDevicesResult",
+      "slug": "cleardevicesresult",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "result",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsRunningResult",
+      "slug": "isrunningresult",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "running",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "SetScanModeOptions",
+      "slug": "setscanmodeoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "mode",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "ScanMode"
+          ],
+          "type": "ScanMode"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "name": "ScanMode",
+      "slug": "scanmode",
+      "members": [
+        {
+          "name": "OPPORTUNISTIC",
+          "value": "-1",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "LOW_POWER",
+          "value": "0",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "BALANCED",
+          "value": "1",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "LOW_LATENCY",
+          "value": "2",
+          "tags": [],
+          "docs": ""
+        }
+      ]
+    }
+  ],
+  "typeAliases": [
+    {
+      "name": "PermissionState",
+      "slug": "permissionstate",
+      "docs": "",
+      "types": [
+        {
+          "text": "'prompt'",
+          "complexTypes": []
+        },
+        {
+          "text": "'prompt-with-rationale'",
+          "complexTypes": []
+        },
+        {
+          "text": "'granted'",
+          "complexTypes": []
+        },
+        {
+          "text": "'denied'",
+          "complexTypes": []
+        }
+      ]
+    }
+  ],
+  "pluginConfigs": []
+}

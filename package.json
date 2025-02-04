@@ -45,8 +45,7 @@
     "build": "yarn run clean && yarn run docgen && tsc && rollup -c rollup.config.mjs",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
-    "prepublishOnly": "yarn run build",
-    "postinstall": "yarn run build"
+    "prepublishOnly": "yarn run build"
   },
   "devDependencies": {
     "@capacitor/android": "^7.0.0",
