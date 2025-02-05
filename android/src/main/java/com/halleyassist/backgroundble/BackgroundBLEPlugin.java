@@ -76,7 +76,7 @@ public class BackgroundBLEPlugin extends Plugin {
             //  parse the devices array
             for (JSONObject object : deviceList) {
                 try {
-                    Device device = new Device(object.getString("id"), object.getString("name"));
+                    Device device = new Device(object.getString("name"), object.getString("displayName"));
                     list.add(device);
                 } catch (JSONException e) {
                     Logger.error("BackgroundBLE Error parsing device: " + e.getMessage());
