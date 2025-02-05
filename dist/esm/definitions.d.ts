@@ -5,7 +5,7 @@ export interface PermissionStatus {
 }
 export interface AddDeviceOptions {
   name: string;
-  displayname: string;
+  displayName: string;
 }
 export interface AddDevicesOptions {
   devices: AddDeviceOptions[];

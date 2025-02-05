@@ -230,7 +230,7 @@
           "type": "string"
         },
         {
-          "name": "displayname",
+          "name": "displayName",
           "tags": [],
           "docs": "",
           "complexTypes": [],

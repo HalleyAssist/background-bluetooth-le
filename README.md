@@ -203,7 +203,7 @@ The scan mode can be one of the following:
 | Prop              | Type                |
 | ----------------- | ------------------- |
 | **`name`**        | <code>string</code> |
-| **`displayname`** | <code>string</code> |
+| **`displayName`** | <code>string</code> |
 
 
 #### AddDevicesResult
