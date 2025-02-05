@@ -1,5 +1,6 @@
 package com.halleyassist.backgroundble;
 
+import static android.app.Notification.CATEGORY_PROGRESS;
 import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_POWER;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
@@ -71,7 +72,7 @@ public class BackgroundBLEService extends Service {
                 devicesList.append(device).append("\n");
             }
             //  update the notification body
-            builder.setContentText(devicesList.toString());
+            builder.setContentText(devicesList.toString()).setOngoing(true).setAutoCancel(false);
             notificationManager.notify(NOTIFICATION_ID, builder.build());
         }
 
@@ -111,11 +112,11 @@ public class BackgroundBLEService extends Service {
             //  get the list of devices from the intent
             Bundle devicesBundle = intent.getBundleExtra("devices");
             assert devicesBundle != null;
-            Set<String> ids = devicesBundle.keySet();
+            Set<String> names = devicesBundle.keySet();
             devices = new ArrayList<>();
-            for (String id : ids) {
-                String name = devicesBundle.getString(id);
-                devices.add(new Device(id, name));
+            for (String name : names) {
+                String displayName = devicesBundle.getString(name);
+                devices.add(new Device(name, displayName));
             }
 
             int scanMode = intent.getIntExtra("scanMode", SCAN_MODE_LOW_POWER);
@@ -140,18 +141,18 @@ public class BackgroundBLEService extends Service {
     private PendingIntent buildContentIntent() {
         String packageName = getApplicationContext().getPackageName();
         Intent intent = getApplicationContext().getPackageManager().getLaunchIntentForPackage(packageName);
-        int pendingIntentFlags = getIntentFlags();
+        int pendingIntentFlags = getIntentFlags(true);
         return PendingIntent.getActivity(getApplicationContext(), 1337, intent, pendingIntentFlags);
     }
 
-    private int getIntentFlags() {
-        int pendingIntentFlags;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            pendingIntentFlags = PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_MUTABLE;
-        } else {
-            pendingIntentFlags = PendingIntent.FLAG_CANCEL_CURRENT;
+    private int getIntentFlags(boolean mutable) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return PendingIntent.FLAG_CANCEL_CURRENT;
         }
-        return pendingIntentFlags;
+        if (mutable) {
+            return PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_MUTABLE;
+        }
+        return PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE;
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
@@ -176,11 +177,17 @@ public class BackgroundBLEService extends Service {
     }
 
     private void createNotificationChannel() {
-        NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, "Bluetooth Scanner", NotificationManager.IMPORTANCE_LOW);
+        NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, "Bluetooth Scanner", NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("Shows the nearest Hubs");
+        channel.enableLights(false);
+        channel.enableVibration(false);
+        channel.setSound(null, null);
+
         notificationManager.createNotificationChannel(channel);
     }
 
-    private Notification createNotification(Intent intent) {
+    @NonNull
+    private Notification createNotification(@NonNull Intent intent) {
         String body = "Scanning for Nearby Hubs";
         int icon = intent.getIntExtra("icon", 0);
         String title = "Nearby Hub Scanning Active";
@@ -192,11 +199,12 @@ public class BackgroundBLEService extends Service {
             .setContentText(body)
             .setContentIntent(contentIntent)
             .setOngoing(true)
+            .setCategory(CATEGORY_PROGRESS)
             .setSmallIcon(icon)
             .setOnlyAlertOnce(true);
 
         //  create actions: Stop, and Open
-        int pendingIntentFlags = getIntentFlags();
+        int pendingIntentFlags = getIntentFlags(false);
         //  Stop stops the scan and closes the notification
         //  Open also stops the scan and closes the notification, but also opens the app
         Notification.Action[] actions = new Notification.Action[2];

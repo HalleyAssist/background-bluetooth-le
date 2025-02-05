@@ -23,10 +23,10 @@ public class BackgroundBLE {
         this.context = context;
     }
 
-    public String addDevice(String id, String name) {
-        Logger.info(TAG, "AddDevice called with name: " + name + " and id: " + id);
+    public String addDevice(String name, String displayName) {
+        Logger.info(TAG, "AddDevice called with name: " + name + " and displayName: " + displayName);
         Map<String, String> devices = loadDevices();
-        devices.put(id, name);
+        devices.put(name, displayName);
         saveDevices(devices);
         return name + " " + id;
     }
@@ -67,7 +67,6 @@ public class BackgroundBLE {
         Map<String, String> devices = loadDevices();
         //  convert the devices to a format that can be passed to the service, preserving the key-value pairs
         Bundle devicesBundle = new Bundle();
-        Logger.info("Wrapping: " + devices);
         for (Map.Entry<String, String> entry : devices.entrySet()) {
             devicesBundle.putString(entry.getKey(), entry.getValue());
         }
@@ -97,7 +96,6 @@ public class BackgroundBLE {
 
     public boolean isRunning() {
         Logger.info(TAG, "IsRunning called");
-        //  create the BackgroundBLEService intent
         return BackgroundBLEService.isRunning;
     }
 

@@ -60,8 +60,8 @@ public class BackgroundBLEPlugin extends Plugin {
     @PluginMethod
     public void addDevice(@NonNull PluginCall call) {
         String name = call.getString("name");
-        String id = call.getString("id");
-        String result = implementation.addDevice(name, id);
+        String displayName = call.getString("displayName");
+        String result = implementation.addDevice(name, displayName);
         JSObject ret = new JSObject();
         ret.put("result", result);
         call.resolve(ret);

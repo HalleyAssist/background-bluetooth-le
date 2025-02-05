@@ -21,9 +21,9 @@ public class Device {
     int rssi = 0;
     int txPower = TX_POWER_NOT_PRESENT;
 
-    public Device(String id, String name) {
-        this.deviceName = id;
-        this.displayName = name;
+    public Device(String name, String displayName) {
+        this.deviceName = name;
+        this.displayName = displayName;
     }
 
     @NonNull
