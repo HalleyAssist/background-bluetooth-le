@@ -200,10 +200,10 @@ The scan mode can be one of the following:
 
 #### AddDeviceOptions
 
-| Prop       | Type                |
-| ---------- | ------------------- |
-| **`name`** | <code>string</code> |
-| **`id`**   | <code>string</code> |
+| Prop              | Type                |
+| ----------------- | ------------------- |
+| **`name`**        | <code>string</code> |
+| **`displayname`** | <code>string</code> |
 
 
 #### AddDevicesResult
@@ -229,9 +229,9 @@ The scan mode can be one of the following:
 
 #### RemoveDeviceOptions
 
-| Prop     | Type                |
-| -------- | ------------------- |
-| **`id`** | <code>string</code> |
+| Prop       | Type                |
+| ---------- | ------------------- |
+| **`name`** | <code>string</code> |
 
 
 #### ClearDevicesResult

@@ -5,13 +5,13 @@ export interface PermissionStatus {
 }
 export interface AddDeviceOptions {
     name: string;
-    id: string;
+    displayname: string;
 }
 export interface AddDevicesOptions {
     devices: AddDeviceOptions[];
 }
 export interface RemoveDeviceOptions {
-    id: string;
+    name: string;
 }
 export interface AddDeviceResult {
     result: string;

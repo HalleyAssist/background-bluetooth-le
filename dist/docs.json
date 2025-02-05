@@ -230,7 +230,7 @@
           "type": "string"
         },
         {
-          "name": "id",
+          "name": "displayname",
           "tags": [],
           "docs": "",
           "complexTypes": [],
@@ -296,7 +296,7 @@
       "methods": [],
       "properties": [
         {
-          "name": "id",
+          "name": "name",
           "tags": [],
           "docs": "",
           "complexTypes": [],
