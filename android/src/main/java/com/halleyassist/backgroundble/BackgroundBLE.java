@@ -28,7 +28,7 @@ public class BackgroundBLE {
         Map<String, String> devices = loadDevices();
         devices.put(name, displayName);
         saveDevices(devices);
-        return name + " " + id;
+        return name + " " + displayName;
     }
 
     public Set<String> addDevices(@NonNull ArrayList<Device> devices) {
