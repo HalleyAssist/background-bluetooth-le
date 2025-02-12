@@ -37,8 +37,6 @@ public class BackgroundBLEPlugin extends Plugin {
         Logger.info(TAG, "Loaded BackgroundBLEPlugin");
     }
 
-    //  TODO: test permissions functions, currently assumed that permission has already been granted.
-
     @PermissionCallback
     public void bluetoothPermissionCallback(PluginCall call) {
         if (getPermissionState("bluetooth") == PermissionState.GRANTED) {

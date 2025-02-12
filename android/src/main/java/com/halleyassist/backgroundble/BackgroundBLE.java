@@ -1,5 +1,6 @@
 package com.halleyassist.backgroundble;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -96,7 +97,20 @@ public class BackgroundBLE {
 
     public boolean isRunning() {
         Logger.info(TAG, "IsRunning called");
-        return BackgroundBLEService.isRunning;
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager != null) {
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (BackgroundBLEService.class.getName().equals(service.service.getClassName())) {
+                    Logger.info(TAG, "BackgroundBLEService is running");
+                    return true;
+                }
+            }
+        } else {
+            Logger.warn(TAG, "ActivityManager is null, unable to determine if BackgroundBLEService is running");
+            return false;
+        }
+        Logger.info(TAG, "BackgroundBLEService is not running");
+        return false;
     }
 
     public void setScanMode(int mode) {

@@ -14,6 +14,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -38,8 +39,6 @@ public class BackgroundBLEService extends Service {
     private Notification.Builder builder;
     private NotificationManager notificationManager;
     private ArrayList<Device> devices;
-
-    public static boolean isRunning = false;
 
     @SuppressLint("MissingPermission")
     private final ScanCallback scanCallback = new ScanCallback() {
@@ -86,7 +85,8 @@ public class BackgroundBLEService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
     }
 
@@ -167,13 +167,11 @@ public class BackgroundBLEService extends Service {
         }
         ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).build();
         bluetoothLeScanner.startScan(filters, settings, scanCallback);
-        isRunning = true;
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void stopScanning() {
         bluetoothLeScanner.stopScan(scanCallback);
-        isRunning = false;
     }
 
     private void createNotificationChannel() {
