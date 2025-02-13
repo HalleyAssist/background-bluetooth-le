@@ -279,19 +279,19 @@
       "methods": [],
       "properties": [
         {
-          "name": "name",
+          "name": "serial",
           "tags": [
             {
               "text": "1.0.0",
               "name": "since"
             }
           ],
-          "docs": "The name of the device to scan for\n\nThis is the name that the device advertises itself as, used for filtering devices",
+          "docs": "The serial of the device to scan for\n\nThis is part of the name that the device advertises itself as, used for filtering devices",
           "complexTypes": [],
           "type": "string"
         },
         {
-          "name": "displayName",
+          "name": "name",
           "tags": [
             {
               "text": "1.0.0",
@@ -377,14 +377,14 @@
       "methods": [],
       "properties": [
         {
-          "name": "name",
+          "name": "serial",
           "tags": [
             {
               "text": "1.0.0",
               "name": "since"
             }
           ],
-          "docs": "The name of the device to remove from the list of devices to scan for",
+          "docs": "The serial of the device to remove from the list of devices to scan for",
           "complexTypes": [],
           "type": "string"
         }

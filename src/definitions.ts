@@ -7,13 +7,13 @@ export interface PermissionStatus {
 
 export interface AddDeviceOptions {
   /**
-   * The name of the device to scan for
+   * The serial of the device to scan for
    *
-   * This is the name that the device advertises itself as, used for filtering devices
+   * This is part of the name that the device advertises itself as, used for filtering devices
    *
    * @since 1.0.0
    */
-  name: string;
+  serial: string;
   /**
    * The display name of the device
    *
@@ -21,7 +21,7 @@ export interface AddDeviceOptions {
    *
    * @since 1.0.0
    */
-  displayName: string;
+  name: string;
 }
 
 export interface AddDevicesOptions {
@@ -35,11 +35,11 @@ export interface AddDevicesOptions {
 
 export interface RemoveDeviceOptions {
   /**
-   * The name of the device to remove from the list of devices to scan for
+   * The serial of the device to remove from the list of devices to scan for
    *
    * @since 1.0.0
    */
-  name: string;
+  serial: string;
 }
 
 export interface AddDeviceResult {

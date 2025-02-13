@@ -230,10 +230,10 @@ The scan mode can be one of the following:
 
 #### AddDeviceOptions
 
-| Prop              | Type                | Description                                                                                                          | Since |
-| ----------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------- | ----- |
-| **`name`**        | <code>string</code> | The name of the device to scan for This is the name that the device advertises itself as, used for filtering devices | 1.0.0 |
-| **`displayName`** | <code>string</code> | The display name of the device This is the name that will be displayed to the user when the device is found          | 1.0.0 |
+| Prop         | Type                | Description                                                                                                                    | Since |
+| ------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----- |
+| **`serial`** | <code>string</code> | The serial of the device to scan for This is part of the name that the device advertises itself as, used for filtering devices | 1.0.0 |
+| **`name`**   | <code>string</code> | The display name of the device This is the name that will be displayed to the user when the device is found                    | 1.0.0 |
 
 
 #### AddDevicesResult
@@ -259,9 +259,9 @@ The scan mode can be one of the following:
 
 #### RemoveDeviceOptions
 
-| Prop       | Type                | Description                                                           | Since |
-| ---------- | ------------------- | --------------------------------------------------------------------- | ----- |
-| **`name`** | <code>string</code> | The name of the device to remove from the list of devices to scan for | 1.0.0 |
+| Prop         | Type                | Description                                                             | Since |
+| ------------ | ------------------- | ----------------------------------------------------------------------- | ----- |
+| **`serial`** | <code>string</code> | The serial of the device to remove from the list of devices to scan for | 1.0.0 |
 
 
 #### ClearDevicesResult
