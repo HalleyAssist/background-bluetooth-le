@@ -27,7 +27,10 @@ import org.json.JSONObject;
 @CapacitorPlugin(
     name = "BackgroundBLE",
     permissions = {
-        @Permission(alias = "bluetooth", strings = { Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_SCAN }),
+        @Permission(
+            alias = "bluetooth",
+            strings = { Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.ACCESS_FINE_LOCATION }
+        ),
         @Permission(alias = "notifications", strings = { Manifest.permission.POST_NOTIFICATIONS })
     }
 )
