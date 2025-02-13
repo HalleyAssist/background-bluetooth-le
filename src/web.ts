@@ -22,6 +22,10 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     throw this.unimplemented('Not implemented on web.');
   }
 
+  async initialise(): Promise<void> {
+    throw this.unimplemented('Not implemented on web.');
+  }
+
   async addDevice(_options: AddDeviceOptions): Promise<AddDeviceResult> {
     throw this.unimplemented('Not implemented on web.');
   }

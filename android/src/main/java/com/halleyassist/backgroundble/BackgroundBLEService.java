@@ -48,14 +48,16 @@ public class BackgroundBLEService extends Service {
             // add or update the device list with the scanned device
             BluetoothDevice bDevice = result.getDevice();
             String name = bDevice.getName();
+            // extract the serial number from the device name (H-{serial})
+            String serial = name.split("-")[1];
             // create a device if it does not exist in the array (should never happen)
-            if (devices.stream().noneMatch(d -> d.deviceName.equals(name))) {
-                devices.add(new Device(name, name));
+            if (devices.stream().noneMatch(d -> d.serial.equals(serial))) {
+                devices.add(new Device(serial, name));
             }
             //  find the device in the list of devices, and update the rssi of the device
             devices
                 .stream()
-                .filter(d -> d.deviceName.equals(name))
+                .filter(d -> d.serial.equals(serial))
                 .findFirst()
                 .ifPresent(foundDevice -> {
                     foundDevice.rssi = result.getRssi();
@@ -68,6 +70,7 @@ public class BackgroundBLEService extends Service {
             StringBuilder devicesList = new StringBuilder();
             // add each device to the devicesList string, separated by a new line
             for (Device device : devices) {
+                if (device.rssi == 0) continue;
                 devicesList.append(device).append("\n");
             }
             //  update the notification body
@@ -100,7 +103,7 @@ public class BackgroundBLEService extends Service {
                     stopSelf();
                     return START_NOT_STICKY;
                 } else if (action.equals("OPEN")) {
-                    Logger.info(TAG, "Open tapped");
+                    openToHub();
                     return START_STICKY;
                 }
             }
@@ -112,11 +115,11 @@ public class BackgroundBLEService extends Service {
             //  get the list of devices from the intent
             Bundle devicesBundle = intent.getBundleExtra("devices");
             assert devicesBundle != null;
-            Set<String> names = devicesBundle.keySet();
+            Set<String> keys = devicesBundle.keySet();
             devices = new ArrayList<>();
-            for (String name : names) {
-                String displayName = devicesBundle.getString(name);
-                devices.add(new Device(name, displayName));
+            for (String serial : keys) {
+                String name = devicesBundle.getString(serial);
+                devices.add(new Device(serial, name));
             }
 
             int scanMode = intent.getIntExtra("scanMode", SCAN_MODE_LOW_POWER);
@@ -138,21 +141,11 @@ public class BackgroundBLEService extends Service {
         return START_STICKY;
     }
 
-    private PendingIntent buildContentIntent() {
-        String packageName = getApplicationContext().getPackageName();
-        Intent intent = getApplicationContext().getPackageManager().getLaunchIntentForPackage(packageName);
-        int pendingIntentFlags = getIntentFlags(true);
-        return PendingIntent.getActivity(getApplicationContext(), 1337, intent, pendingIntentFlags);
-    }
-
-    private int getIntentFlags(boolean mutable) {
+    private int getIntentFlags() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             return PendingIntent.FLAG_CANCEL_CURRENT;
         }
-        if (mutable) {
-            return PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_MUTABLE;
-        }
-        return PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        return PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_MUTABLE;
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
@@ -162,7 +155,7 @@ public class BackgroundBLEService extends Service {
         Logger.info(TAG, "Creating filters from " + devices);
         // add a filter for each device in the list
         for (Device device : devices) {
-            ScanFilter filter = new ScanFilter.Builder().setDeviceName(device.deviceName).build();
+            ScanFilter filter = new ScanFilter.Builder().setDeviceName("H-" + device.serial).build();
             filters.add(filter);
         }
         ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).build();
@@ -190,38 +183,53 @@ public class BackgroundBLEService extends Service {
         int icon = intent.getIntExtra("icon", 0);
         String title = "Nearby Hub Scanning Active";
 
-        PendingIntent contentIntent = buildContentIntent();
         builder = new Notification.Builder(getApplicationContext(), DEFAULT_CHANNEL_ID);
         builder
             .setContentTitle(title)
             .setContentText(body)
-            .setContentIntent(contentIntent)
             .setOngoing(true)
             .setCategory(CATEGORY_PROGRESS)
             .setSmallIcon(icon)
             .setOnlyAlertOnce(true);
 
         //  create actions: Stop, and Open
-        int pendingIntentFlags = getIntentFlags(false);
+        int pendingIntentFlags = getIntentFlags();
         //  Stop stops the scan and closes the notification
-        //  Open also stops the scan and closes the notification, but also opens the app
-        Notification.Action[] actions = new Notification.Action[2];
+        Notification.Action[] actions = new Notification.Action[1];
         // Stop Action
         Intent stopIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
         stopIntent.setAction("STOP");
         stopIntent.putExtra("buttonId", 0);
         PendingIntent stopPendingIntent = PendingIntent.getService(getApplicationContext(), 111, stopIntent, pendingIntentFlags);
-        actions[0] = new Notification.Action.Builder(null, "Stop", stopPendingIntent).build();
+        actions[0] = new Notification.Action.Builder(null, "Stop Scan", stopPendingIntent).build();
+        // Set actions
+        builder.setActions(actions);
         // Open Action
         Intent openIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
         openIntent.setAction("OPEN");
         openIntent.putExtra("buttonId", 1);
         PendingIntent openPendingIntent = PendingIntent.getService(getApplicationContext(), 222, openIntent, pendingIntentFlags);
-        actions[1] = new Notification.Action.Builder(null, "Open", openPendingIntent).build();
-        // Set actions
-        builder.setActions(actions);
-
+        //  when the user taps the notification, open the app with the Open action
+        builder.setContentIntent(openPendingIntent);
+        //  return the notification
         return builder.build();
+    }
+
+    private void openToHub() {
+        //  devices should already be sorted by closest
+        //  we want to relaunch the app with the closest device
+        //  as we already support deep linking we can simply use the url that will
+        //  navigate to the device that is closest
+        //  deep link format: halleyassist://app/client/{serial}
+        Device closestDevice = getClosestDevice();
+        if (closestDevice == null) {
+            Logger.warn(TAG, "No devices found");
+            return;
+        }
+        String url = "halleyassist://app/client/" + closestDevice.serial;
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(android.net.Uri.parse(url));
+        startActivity(intent);
     }
 
     @Override

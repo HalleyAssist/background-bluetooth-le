@@ -14,6 +14,7 @@ import type {
 export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   checkPermissions(): Promise<PermissionStatus>;
   requestPermissions(): Promise<PermissionStatus>;
+  initialise(): Promise<void>;
   addDevice(_options: AddDeviceOptions): Promise<AddDeviceResult>;
   addDevices(_options: AddDevicesOptions): Promise<AddDevicesResult>;
   removeDevice(_options: RemoveDeviceOptions): Promise<RemoveDeviceResult>;

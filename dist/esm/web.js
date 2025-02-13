@@ -6,6 +6,9 @@ export class BackgroundBLEWeb extends WebPlugin {
   async requestPermissions() {
     throw this.unimplemented('Not implemented on web.');
   }
+  async initialise() {
+    throw this.unimplemented('Not implemented on web.');
+  }
   async addDevice(_options) {
     throw this.unimplemented('Not implemented on web.');
   }

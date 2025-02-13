@@ -30,6 +30,21 @@
         "slug": "requestpermissions"
       },
       {
+        "name": "initialise",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [
+          {
+            "name": "since",
+            "text": "1.0.0"
+          }
+        ],
+        "docs": "Initialise the background scanner",
+        "complexTypes": [],
+        "slug": "initialise"
+      },
+      {
         "name": "addDevice",
         "signature": "(options: AddDeviceOptions) => Promise<AddDeviceResult>",
         "parameters": [
@@ -44,6 +59,10 @@
           {
             "name": "param",
             "text": "options The options to add a device"
+          },
+          {
+            "name": "since",
+            "text": "1.0.0"
           }
         ],
         "docs": "Add a device to the list of devices to scan for",
@@ -68,6 +87,10 @@
           {
             "name": "param",
             "text": "options The options to add multiple devices"
+          },
+          {
+            "name": "since",
+            "text": "1.0.0"
           }
         ],
         "docs": "Add multiple devices to the list of devices to scan for",
@@ -92,6 +115,10 @@
           {
             "name": "param",
             "text": "options The options to remove a device"
+          },
+          {
+            "name": "since",
+            "text": "1.0.0"
           }
         ],
         "docs": "Remove a device from the list of devices to scan for",
@@ -106,7 +133,12 @@
         "signature": "() => Promise<ClearDevicesResult>",
         "parameters": [],
         "returns": "Promise<ClearDevicesResult>",
-        "tags": [],
+        "tags": [
+          {
+            "name": "since",
+            "text": "1.0.0"
+          }
+        ],
         "docs": "Clear the list of devices to scan for",
         "complexTypes": [
           "ClearDevicesResult"
@@ -118,7 +150,12 @@
         "signature": "() => Promise<void>",
         "parameters": [],
         "returns": "Promise<void>",
-        "tags": [],
+        "tags": [
+          {
+            "name": "since",
+            "text": "1.0.0"
+          }
+        ],
         "docs": "Start the background scanner",
         "complexTypes": [],
         "slug": "startforegroundservice"
@@ -128,7 +165,12 @@
         "signature": "() => Promise<void>",
         "parameters": [],
         "returns": "Promise<void>",
-        "tags": [],
+        "tags": [
+          {
+            "name": "since",
+            "text": "1.0.0"
+          }
+        ],
         "docs": "Stop the background scanner",
         "complexTypes": [],
         "slug": "stopforegroundservice"
@@ -138,8 +180,13 @@
         "signature": "() => Promise<IsRunningResult>",
         "parameters": [],
         "returns": "Promise<IsRunningResult>",
-        "tags": [],
-        "docs": "is the background scanner running",
+        "tags": [
+          {
+            "name": "since",
+            "text": "1.0.0"
+          }
+        ],
+        "docs": "Is the background scanner running",
         "complexTypes": [
           "IsRunningResult"
         ],
@@ -160,6 +207,10 @@
           {
             "name": "param",
             "text": "options The options to set the scan mode"
+          },
+          {
+            "name": "since",
+            "text": "1.0.0"
           }
         ],
         "docs": "Set the scan mode\n\nThe scan mode can be one of the following:\n- OPPORTUNISTIC: A special Bluetooth LE scan mode.\n                 Applications using this scan mode will passively listen for other scan results without starting BLE scans themselves.\n- LOW_POWER:     Perform Bluetooth LE scan in low power mode.\n                 This is the default scan mode as it consumes the least power.\n- BALANCED:      Perform Bluetooth LE scan in balanced power mode.\n                 Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption.\n- LOW_LATENCY:   Scan for Bluetooth LE devices using a high duty cycle.\n                 It's recommended to only use this mode when the application is running in the foreground.",
@@ -208,8 +259,13 @@
       "properties": [
         {
           "name": "result",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The result of adding the device",
           "complexTypes": [],
           "type": "string"
         }
@@ -224,15 +280,25 @@
       "properties": [
         {
           "name": "name",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The name of the device to scan for\n\nThis is the name that the device advertises itself as, used for filtering devices",
           "complexTypes": [],
           "type": "string"
         },
         {
           "name": "displayName",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The display name of the device\n\nThis is the name that will be displayed to the user when the device is found",
           "complexTypes": [],
           "type": "string"
         }
@@ -247,8 +313,13 @@
       "properties": [
         {
           "name": "result",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The result of adding the devices",
           "complexTypes": [],
           "type": "string"
         }
@@ -263,8 +334,13 @@
       "properties": [
         {
           "name": "devices",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The devices to add to the list of devices to scan for",
           "complexTypes": [
             "AddDeviceOptions"
           ],
@@ -281,8 +357,13 @@
       "properties": [
         {
           "name": "result",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The result of removing the device",
           "complexTypes": [],
           "type": "string"
         }
@@ -297,8 +378,13 @@
       "properties": [
         {
           "name": "name",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The name of the device to remove from the list of devices to scan for",
           "complexTypes": [],
           "type": "string"
         }
@@ -313,8 +399,13 @@
       "properties": [
         {
           "name": "result",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The result of clearing the devices",
           "complexTypes": [],
           "type": "string"
         }
@@ -329,8 +420,13 @@
       "properties": [
         {
           "name": "running",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "Whether the background scanner is running",
           "complexTypes": [],
           "type": "boolean"
         }
@@ -345,8 +441,21 @@
       "properties": [
         {
           "name": "mode",
-          "tags": [],
-          "docs": "",
+          "tags": [
+            {
+              "text": "ScanMode *",
+              "name": "see"
+            },
+            {
+              "text": "LOW_POWER",
+              "name": "default"
+            },
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The scan mode to set",
           "complexTypes": [
             "ScanMode"
           ],
@@ -364,25 +473,25 @@
           "name": "OPPORTUNISTIC",
           "value": "-1",
           "tags": [],
-          "docs": ""
+          "docs": "A special Bluetooth LE scan mode.\nApplications using this scan mode will passively listen for other scan results without starting BLE scans themselves."
         },
         {
           "name": "LOW_POWER",
           "value": "0",
           "tags": [],
-          "docs": ""
+          "docs": "Perform Bluetooth LE scan in low power mode.\nThis is the default scan mode as it consumes the least power."
         },
         {
           "name": "BALANCED",
           "value": "1",
           "tags": [],
-          "docs": ""
+          "docs": "Perform Bluetooth LE scan in balanced power mode.\nScan results are returned at a rate that provides a good trade-off between scan frequency and power consumption."
         },
         {
           "name": "LOW_LATENCY",
           "value": "2",
           "tags": [],
-          "docs": ""
+          "docs": "Scan for Bluetooth LE devices using a high duty cycle.\nIt's recommended to only use this mode when the application is running in the foreground."
         }
       ]
     }

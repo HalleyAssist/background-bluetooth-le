@@ -1,9 +1,12 @@
 package com.halleyassist.backgroundble;
 
 import android.app.ActivityManager;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import com.getcapacitor.Logger;
@@ -24,32 +27,46 @@ public class BackgroundBLE {
         this.context = context;
     }
 
-    public String addDevice(String name, String displayName) {
-        Logger.info(TAG, "AddDevice called with name: " + name + " and displayName: " + displayName);
+    public void canUseBluetooth() {
+        if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            throw new RuntimeException("BLE is not supported.");
+        }
+
+        //  get bluetooth adaptor
+        BluetoothManager bluetoothManager = context.getSystemService(BluetoothManager.class);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+
+        if (bluetoothAdapter == null) {
+            throw new RuntimeException("BLE is not available.");
+        }
+    }
+
+    public String addDevice(String serial, String name) {
+        Logger.info(TAG, "AddDevice called with " + serial + " and " + name);
         Map<String, String> devices = loadDevices();
-        devices.put(name, displayName);
+        devices.put(serial, name);
         saveDevices(devices);
-        return name + " " + displayName;
+        return serial + " " + name;
     }
 
     public Set<String> addDevices(@NonNull ArrayList<Device> devices) {
-        Logger.info(TAG, "AddDevices called with devices: " + devices);
+        Logger.info(TAG, "AddDevices called with devices " + devices);
         Map<String, String> deviceMap = loadDevices();
         Set<String> results = new HashSet<>();
         for (Device device : devices) {
-            deviceMap.put(device.deviceName, device.displayName);
-            results.add(device.deviceName + " " + device.displayName);
+            deviceMap.put(device.serial, device.name);
+            results.add(device.serial + " " + device.name);
         }
         saveDevices(deviceMap);
         return results;
     }
 
-    public String removeDevice(String id) {
-        Logger.info(TAG, "RemoveDevice called with id: " + id);
+    public String removeDevice(String serial) {
+        Logger.info(TAG, "RemoveDevice called with " + serial);
         Map<String, String> devices = loadDevices();
-        devices.remove(id);
+        devices.remove(serial);
         saveDevices(devices);
-        return id;
+        return serial;
     }
 
     public String clearDevices() {

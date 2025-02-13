@@ -3,6 +3,10 @@ package com.halleyassist.backgroundble;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import androidx.annotation.NonNull;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -37,29 +41,52 @@ public class BackgroundBLEPlugin extends Plugin {
         Logger.info(TAG, "Loaded BackgroundBLEPlugin");
     }
 
-    @PermissionCallback
-    public void bluetoothPermissionCallback(PluginCall call) {
-        if (getPermissionState("bluetooth") == PermissionState.GRANTED) {
-            call.resolve();
+    @PluginMethod
+    public void initialise(@NonNull PluginCall call) {
+        boolean neverForLocation = Boolean.TRUE.equals(call.getBoolean("androidNeverForLocation", false));
+        String[] aliases = getRequiredPermissions(neverForLocation).toArray(new String[0]);
+        requestPermissionForAliases(aliases, call, "checkPermission");
+    }
+
+    @NonNull
+    private List<String> getRequiredPermissions(boolean neverForLocation) {
+        List<String> permissions = new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions.add(Manifest.permission.BLUETOOTH_SCAN);
+            if (!neverForLocation) {
+                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
         } else {
-            call.reject("Bluetooth permission is required to use this plugin");
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            permissions.add(Manifest.permission.BLUETOOTH);
         }
+        return permissions;
     }
 
     @PermissionCallback
-    public void notificationsPermissionCallback(PluginCall call) {
-        if (getPermissionState("notifications") == PermissionState.GRANTED) {
-            call.resolve();
+    private void checkPermission(PluginCall call) {
+        String[] aliases = new String[] { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH };
+        List<Boolean> granted = new ArrayList<>();
+        for (String alias : aliases) {
+            granted.add(getPermissionState(alias) == PermissionState.GRANTED);
+        }
+        if (granted.stream().allMatch(Boolean::booleanValue)) {
+            try {
+                implementation.canUseBluetooth();
+                call.resolve();
+            } catch (Exception e) {
+                call.reject(e.getMessage());
+            }
         } else {
-            call.reject("Notification permission is required to use this plugin");
+            call.reject("Permission denied.");
         }
     }
 
     @PluginMethod
     public void addDevice(@NonNull PluginCall call) {
+        String serial = call.getString("serial");
         String name = call.getString("name");
-        String displayName = call.getString("displayName");
-        String result = implementation.addDevice(name, displayName);
+        String result = implementation.addDevice(serial, name);
         JSObject ret = new JSObject();
         ret.put("result", result);
         call.resolve(ret);
@@ -74,7 +101,7 @@ public class BackgroundBLEPlugin extends Plugin {
             //  parse the devices array
             for (JSONObject object : deviceList) {
                 try {
-                    Device device = new Device(object.getString("name"), object.getString("displayName"));
+                    Device device = new Device(object.getString("serial"), object.getString("name"));
                     list.add(device);
                 } catch (JSONException e) {
                     Logger.error("BackgroundBLE Error parsing device: " + e.getMessage());
@@ -92,8 +119,8 @@ public class BackgroundBLEPlugin extends Plugin {
 
     @PluginMethod
     public void removeDevice(@NonNull PluginCall call) {
-        String id = call.getString("id");
-        String result = implementation.removeDevice(id);
+        String serial = call.getString("serial");
+        String result = implementation.removeDevice(serial);
         JSObject ret = new JSObject();
         ret.put("result", result);
         call.resolve(ret);

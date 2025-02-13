@@ -10,26 +10,26 @@ import java.util.Locale;
 public class Device {
 
     /**
-     * The name of the device. Used to filter devices when scanning.
+     * The serial of the device. Used to filter devices when scanning.
      */
-    String deviceName;
+    String serial;
     /**
-     * The display name of the device. Used to display the device in the UI.
+     * The name of the device. Used to display the device in the UI.
      */
-    String displayName;
+    String name;
 
     int rssi = 0;
     int txPower = TX_POWER_NOT_PRESENT;
 
-    public Device(String name, String displayName) {
-        this.deviceName = name;
-        this.displayName = displayName;
+    public Device(String serial, String name) {
+        this.serial = serial;
+        this.name = name;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return displayName + ": " + estimateDistance();
+        return name + ": " + estimateDistance();
     }
 
     public String estimateDistance() {

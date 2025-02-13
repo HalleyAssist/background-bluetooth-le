@@ -17,6 +17,7 @@ npx cap sync
 
 * [`checkPermissions()`](#checkpermissions)
 * [`requestPermissions()`](#requestpermissions)
+* [`initialise()`](#initialise)
 * [`addDevice(...)`](#adddevice)
 * [`addDevices(...)`](#adddevices)
 * [`removeDevice(...)`](#removedevice)
@@ -56,6 +57,19 @@ requestPermissions() => Promise<PermissionStatus>
 --------------------
 
 
+### initialise()
+
+```typescript
+initialise() => Promise<void>
+```
+
+Initialise the background scanner
+
+**Since:** 1.0.0
+
+--------------------
+
+
 ### addDevice(...)
 
 ```typescript
@@ -69,6 +83,8 @@ Add a device to the list of devices to scan for
 | **`options`** | <code><a href="#adddeviceoptions">AddDeviceOptions</a></code> | The options to add a device |
 
 **Returns:** <code>Promise&lt;<a href="#adddeviceresult">AddDeviceResult</a>&gt;</code>
+
+**Since:** 1.0.0
 
 --------------------
 
@@ -87,6 +103,8 @@ Add multiple devices to the list of devices to scan for
 
 **Returns:** <code>Promise&lt;<a href="#adddevicesresult">AddDevicesResult</a>&gt;</code>
 
+**Since:** 1.0.0
+
 --------------------
 
 
@@ -104,6 +122,8 @@ Remove a device from the list of devices to scan for
 
 **Returns:** <code>Promise&lt;<a href="#removedeviceresult">RemoveDeviceResult</a>&gt;</code>
 
+**Since:** 1.0.0
+
 --------------------
 
 
@@ -117,6 +137,8 @@ Clear the list of devices to scan for
 
 **Returns:** <code>Promise&lt;<a href="#cleardevicesresult">ClearDevicesResult</a>&gt;</code>
 
+**Since:** 1.0.0
+
 --------------------
 
 
@@ -127,6 +149,8 @@ startForegroundService() => Promise<void>
 ```
 
 Start the background scanner
+
+**Since:** 1.0.0
 
 --------------------
 
@@ -139,6 +163,8 @@ stopForegroundService() => Promise<void>
 
 Stop the background scanner
 
+**Since:** 1.0.0
+
 --------------------
 
 
@@ -148,9 +174,11 @@ Stop the background scanner
 isRunning() => Promise<IsRunningResult>
 ```
 
-is the background scanner running
+Is the background scanner running
 
 **Returns:** <code>Promise&lt;<a href="#isrunningresult">IsRunningResult</a>&gt;</code>
+
+**Since:** 1.0.0
 
 --------------------
 
@@ -177,6 +205,8 @@ The scan mode can be one of the following:
 | ------------- | ----------------------------------------------------------------- | -------------------------------- |
 | **`options`** | <code><a href="#setscanmodeoptions">SetScanModeOptions</a></code> | The options to set the scan mode |
 
+**Since:** 1.0.0
+
 --------------------
 
 
@@ -193,66 +223,66 @@ The scan mode can be one of the following:
 
 #### AddDeviceResult
 
-| Prop         | Type                |
-| ------------ | ------------------- |
-| **`result`** | <code>string</code> |
+| Prop         | Type                | Description                     | Since |
+| ------------ | ------------------- | ------------------------------- | ----- |
+| **`result`** | <code>string</code> | The result of adding the device | 1.0.0 |
 
 
 #### AddDeviceOptions
 
-| Prop              | Type                |
-| ----------------- | ------------------- |
-| **`name`**        | <code>string</code> |
-| **`displayName`** | <code>string</code> |
+| Prop              | Type                | Description                                                                                                          | Since |
+| ----------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------- | ----- |
+| **`name`**        | <code>string</code> | The name of the device to scan for This is the name that the device advertises itself as, used for filtering devices | 1.0.0 |
+| **`displayName`** | <code>string</code> | The display name of the device This is the name that will be displayed to the user when the device is found          | 1.0.0 |
 
 
 #### AddDevicesResult
 
-| Prop         | Type                |
-| ------------ | ------------------- |
-| **`result`** | <code>string</code> |
+| Prop         | Type                | Description                      | Since |
+| ------------ | ------------------- | -------------------------------- | ----- |
+| **`result`** | <code>string</code> | The result of adding the devices | 1.0.0 |
 
 
 #### AddDevicesOptions
 
-| Prop          | Type                            |
-| ------------- | ------------------------------- |
-| **`devices`** | <code>AddDeviceOptions[]</code> |
+| Prop          | Type                            | Description                                           | Since |
+| ------------- | ------------------------------- | ----------------------------------------------------- | ----- |
+| **`devices`** | <code>AddDeviceOptions[]</code> | The devices to add to the list of devices to scan for | 1.0.0 |
 
 
 #### RemoveDeviceResult
 
-| Prop         | Type                |
-| ------------ | ------------------- |
-| **`result`** | <code>string</code> |
+| Prop         | Type                | Description                       | Since |
+| ------------ | ------------------- | --------------------------------- | ----- |
+| **`result`** | <code>string</code> | The result of removing the device | 1.0.0 |
 
 
 #### RemoveDeviceOptions
 
-| Prop       | Type                |
-| ---------- | ------------------- |
-| **`name`** | <code>string</code> |
+| Prop       | Type                | Description                                                           | Since |
+| ---------- | ------------------- | --------------------------------------------------------------------- | ----- |
+| **`name`** | <code>string</code> | The name of the device to remove from the list of devices to scan for | 1.0.0 |
 
 
 #### ClearDevicesResult
 
-| Prop         | Type                |
-| ------------ | ------------------- |
-| **`result`** | <code>string</code> |
+| Prop         | Type                | Description                        | Since |
+| ------------ | ------------------- | ---------------------------------- | ----- |
+| **`result`** | <code>string</code> | The result of clearing the devices | 1.0.0 |
 
 
 #### IsRunningResult
 
-| Prop          | Type                 |
-| ------------- | -------------------- |
-| **`running`** | <code>boolean</code> |
+| Prop          | Type                 | Description                               | Since |
+| ------------- | -------------------- | ----------------------------------------- | ----- |
+| **`running`** | <code>boolean</code> | Whether the background scanner is running | 1.0.0 |
 
 
 #### SetScanModeOptions
 
-| Prop       | Type                                          |
-| ---------- | --------------------------------------------- |
-| **`mode`** | <code><a href="#scanmode">ScanMode</a></code> |
+| Prop       | Type                                          | Description          | Default                | Since |
+| ---------- | --------------------------------------------- | -------------------- | ---------------------- | ----- |
+| **`mode`** | <code><a href="#scanmode">ScanMode</a></code> | The scan mode to set | <code>LOW_POWER</code> | 1.0.0 |
 
 
 ### Type Aliases
@@ -268,11 +298,11 @@ The scan mode can be one of the following:
 
 #### ScanMode
 
-| Members             | Value           |
-| ------------------- | --------------- |
-| **`OPPORTUNISTIC`** | <code>-1</code> |
-| **`LOW_POWER`**     | <code>0</code>  |
-| **`BALANCED`**      | <code>1</code>  |
-| **`LOW_LATENCY`**   | <code>2</code>  |
+| Members             | Value           | Description                                                                                                                                                        |
+| ------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`OPPORTUNISTIC`** | <code>-1</code> | A special Bluetooth LE scan mode. Applications using this scan mode will passively listen for other scan results without starting BLE scans themselves.            |
+| **`LOW_POWER`**     | <code>0</code>  | Perform Bluetooth LE scan in low power mode. This is the default scan mode as it consumes the least power.                                                         |
+| **`BALANCED`**      | <code>1</code>  | Perform Bluetooth LE scan in balanced power mode. Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption. |
+| **`LOW_LATENCY`**   | <code>2</code>  | Scan for Bluetooth LE devices using a high duty cycle. It's recommended to only use this mode when the application is running in the foreground.                   |
 
 </docgen-api>

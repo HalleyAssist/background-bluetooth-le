@@ -17,12 +17,8 @@ public class BackgroundBLEPlugin: CAPPlugin, CAPBridgedPlugin {
     ]
     private let implementation = BackgroundBLE()
 
-    @objc override public func checkPermissions(_ call: CAPPluginCall) {
-        // TODO
-    }
-
-    @objc override public func requestPermissions(_ call: CAPPluginCall) {
-        // TODO
+    @objc public func initialise(_ call: CAPPluginCall) {
+        call.unimplemented("Not implemented on iOS")
     }
 
     @objc public func addDevice(_ call: CAPPluginCall) {
