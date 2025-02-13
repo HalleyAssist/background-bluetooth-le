@@ -31,17 +31,29 @@
       },
       {
         "name": "initialise",
-        "signature": "() => Promise<void>",
-        "parameters": [],
+        "signature": "(options: InitialiseOptions) => Promise<void>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "The options to initialise the background scanner",
+            "type": "InitialiseOptions"
+          }
+        ],
         "returns": "Promise<void>",
         "tags": [
+          {
+            "name": "param",
+            "text": "options The options to initialise the background scanner"
+          },
           {
             "name": "since",
             "text": "1.0.0"
           }
         ],
         "docs": "Initialise the background scanner",
-        "complexTypes": [],
+        "complexTypes": [
+          "InitialiseOptions"
+        ],
         "slug": "initialise"
       },
       {
@@ -247,6 +259,27 @@
             "PermissionState"
           ],
           "type": "PermissionState"
+        }
+      ]
+    },
+    {
+      "name": "InitialiseOptions",
+      "slug": "initialiseoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "neverForLocation",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "Never use bluetooth for location",
+          "complexTypes": [],
+          "type": "boolean"
         }
       ]
     },

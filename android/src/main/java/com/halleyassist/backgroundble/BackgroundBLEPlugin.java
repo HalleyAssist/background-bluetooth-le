@@ -45,7 +45,12 @@ public class BackgroundBLEPlugin extends Plugin {
     public void initialise(@NonNull PluginCall call) {
         boolean neverForLocation = Boolean.TRUE.equals(call.getBoolean("androidNeverForLocation", false));
         String[] aliases = getRequiredPermissions(neverForLocation).toArray(new String[0]);
-        requestPermissionForAliases(aliases, call, "checkPermission");
+        Logger.info(TAG, "requesting permissions for " + Arrays.toString(aliases));
+        try {
+            requestPermissionForAliases(aliases, call, "checkPermission");
+        } catch (Exception e) {
+            call.reject(e.getMessage());
+        }
     }
 
     @NonNull
@@ -66,6 +71,7 @@ public class BackgroundBLEPlugin extends Plugin {
     @PermissionCallback
     private void checkPermission(PluginCall call) {
         String[] aliases = new String[] { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH };
+        Logger.info(TAG, "checking permissions for " + Arrays.toString(aliases));
         List<Boolean> granted = new ArrayList<>();
         for (String alias : aliases) {
             granted.add(getPermissionState(alias) == PermissionState.GRANTED);

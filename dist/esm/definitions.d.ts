@@ -3,6 +3,14 @@ export interface PermissionStatus {
   bluetooth: PermissionState;
   notifications: PermissionState;
 }
+export interface InitialiseOptions {
+  /**
+   * Never use bluetooth for location
+   *
+   * @since 1.0.0
+   */
+  neverForLocation: boolean;
+}
 export interface AddDeviceOptions {
   /**
    * The serial of the device to scan for
@@ -117,9 +125,11 @@ export interface BackgroundBLEPlugin {
   /**
    * Initialise the background scanner
    *
+   * @param options The options to initialise the background scanner
+   *
    * @since 1.0.0
    */
-  initialise(): Promise<void>;
+  initialise(options: InitialiseOptions): Promise<void>;
   /**
    * Add a device to the list of devices to scan for
    *
