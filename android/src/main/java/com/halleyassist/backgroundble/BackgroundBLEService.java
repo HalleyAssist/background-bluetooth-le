@@ -21,6 +21,7 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -67,14 +68,15 @@ public class BackgroundBLEService extends Service {
             Device closestDevice = getClosestDevice();
             //  get the name of the device from the devices arrayList
             if (closestDevice == null) return;
-            StringBuilder devicesList = new StringBuilder();
-            // add each device to the devicesList string, separated by a new line
-            for (Device device : devices) {
-                if (device.rssi == 0) continue;
-                devicesList.append(device).append("\n");
-            }
             //  update the notification body
-            builder.setContentText(devicesList.toString()).setOngoing(true).setAutoCancel(false);
+            builder.setContentText("Tap to open " + closestDevice).setOngoing(true).setAutoCancel(false);
+            //  update the content intent to launch the app with the closest device
+            Uri deepLink = Uri.parse("halleyassist://app/client/" + closestDevice.serial);
+            Intent deepLinkIntent = new Intent(Intent.ACTION_VIEW, deepLink);
+            deepLinkIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1337, deepLinkIntent, getIntentFlags());
+            builder.setContentIntent(pendingIntent);
+            //  update the notification
             notificationManager.notify(NOTIFICATION_ID, builder.build());
         }
 
@@ -143,9 +145,9 @@ public class BackgroundBLEService extends Service {
 
     private int getIntentFlags() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            return PendingIntent.FLAG_CANCEL_CURRENT;
+            return PendingIntent.FLAG_UPDATE_CURRENT;
         }
-        return PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_MUTABLE;
+        return PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
@@ -183,17 +185,25 @@ public class BackgroundBLEService extends Service {
         int icon = intent.getIntExtra("icon", 0);
         String title = "Nearby Hub Scanning Active";
 
+        int pendingIntentFlags = getIntentFlags();
+
+        //  create a content intent for launching the app
+        Uri deepLink = Uri.parse("halleyassist://app");
+        Intent deepLinkIntent = new Intent(Intent.ACTION_VIEW, deepLink);
+        deepLinkIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1337, deepLinkIntent, getIntentFlags());
+
         builder = new Notification.Builder(getApplicationContext(), DEFAULT_CHANNEL_ID);
         builder
             .setContentTitle(title)
             .setContentText(body)
+            .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setCategory(CATEGORY_PROGRESS)
             .setSmallIcon(icon)
             .setOnlyAlertOnce(true);
 
         //  create actions: Stop, and Open
-        int pendingIntentFlags = getIntentFlags();
         //  Stop stops the scan and closes the notification
         Notification.Action[] actions = new Notification.Action[1];
         // Stop Action
@@ -204,13 +214,6 @@ public class BackgroundBLEService extends Service {
         actions[0] = new Notification.Action.Builder(null, "Stop Scan", stopPendingIntent).build();
         // Set actions
         builder.setActions(actions);
-        // Open Action
-        Intent openIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
-        openIntent.setAction("OPEN");
-        openIntent.putExtra("buttonId", 1);
-        PendingIntent openPendingIntent = PendingIntent.getService(getApplicationContext(), 222, openIntent, pendingIntentFlags);
-        //  when the user taps the notification, open the app with the Open action
-        builder.setContentIntent(openPendingIntent);
         //  return the notification
         return builder.build();
     }

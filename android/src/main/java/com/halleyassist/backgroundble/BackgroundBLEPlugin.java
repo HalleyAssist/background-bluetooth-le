@@ -28,11 +28,11 @@ import org.json.JSONObject;
 @CapacitorPlugin(
     name = "BackgroundBLE",
     permissions = {
-        @Permission(
-            alias = "bluetooth",
-            strings = { Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.ACCESS_FINE_LOCATION }
-        ),
-        @Permission(alias = "notifications", strings = { Manifest.permission.POST_NOTIFICATIONS })
+        @Permission(alias = "BLUETOOTH", strings = { Manifest.permission.BLUETOOTH }),
+        @Permission(alias = "ACCESS_FINE_LOCATION", strings = { Manifest.permission.ACCESS_FINE_LOCATION }),
+        @Permission(alias = "BLUETOOTH_SCAN", strings = { Manifest.permission.BLUETOOTH_SCAN }),
+        @Permission(alias = "BLUETOOTH_CONNECT", strings = { Manifest.permission.BLUETOOTH_CONNECT }),
+        @Permission(alias = "POST_NOTIFICATIONS", strings = { Manifest.permission.POST_NOTIFICATIONS })
     }
 )
 public class BackgroundBLEPlugin extends Plugin {
@@ -61,13 +61,12 @@ public class BackgroundBLEPlugin extends Plugin {
     private List<String> getRequiredPermissions(boolean neverForLocation) {
         List<String> permissions = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permissions.add(Manifest.permission.BLUETOOTH_SCAN);
-            if (!neverForLocation) {
-                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            }
+            permissions.add("ACCESS_FINE_LOCATION");
+            permissions.add("BLUETOOTH_SCAN");
+            permissions.add("BLUETOOTH_CONNECT");
         } else {
-            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            permissions.add(Manifest.permission.BLUETOOTH);
+            permissions.add("ACCESS_FINE_LOCATION");
+            permissions.add("BLUETOOTH");
         }
         return permissions;
     }
