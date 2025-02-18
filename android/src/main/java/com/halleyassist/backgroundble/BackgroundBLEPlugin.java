@@ -38,6 +38,7 @@ import org.json.JSONObject;
 public class BackgroundBLEPlugin extends Plugin {
 
     private BackgroundBLE implementation;
+    private List<String> permissions;
 
     @Override
     public void load() {
@@ -59,7 +60,7 @@ public class BackgroundBLEPlugin extends Plugin {
 
     @NonNull
     private List<String> getRequiredPermissions(boolean neverForLocation) {
-        List<String> permissions = new ArrayList<>();
+        permissions = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             permissions.add("ACCESS_FINE_LOCATION");
             permissions.add("BLUETOOTH_SCAN");
@@ -73,7 +74,7 @@ public class BackgroundBLEPlugin extends Plugin {
 
     @PermissionCallback
     private void checkPermission(PluginCall call) {
-        String[] aliases = new String[] { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH };
+        String[] aliases = permissions.toArray(new String[0]);
         Logger.info(TAG, "checking permissions for " + Arrays.toString(aliases));
         List<Boolean> granted = new ArrayList<>();
         for (String alias : aliases) {
