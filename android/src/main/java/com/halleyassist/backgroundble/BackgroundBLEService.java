@@ -71,7 +71,7 @@ public class BackgroundBLEService extends Service {
             //  update the notification body
             builder.setContentText("Tap to open " + closestDevice).setOngoing(true).setAutoCancel(false);
             //  update the content intent to launch the app with the closest device
-            Uri deepLink = Uri.parse("halleyassist://app/client/" + closestDevice.serial);
+            Uri deepLink = Uri.parse("halleyassist://app/clients/" + closestDevice.serial);
             Intent deepLinkIntent = new Intent(Intent.ACTION_VIEW, deepLink);
             deepLinkIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1337, deepLinkIntent, getIntentFlags());
