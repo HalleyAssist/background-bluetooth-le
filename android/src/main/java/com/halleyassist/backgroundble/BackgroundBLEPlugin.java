@@ -3,9 +3,6 @@ package com.halleyassist.backgroundble;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
 import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import androidx.annotation.NonNull;
 import com.getcapacitor.JSArray;
