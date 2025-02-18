@@ -1,6 +1,7 @@
 package com.halleyassist.backgroundble;
 
 import static android.app.Notification.CATEGORY_PROGRESS;
+import static android.bluetooth.le.ScanResult.TX_POWER_NOT_PRESENT;
 import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_POWER;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
@@ -32,6 +33,11 @@ import com.getcapacitor.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BackgroundBLEService extends Service {
 
@@ -40,6 +46,9 @@ public class BackgroundBLEService extends Service {
     private Notification.Builder builder;
     private NotificationManager notificationManager;
     private ArrayList<Device> devices;
+    private final AtomicBoolean timerRunning = new AtomicBoolean(false);
+    private ScheduledExecutorService executorService;
+    private ScheduledFuture<?> timerFuture;
 
     @SuppressLint("MissingPermission")
     private final ScanCallback scanCallback = new ScanCallback() {
@@ -62,23 +71,11 @@ public class BackgroundBLEService extends Service {
                 .findFirst()
                 .ifPresent(foundDevice -> {
                     //  smooth the rssi value
-                    foundDevice.rssi = (foundDevice.rssi + result.getRssi()) / 2;
-                    foundDevice.txPower = result.getTxPower();
+                    int rssi = (foundDevice.rssi + result.getRssi()) / 2;
+                    foundDevice.update(rssi, result.getTxPower());
                 });
-            //  get the closest device from the list of found devices
-            Device closestDevice = getClosestDevice();
-            //  get the name of the device from the devices arrayList
-            if (closestDevice == null) return;
-            //  update the notification body
-            builder.setContentText("Tap to open " + closestDevice).setOngoing(true).setAutoCancel(false);
-            //  update the content intent to launch the app with the closest device
-            Uri deepLink = Uri.parse("halleyassist://app/clients/" + closestDevice.serial);
-            Intent deepLinkIntent = new Intent(Intent.ACTION_VIEW, deepLink);
-            deepLinkIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1337, deepLinkIntent, getIntentFlags());
-            builder.setContentIntent(pendingIntent);
             //  update the notification
-            notificationManager.notify(NOTIFICATION_ID, builder.build());
+            checkClosestDevice();
         }
 
         @Override
@@ -105,9 +102,6 @@ public class BackgroundBLEService extends Service {
                     stopForeground(STOP_FOREGROUND_REMOVE);
                     stopSelf();
                     return START_NOT_STICKY;
-                } else if (action.equals("OPEN")) {
-                    openToHub();
-                    return START_STICKY;
                 }
             }
 
@@ -186,13 +180,7 @@ public class BackgroundBLEService extends Service {
         int icon = intent.getIntExtra("icon", 0);
         String title = "Nearby Hub Scanning Active";
 
-        int pendingIntentFlags = getIntentFlags();
-
-        //  create a content intent for launching the app
-        Uri deepLink = Uri.parse("halleyassist://app");
-        Intent deepLinkIntent = new Intent(Intent.ACTION_VIEW, deepLink);
-        deepLinkIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1337, deepLinkIntent, getIntentFlags());
+        PendingIntent pendingIntent = getPendingIntent("halleyassist://app");
 
         builder = new Notification.Builder(getApplicationContext(), DEFAULT_CHANNEL_ID);
         builder
@@ -211,7 +199,7 @@ public class BackgroundBLEService extends Service {
         Intent stopIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
         stopIntent.setAction("STOP");
         stopIntent.putExtra("buttonId", 0);
-        PendingIntent stopPendingIntent = PendingIntent.getService(getApplicationContext(), 111, stopIntent, pendingIntentFlags);
+        PendingIntent stopPendingIntent = PendingIntent.getService(getApplicationContext(), 111, stopIntent, getIntentFlags());
         actions[0] = new Notification.Action.Builder(null, "Stop Scan", stopPendingIntent).build();
         // Set actions
         builder.setActions(actions);
@@ -219,21 +207,78 @@ public class BackgroundBLEService extends Service {
         return builder.build();
     }
 
-    private void openToHub() {
-        //  devices should already be sorted by closest
-        //  we want to relaunch the app with the closest device
-        //  as we already support deep linking we can simply use the url that will
-        //  navigate to the device that is closest
-        //  deep link format: halleyassist://app/client/{serial}
+    private void checkClosestDevice() {
+        //  get the closest device from the list of found devices
         Device closestDevice = getClosestDevice();
+        //  get the name of the device from the devices arrayList
         if (closestDevice == null) {
-            Logger.warn(TAG, "No devices found");
+            // when no devices are found, reset the notification to default
+            updateNotification("No devices nearby", "halleyassist://app");
             return;
         }
-        String url = "halleyassist://app/client/" + closestDevice.serial;
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(android.net.Uri.parse(url));
-        startActivity(intent);
+        //  update the notification
+        updateNotification("Tap to open " + closestDevice, "halleyassist://app/clients/" + closestDevice.serial);
+        //  we have updated the notification
+        startTimer();
+    }
+
+    private PendingIntent getPendingIntent(String deeplink) {
+        Uri deepLinkUri = Uri.parse(deeplink);
+        Intent deepLinkIntent = new Intent(Intent.ACTION_VIEW, deepLinkUri);
+        deepLinkIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        return PendingIntent.getActivity(getApplicationContext(), 1337, deepLinkIntent, getIntentFlags());
+    }
+
+    private void updateNotification(String text, String deeplink) {
+        //  update the notification body
+        builder.setContentText(text).setOngoing(true).setAutoCancel(false);
+        //  update the content intent to launch the app with the closest device
+        PendingIntent pendingIntent = getPendingIntent(deeplink);
+        builder.setContentIntent(pendingIntent);
+        //  update the notification
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    private void startTimer() {
+        if (timerRunning.get()) return;
+        timerRunning.set(true);
+
+        executorService = Executors.newSingleThreadScheduledExecutor();
+        long TIMER_INTERVAL_MS = 15000;
+        timerFuture = executorService.scheduleWithFixedDelay(
+            () -> {
+                // update any devices that have not been updated in the last 30 seconds
+                devices.forEach(device -> {
+                    if (device.rssi != 0 && System.currentTimeMillis() - device.lastUpdated > 30000) {
+                        device.update(0, TX_POWER_NOT_PRESENT);
+                    }
+                });
+                if (shouldStopTimer()) {
+                    stopTimer();
+                    return;
+                }
+                checkClosestDevice();
+            },
+            TIMER_INTERVAL_MS,
+            TIMER_INTERVAL_MS,
+            TimeUnit.MILLISECONDS
+        );
+    }
+
+    private boolean shouldStopTimer() {
+        return devices.stream().allMatch(d -> d.rssi == 0);
+    }
+
+    private void stopTimer() {
+        if (timerFuture != null) {
+            timerFuture.cancel(false);
+            timerFuture = null;
+        }
+        if (executorService != null) {
+            executorService.shutdown();
+            executorService = null;
+        }
+        timerRunning.set(false);
     }
 
     @Override
@@ -244,6 +289,7 @@ public class BackgroundBLEService extends Service {
         } catch (SecurityException e) {
             Logger.error(TAG, e.getMessage(), e);
         }
+        stopTimer();
     }
 
     @Override
@@ -267,10 +313,16 @@ public class BackgroundBLEService extends Service {
             int rssi2 = device2.rssi;
             return Integer.compare(rssi1, rssi2);
         });
-
+        Device closestDevice;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            return devices.getFirst();
+            closestDevice = devices.getFirst();
+        } else {
+            closestDevice = devices.get(0);
         }
-        return devices.get(0);
+
+        if (closestDevice.rssi == 0) {
+            return null;
+        }
+        return closestDevice;
     }
 }
