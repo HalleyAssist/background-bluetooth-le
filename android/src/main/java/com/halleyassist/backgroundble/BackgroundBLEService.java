@@ -61,7 +61,8 @@ public class BackgroundBLEService extends Service {
                 .filter(d -> d.serial.equals(serial))
                 .findFirst()
                 .ifPresent(foundDevice -> {
-                    foundDevice.rssi = result.getRssi();
+                    //  smooth the rssi value
+                    foundDevice.rssi = (foundDevice.rssi + result.getRssi()) / 2;
                     foundDevice.txPower = result.getTxPower();
                 });
             //  get the closest device from the list of found devices
