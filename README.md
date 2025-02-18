@@ -17,7 +17,7 @@ npx cap sync
 
 * [`checkPermissions()`](#checkpermissions)
 * [`requestPermissions()`](#requestpermissions)
-* [`initialise(...)`](#initialise)
+* [`initialise()`](#initialise)
 * [`addDevice(...)`](#adddevice)
 * [`addDevices(...)`](#adddevices)
 * [`removeDevice(...)`](#removedevice)
@@ -57,17 +57,13 @@ requestPermissions() => Promise<PermissionStatus>
 --------------------
 
 
-### initialise(...)
+### initialise()
 
 ```typescript
-initialise(options: InitialiseOptions) => Promise<void>
+initialise() => Promise<void>
 ```
 
 Initialise the background scanner
-
-| Param         | Type                                                            | Description                                      |
-| ------------- | --------------------------------------------------------------- | ------------------------------------------------ |
-| **`options`** | <code><a href="#initialiseoptions">InitialiseOptions</a></code> | The options to initialise the background scanner |
 
 **Since:** 1.0.0
 
@@ -223,13 +219,6 @@ The scan mode can be one of the following:
 | ------------------- | ----------------------------------------------------------- |
 | **`bluetooth`**     | <code><a href="#permissionstate">PermissionState</a></code> |
 | **`notifications`** | <code><a href="#permissionstate">PermissionState</a></code> |
-
-
-#### InitialiseOptions
-
-| Prop                   | Type                 | Description                      | Since |
-| ---------------------- | -------------------- | -------------------------------- | ----- |
-| **`neverForLocation`** | <code>boolean</code> | Never use bluetooth for location | 1.0.0 |
 
 
 #### AddDeviceResult

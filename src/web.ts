@@ -1,16 +1,17 @@
 import { WebPlugin } from '@capacitor/core';
 
 import type {
-  BackgroundBLEPlugin,
   AddDeviceOptions,
-  RemoveDeviceOptions,
-  PermissionStatus,
-  AddDevicesOptions,
   AddDeviceResult,
+  AddDevicesOptions,
   AddDevicesResult,
-  RemoveDeviceResult,
+  BackgroundBLEPlugin,
   ClearDevicesResult,
   IsRunningResult,
+  PermissionStatus,
+  RemoveDeviceOptions,
+  RemoveDeviceResult,
+  SetScanModeOptions,
 } from './definitions';
 
 export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
@@ -54,7 +55,7 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async setScanMode(_options: { mode: number }): Promise<void> {
+  async setScanMode(_options: SetScanModeOptions): Promise<void> {
     throw this.unimplemented('Not implemented on web.');
   }
 }
