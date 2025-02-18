@@ -29,7 +29,7 @@ public class Device {
     @NonNull
     @Override
     public String toString() {
-        return name + ": " + estimateDistance();
+        return name;
     }
 
     public String estimateDistance() {
