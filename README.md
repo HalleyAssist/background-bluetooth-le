@@ -26,6 +26,7 @@ npx cap sync
 * [`stopForegroundService()`](#stopforegroundservice)
 * [`isRunning()`](#isrunning)
 * [`setScanMode(...)`](#setscanmode)
+* [`getDevices()`](#getdevices)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 * [Enums](#enums)
@@ -73,7 +74,7 @@ Initialise the background scanner
 ### addDevice(...)
 
 ```typescript
-addDevice(options: AddDeviceOptions) => Promise<AddDeviceResult>
+addDevice(options: AddDeviceOptions) => Promise<Result>
 ```
 
 Add a device to the list of devices to scan for
@@ -82,7 +83,7 @@ Add a device to the list of devices to scan for
 | ------------- | ------------------------------------------------------------- | --------------------------- |
 | **`options`** | <code><a href="#adddeviceoptions">AddDeviceOptions</a></code> | The options to add a device |
 
-**Returns:** <code>Promise&lt;<a href="#adddeviceresult">AddDeviceResult</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&gt;</code>
 
 **Since:** 1.0.0
 
@@ -92,7 +93,7 @@ Add a device to the list of devices to scan for
 ### addDevices(...)
 
 ```typescript
-addDevices(options: AddDevicesOptions) => Promise<AddDevicesResult>
+addDevices(options: AddDevicesOptions) => Promise<Result>
 ```
 
 Add multiple devices to the list of devices to scan for
@@ -101,7 +102,7 @@ Add multiple devices to the list of devices to scan for
 | ------------- | --------------------------------------------------------------- | ----------------------------------- |
 | **`options`** | <code><a href="#adddevicesoptions">AddDevicesOptions</a></code> | The options to add multiple devices |
 
-**Returns:** <code>Promise&lt;<a href="#adddevicesresult">AddDevicesResult</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&gt;</code>
 
 **Since:** 1.0.0
 
@@ -111,7 +112,7 @@ Add multiple devices to the list of devices to scan for
 ### removeDevice(...)
 
 ```typescript
-removeDevice(options: RemoveDeviceOptions) => Promise<RemoveDeviceResult>
+removeDevice(options: RemoveDeviceOptions) => Promise<Result>
 ```
 
 Remove a device from the list of devices to scan for
@@ -120,7 +121,7 @@ Remove a device from the list of devices to scan for
 | ------------- | ------------------------------------------------------------------- | ------------------------------ |
 | **`options`** | <code><a href="#removedeviceoptions">RemoveDeviceOptions</a></code> | The options to remove a device |
 
-**Returns:** <code>Promise&lt;<a href="#removedeviceresult">RemoveDeviceResult</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&gt;</code>
 
 **Since:** 1.0.0
 
@@ -130,12 +131,12 @@ Remove a device from the list of devices to scan for
 ### clearDevices()
 
 ```typescript
-clearDevices() => Promise<ClearDevicesResult>
+clearDevices() => Promise<Result>
 ```
 
 Clear the list of devices to scan for
 
-**Returns:** <code>Promise&lt;<a href="#cleardevicesresult">ClearDevicesResult</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&gt;</code>
 
 **Since:** 1.0.0
 
@@ -210,6 +211,21 @@ The scan mode can be one of the following:
 --------------------
 
 
+### getDevices()
+
+```typescript
+getDevices() => Promise<Device[]>
+```
+
+Get the current list of devices
+
+**Returns:** <code>Promise&lt;Device[]&gt;</code>
+
+**Since:** 1.0.0
+
+--------------------
+
+
 ### Interfaces
 
 
@@ -221,26 +237,22 @@ The scan mode can be one of the following:
 | **`notifications`** | <code><a href="#permissionstate">PermissionState</a></code> |
 
 
-#### AddDeviceResult
+#### Result
 
-| Prop         | Type                | Description                     | Since |
-| ------------ | ------------------- | ------------------------------- | ----- |
-| **`result`** | <code>string</code> | The result of adding the device | 1.0.0 |
-
-
-#### AddDeviceOptions
-
-| Prop         | Type                | Description                                                                                                                    | Since |
-| ------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----- |
-| **`serial`** | <code>string</code> | The serial of the device to scan for This is part of the name that the device advertises itself as, used for filtering devices | 1.0.0 |
-| **`name`**   | <code>string</code> | The display name of the device This is the name that will be displayed to the user when the device is found                    | 1.0.0 |
+| Prop         | Type                |
+| ------------ | ------------------- |
+| **`result`** | <code>string</code> |
 
 
-#### AddDevicesResult
+#### Device
 
-| Prop         | Type                | Description                      | Since |
-| ------------ | ------------------- | -------------------------------- | ----- |
-| **`result`** | <code>string</code> | The result of adding the devices | 1.0.0 |
+| Prop              | Type                | Description                                                      | Since |
+| ----------------- | ------------------- | ---------------------------------------------------------------- | ----- |
+| **`serial`**      | <code>string</code> | The serial of the device                                         | 1.0.0 |
+| **`name`**        | <code>string</code> | The display name of the device                                   | 1.0.0 |
+| **`rssi`**        | <code>number</code> | The RSSI of the device 0 = device is not in range                | 1.0.0 |
+| **`txPower`**     | <code>number</code> | The TX power of the device -127 = unknown TX power               | 1.0.0 |
+| **`lastUpdated`** | <code>number</code> | The last time the device was updated in milliseconds since epoch | 1.0.0 |
 
 
 #### AddDevicesOptions
@@ -248,27 +260,6 @@ The scan mode can be one of the following:
 | Prop          | Type                            | Description                                           | Since |
 | ------------- | ------------------------------- | ----------------------------------------------------- | ----- |
 | **`devices`** | <code>AddDeviceOptions[]</code> | The devices to add to the list of devices to scan for | 1.0.0 |
-
-
-#### RemoveDeviceResult
-
-| Prop         | Type                | Description                       | Since |
-| ------------ | ------------------- | --------------------------------- | ----- |
-| **`result`** | <code>string</code> | The result of removing the device | 1.0.0 |
-
-
-#### RemoveDeviceOptions
-
-| Prop         | Type                | Description                                                             | Since |
-| ------------ | ------------------- | ----------------------------------------------------------------------- | ----- |
-| **`serial`** | <code>string</code> | The serial of the device to remove from the list of devices to scan for | 1.0.0 |
-
-
-#### ClearDevicesResult
-
-| Prop         | Type                | Description                        | Since |
-| ------------ | ------------------- | ---------------------------------- | ----- |
-| **`result`** | <code>string</code> | The result of clearing the devices | 1.0.0 |
 
 
 #### IsRunningResult
@@ -291,6 +282,23 @@ The scan mode can be one of the following:
 #### PermissionState
 
 <code>'prompt' | 'prompt-with-rationale' | 'granted' | 'denied'</code>
+
+
+#### AddDeviceOptions
+
+<code><a href="#pick">Pick</a>&lt;<a href="#device">Device</a>, 'serial' | 'name'&gt;</code>
+
+
+#### Pick
+
+From T, pick a set of properties whose keys are in the union K
+
+<code>{ [P in K]: T[P]; }</code>
+
+
+#### RemoveDeviceOptions
+
+<code><a href="#pick">Pick</a>&lt;<a href="#device">Device</a>, 'serial'&gt;</code>
 
 
 ### Enums

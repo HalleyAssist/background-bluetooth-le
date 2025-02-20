@@ -14,6 +14,7 @@ import com.getcapacitor.plugin.util.AssetUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -128,6 +129,22 @@ public class BackgroundBLE {
         }
         Logger.info(TAG, "BackgroundBLEService is not running");
         return false;
+    }
+
+    public List<Device> getDevices() {
+        Logger.info(TAG, "getDevices called");
+        //  check if the service is running
+        if (!isRunning()) {
+            Logger.warn(TAG, "BackgroundBLEService is not running, returning empty list");
+            return new ArrayList<>();
+        }
+        //  get devices from the service
+        BackgroundBLEService service = BackgroundBLEService.getInstance();
+        //  return the devices if the service is not null
+        if (service != null) {
+            return service.getDevices();
+        }
+        return new ArrayList<>();
     }
 
     public void setScanMode(int mode) {

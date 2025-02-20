@@ -199,4 +199,25 @@ public class BackgroundBLEPlugin extends Plugin {
         // Example: Check if the mode is within a specific range or a known set of values
         return mode >= -1 && mode <= 2; // Example: Valid modes are 0, 1, and 2
     }
+
+    /**
+     * Gets the devices that have been found by the plugin.
+     */
+    @PluginMethod
+    public void getDevices(@NonNull PluginCall call) {
+        List<Device> devices = implementation.getDevices();
+        JSArray deviceArray = new JSArray();
+        for (Device device : devices) {
+            JSObject object = new JSObject();
+            object.put("serial", device.serial);
+            object.put("name", device.name);
+            object.put("rssi", device.rssi);
+            object.put("txPower", device.txPower);
+            object.put("lastUpdated", device.lastUpdated);
+            deviceArray.put(object);
+        }
+        JSObject ret = new JSObject();
+        ret.put("devices", deviceArray);
+        call.resolve(ret);
+    }
 }

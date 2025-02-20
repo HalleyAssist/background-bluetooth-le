@@ -2,15 +2,13 @@ import { WebPlugin } from '@capacitor/core';
 
 import type {
   AddDeviceOptions,
-  AddDeviceResult,
   AddDevicesOptions,
-  AddDevicesResult,
   BackgroundBLEPlugin,
-  ClearDevicesResult,
+  Device,
   IsRunningResult,
   PermissionStatus,
   RemoveDeviceOptions,
-  RemoveDeviceResult,
+  Result,
   SetScanModeOptions,
 } from './definitions';
 
@@ -27,19 +25,19 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async addDevice(_options: AddDeviceOptions): Promise<AddDeviceResult> {
+  async addDevice(_options: AddDeviceOptions): Promise<Result> {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async addDevices(_options: AddDevicesOptions): Promise<AddDevicesResult> {
+  async addDevices(_options: AddDevicesOptions): Promise<Result> {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async removeDevice(_options: RemoveDeviceOptions): Promise<RemoveDeviceResult> {
+  async removeDevice(_options: RemoveDeviceOptions): Promise<Result> {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async clearDevices(): Promise<ClearDevicesResult> {
+  async clearDevices(): Promise<Result> {
     throw this.unimplemented('Not implemented on web.');
   }
 
@@ -56,6 +54,10 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   }
 
   async setScanMode(_options: SetScanModeOptions): Promise<void> {
+    throw this.unimplemented('Not implemented on web.');
+  }
+
+  async getDevices(): Promise<Device[]> {
     throw this.unimplemented('Not implemented on web.');
   }
 }

@@ -3,11 +3,9 @@ export interface PermissionStatus {
   bluetooth: PermissionState;
   notifications: PermissionState;
 }
-export interface AddDeviceOptions {
+export interface Device {
   /**
-   * The serial of the device to scan for
-   *
-   * This is part of the name that the device advertises itself as, used for filtering devices
+   * The serial of the device
    *
    * @since 1.0.0
    */
@@ -15,12 +13,35 @@ export interface AddDeviceOptions {
   /**
    * The display name of the device
    *
-   * This is the name that will be displayed to the user when the device is found
-   *
    * @since 1.0.0
    */
   name: string;
+  /**
+   * The RSSI of the device
+   *
+   * 0 = device is not in range
+   *
+   * @since 1.0.0
+   */
+  rssi: number;
+  /**
+   * The TX power of the device
+   *
+   * -127 = unknown TX power
+   *
+   * @since 1.0.0
+   */
+  txPower: number;
+  /**
+   * The last time the device was updated
+   *
+   * in milliseconds since epoch
+   *
+   * @since 1.0.0
+   */
+  lastUpdated: number;
 }
+export type AddDeviceOptions = Pick<Device, 'serial' | 'name'>;
 export interface AddDevicesOptions {
   /**
    * The devices to add to the list of devices to scan for
@@ -29,44 +50,8 @@ export interface AddDevicesOptions {
    */
   devices: AddDeviceOptions[];
 }
-export interface RemoveDeviceOptions {
-  /**
-   * The serial of the device to remove from the list of devices to scan for
-   *
-   * @since 1.0.0
-   */
-  serial: string;
-}
-export interface AddDeviceResult {
-  /**
-   * The result of adding the device
-   *
-   * @since 1.0.0
-   */
-  result: string;
-}
-export interface AddDevicesResult {
-  /**
-   * The result of adding the devices
-   *
-   * @since 1.0.0
-   */
-  result: string;
-}
-export interface RemoveDeviceResult {
-  /**
-   * The result of removing the device
-   *
-   * @since 1.0.0
-   */
-  result: string;
-}
-export interface ClearDevicesResult {
-  /**
-   * The result of clearing the devices
-   *
-   * @since 1.0.0
-   */
+export type RemoveDeviceOptions = Pick<Device, 'serial'>;
+export interface Result {
   result: string;
 }
 export interface IsRunningResult {
@@ -129,7 +114,7 @@ export interface BackgroundBLEPlugin {
    *
    * @since 1.0.0
    */
-  addDevice(options: AddDeviceOptions): Promise<AddDeviceResult>;
+  addDevice(options: AddDeviceOptions): Promise<Result>;
   /**
    * Add multiple devices to the list of devices to scan for
    *
@@ -137,7 +122,7 @@ export interface BackgroundBLEPlugin {
    *
    * @since 1.0.0
    */
-  addDevices(options: AddDevicesOptions): Promise<AddDevicesResult>;
+  addDevices(options: AddDevicesOptions): Promise<Result>;
   /**
    * Remove a device from the list of devices to scan for
    *
@@ -145,13 +130,13 @@ export interface BackgroundBLEPlugin {
    *
    * @since 1.0.0
    */
-  removeDevice(options: RemoveDeviceOptions): Promise<RemoveDeviceResult>;
+  removeDevice(options: RemoveDeviceOptions): Promise<Result>;
   /**
    * Clear the list of devices to scan for
    *
    * @since 1.0.0
    */
-  clearDevices(): Promise<ClearDevicesResult>;
+  clearDevices(): Promise<Result>;
   /**
    * Start the background scanner
    *
@@ -188,4 +173,10 @@ export interface BackgroundBLEPlugin {
    * @since 1.0.0
    */
   setScanMode(options: SetScanModeOptions): Promise<void>;
+  /**
+   * Get the current list of devices
+   *
+   * @since 1.0.0
+   */
+  getDevices(): Promise<Device[]>;
 }

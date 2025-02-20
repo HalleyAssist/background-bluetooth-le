@@ -68,6 +68,9 @@ var capacitorBackgroundBLE = (function (exports, core) {
     async setScanMode(_options) {
       throw this.unimplemented('Not implemented on web.');
     }
+    async getDevices() {
+      throw this.unimplemented('Not implemented on web.');
+    }
   }
 
   var web = /*#__PURE__*/ Object.freeze({

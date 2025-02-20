@@ -1,6 +1,6 @@
 package com.halleyassist.backgroundble;
 
-import static android.app.Notification.CATEGORY_PROGRESS;
+import static android.app.Notification.CATEGORY_SERVICE;
 import static android.bluetooth.le.ScanResult.TX_POWER_NOT_PRESENT;
 import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_POWER;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
@@ -45,45 +45,17 @@ public class BackgroundBLEService extends Service {
 
     private Notification.Builder builder;
     private NotificationManager notificationManager;
-    private ArrayList<Device> devices;
+    private List<Device> devices;
     private final AtomicBoolean timerRunning = new AtomicBoolean(false);
     private ScheduledExecutorService executorService;
     private ScheduledFuture<?> timerFuture;
 
-    @SuppressLint("MissingPermission")
-    private final ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
-            // add or update the device list with the scanned device
-            BluetoothDevice bDevice = result.getDevice();
-            String name = bDevice.getName();
-            // extract the serial number from the device name (H-{serial})
-            String serial = name.split("-")[1];
-            // create a device if it does not exist in the array (should never happen)
-            if (devices.stream().noneMatch(d -> d.serial.equals(serial))) {
-                devices.add(new Device(serial, name));
-            }
-            //  find the device in the list of devices, and update the rssi of the device
-            devices
-                .stream()
-                .filter(d -> d.serial.equals(serial))
-                .findFirst()
-                .ifPresent(foundDevice -> {
-                    //  smooth the rssi value
-                    int rssi = (foundDevice.rssi + result.getRssi()) / 2;
-                    foundDevice.update(rssi, result.getTxPower());
-                });
-            //  update the notification
-            checkClosestDevice();
-        }
+    //  singleton
+    private static BackgroundBLEService instance;
 
-        @Override
-        public void onScanFailed(int errorCode) {
-            super.onScanFailed(errorCode);
-            Logger.error("BackgroundBLEService Scan failed with error code: " + errorCode);
-        }
-    };
+    public static BackgroundBLEService getInstance() {
+        return instance;
+    }
 
     @Override
     public void onCreate() {
@@ -91,6 +63,8 @@ public class BackgroundBLEService extends Service {
         BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+
+        instance = this;
     }
 
     @Override
@@ -138,15 +112,10 @@ public class BackgroundBLEService extends Service {
         return START_STICKY;
     }
 
-    private int getIntentFlags() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            return PendingIntent.FLAG_UPDATE_CURRENT;
-        }
-        return PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-    }
+    //#region Scanning
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
-    private void startScanning(@NonNull ArrayList<Device> devices, int scanMode) {
+    private void startScanning(@NonNull List<Device> devices, int scanMode) {
         //  start scanning, filtering for devices with a name that starts with "HalleyHub"
         List<ScanFilter> filters = new ArrayList<>();
         Logger.info(TAG, "Creating filters from " + devices);
@@ -163,6 +132,45 @@ public class BackgroundBLEService extends Service {
     private void stopScanning() {
         bluetoothLeScanner.stopScan(scanCallback);
     }
+
+    @SuppressLint("MissingPermission")
+    private final ScanCallback scanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            // add or update the device list with the scanned device
+            BluetoothDevice bDevice = result.getDevice();
+            String name = bDevice.getName();
+            // extract the serial number from the device name (H-{serial})
+            String serial = name.split("-")[1];
+            // create a device if it does not exist in the array (should never happen)
+            if (devices.stream().noneMatch(d -> d.serial.equals(serial))) {
+                devices.add(new Device(serial, name));
+            }
+            //  find the device in the list of devices, and update the rssi of the device
+            devices
+                .stream()
+                .filter(d -> d.serial.equals(serial))
+                .findFirst()
+                .ifPresent(foundDevice -> {
+                    //  smooth the rssi value
+                    int rssi = (foundDevice.rssi + result.getRssi()) / 2;
+                    foundDevice.update(rssi, result.getTxPower());
+                });
+            //  update the notification
+            checkClosestDevice();
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+            Logger.error("BackgroundBLEService Scan failed with error code: " + errorCode);
+        }
+    };
+
+    //#endregion Scanning
+
+    //#region Notification
 
     private void createNotificationChannel() {
         NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, "Bluetooth Scanner", NotificationManager.IMPORTANCE_HIGH);
@@ -188,7 +196,7 @@ public class BackgroundBLEService extends Service {
             .setContentText(body)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .setCategory(CATEGORY_PROGRESS)
+            .setCategory(CATEGORY_SERVICE)
             .setSmallIcon(icon)
             .setOnlyAlertOnce(true);
 
@@ -207,19 +215,11 @@ public class BackgroundBLEService extends Service {
         return builder.build();
     }
 
-    private void checkClosestDevice() {
-        //  get the closest device from the list of found devices
-        Device closestDevice = getClosestDevice();
-        //  get the name of the device from the devices arrayList
-        if (closestDevice == null) {
-            // when no devices are found, reset the notification to default
-            updateNotification("No devices nearby", "halleyassist://app");
-            return;
+    private int getIntentFlags() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return PendingIntent.FLAG_UPDATE_CURRENT;
         }
-        //  update the notification
-        updateNotification("Tap to open " + closestDevice, "halleyassist://app/clients/" + closestDevice.serial);
-        //  we have updated the notification
-        startTimer();
+        return PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
     }
 
     private PendingIntent getPendingIntent(String deeplink) {
@@ -237,6 +237,24 @@ public class BackgroundBLEService extends Service {
         builder.setContentIntent(pendingIntent);
         //  update the notification
         notificationManager.notify(NOTIFICATION_ID, builder.build());
+        Logger.info(TAG, "Notification updated: " + text);
+    }
+
+    //#endregion Notification
+
+    private void checkClosestDevice() {
+        //  get the closest device from the list of found devices
+        Device closestDevice = getClosestDevice();
+        //  get the name of the device from the devices arrayList
+        if (closestDevice == null) {
+            // when no devices are found, reset the notification to default
+            updateNotification("No devices nearby", "halleyassist://app");
+            return;
+        }
+        //  update the notification
+        updateNotification("Tap to open " + closestDevice, "halleyassist://app/clients/" + closestDevice.serial);
+        //  start a timer to clear the notification text once no devices are in range
+        startTimer();
     }
 
     private void startTimer() {
@@ -253,11 +271,12 @@ public class BackgroundBLEService extends Service {
                         device.update(0, TX_POWER_NOT_PRESENT);
                     }
                 });
+
+                checkClosestDevice();
+
                 if (shouldStopTimer()) {
                     stopTimer();
-                    return;
                 }
-                checkClosestDevice();
             },
             TIMER_INTERVAL_MS,
             TIMER_INTERVAL_MS,
@@ -324,5 +343,9 @@ public class BackgroundBLEService extends Service {
             return null;
         }
         return closestDevice;
+    }
+
+    public List<Device> getDevices() {
+        return devices;
     }
 }

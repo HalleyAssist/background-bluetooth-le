@@ -1,27 +1,26 @@
 import { WebPlugin } from '@capacitor/core';
 import type {
   AddDeviceOptions,
-  AddDeviceResult,
   AddDevicesOptions,
-  AddDevicesResult,
   BackgroundBLEPlugin,
-  ClearDevicesResult,
+  Device,
   IsRunningResult,
   PermissionStatus,
   RemoveDeviceOptions,
-  RemoveDeviceResult,
+  Result,
   SetScanModeOptions,
 } from './definitions';
 export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   checkPermissions(): Promise<PermissionStatus>;
   requestPermissions(): Promise<PermissionStatus>;
   initialise(): Promise<void>;
-  addDevice(_options: AddDeviceOptions): Promise<AddDeviceResult>;
-  addDevices(_options: AddDevicesOptions): Promise<AddDevicesResult>;
-  removeDevice(_options: RemoveDeviceOptions): Promise<RemoveDeviceResult>;
-  clearDevices(): Promise<ClearDevicesResult>;
+  addDevice(_options: AddDeviceOptions): Promise<Result>;
+  addDevices(_options: AddDevicesOptions): Promise<Result>;
+  removeDevice(_options: RemoveDeviceOptions): Promise<Result>;
+  clearDevices(): Promise<Result>;
   startForegroundService(): Promise<void>;
   stopForegroundService(): Promise<void>;
   isRunning(): Promise<IsRunningResult>;
   setScanMode(_options: SetScanModeOptions): Promise<void>;
+  getDevices(): Promise<Device[]>;
 }
