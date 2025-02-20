@@ -83,7 +83,7 @@ Add a device to the list of devices to scan for
 | ------------- | ------------------------------------------------------------- | --------------------------- |
 | **`options`** | <code><a href="#adddeviceoptions">AddDeviceOptions</a></code> | The options to add a device |
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -102,7 +102,7 @@ Add multiple devices to the list of devices to scan for
 | ------------- | --------------------------------------------------------------- | ----------------------------------- |
 | **`options`** | <code><a href="#adddevicesoptions">AddDevicesOptions</a></code> | The options to add multiple devices |
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -121,7 +121,7 @@ Remove a device from the list of devices to scan for
 | ------------- | ------------------------------------------------------------------- | ------------------------------ |
 | **`options`** | <code><a href="#removedeviceoptions">RemoveDeviceOptions</a></code> | The options to remove a device |
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -136,7 +136,7 @@ clearDevices() => Promise<Result>
 
 Clear the list of devices to scan for
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -214,12 +214,12 @@ The scan mode can be one of the following:
 ### getDevices()
 
 ```typescript
-getDevices() => Promise<Device[]>
+getDevices() => Promise<Result<'devices', Device[]>>
 ```
 
 Get the current list of devices
 
-**Returns:** <code>Promise&lt;Device[]&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -235,13 +235,6 @@ Get the current list of devices
 | ------------------- | ----------------------------------------------------------- |
 | **`bluetooth`**     | <code><a href="#permissionstate">PermissionState</a></code> |
 | **`notifications`** | <code><a href="#permissionstate">PermissionState</a></code> |
-
-
-#### Result
-
-| Prop         | Type                |
-| ------------ | ------------------- |
-| **`result`** | <code>string</code> |
 
 
 #### Device
@@ -282,6 +275,11 @@ Get the current list of devices
 #### PermissionState
 
 <code>'prompt' | 'prompt-with-rationale' | 'granted' | 'denied'</code>
+
+
+#### Result
+
+<code>{ [key in Key]: T; }</code>
 
 
 #### AddDeviceOptions

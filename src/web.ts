@@ -57,7 +57,7 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async getDevices(): Promise<Device[]> {
+  async getDevices(): Promise<Result<'devices', Device[]>> {
     throw this.unimplemented('Not implemented on web.');
   }
 }

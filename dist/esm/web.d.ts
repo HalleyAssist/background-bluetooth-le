@@ -22,5 +22,5 @@ export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLE
   stopForegroundService(): Promise<void>;
   isRunning(): Promise<IsRunningResult>;
   setScanMode(_options: SetScanModeOptions): Promise<void>;
-  getDevices(): Promise<Device[]>;
+  getDevices(): Promise<Result<'devices', Device[]>>;
 }

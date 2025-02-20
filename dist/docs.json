@@ -58,7 +58,7 @@
             "type": "AddDeviceOptions"
           }
         ],
-        "returns": "Promise<Result>",
+        "returns": "Promise<Result<'result', string>>",
         "tags": [
           {
             "name": "param",
@@ -86,7 +86,7 @@
             "type": "AddDevicesOptions"
           }
         ],
-        "returns": "Promise<Result>",
+        "returns": "Promise<Result<'result', string>>",
         "tags": [
           {
             "name": "param",
@@ -114,7 +114,7 @@
             "type": "RemoveDeviceOptions"
           }
         ],
-        "returns": "Promise<Result>",
+        "returns": "Promise<Result<'result', string>>",
         "tags": [
           {
             "name": "param",
@@ -136,7 +136,7 @@
         "name": "clearDevices",
         "signature": "() => Promise<Result>",
         "parameters": [],
-        "returns": "Promise<Result>",
+        "returns": "Promise<Result<'result', string>>",
         "tags": [
           {
             "name": "since",
@@ -225,9 +225,9 @@
       },
       {
         "name": "getDevices",
-        "signature": "() => Promise<Device[]>",
+        "signature": "() => Promise<Result<'devices', Device[]>>",
         "parameters": [],
-        "returns": "Promise<Device[]>",
+        "returns": "Promise<Result<'devices', Device[]>>",
         "tags": [
           {
             "name": "since",
@@ -236,6 +236,7 @@
         ],
         "docs": "Get the current list of devices",
         "complexTypes": [
+          "Result",
           "Device"
         ],
         "slug": "getdevices"
@@ -268,22 +269,6 @@
             "PermissionState"
           ],
           "type": "PermissionState"
-        }
-      ]
-    },
-    {
-      "name": "Result",
-      "slug": "result",
-      "docs": "",
-      "tags": [],
-      "methods": [],
-      "properties": [
-        {
-          "name": "result",
-          "tags": [],
-          "docs": "",
-          "complexTypes": [],
-          "type": "string"
         }
       ]
     },
@@ -485,6 +470,20 @@
         {
           "text": "'denied'",
           "complexTypes": []
+        }
+      ]
+    },
+    {
+      "name": "Result",
+      "slug": "result",
+      "docs": "",
+      "types": [
+        {
+          "text": "{\n  [key in Key]: T;\n}",
+          "complexTypes": [
+            "Key",
+            "T"
+          ]
         }
       ]
     },

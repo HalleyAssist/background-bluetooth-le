@@ -51,9 +51,9 @@ export interface AddDevicesOptions {
   devices: AddDeviceOptions[];
 }
 export type RemoveDeviceOptions = Pick<Device, 'serial'>;
-export interface Result {
-  result: string;
-}
+export type Result<Key extends string = 'result', T = string> = {
+  [key in Key]: T;
+};
 export interface IsRunningResult {
   /**
    * Whether the background scanner is running
@@ -178,5 +178,5 @@ export interface BackgroundBLEPlugin {
    *
    * @since 1.0.0
    */
-  getDevices(): Promise<Device[]>;
+  getDevices(): Promise<Result<'devices', Device[]>>;
 }
