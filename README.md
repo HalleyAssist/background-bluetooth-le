@@ -11,6 +11,45 @@ yarn add background-bluetooth-le
 npx cap sync
 ```
 
+## Permissions
+
+On Android, the following permissions are required:
+
+```xml
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+
+<uses-permission android:name="android.permission.ACCESS_COURSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission
+  android:name="android.permission.BLUETOOTH"
+  android:maxSdkVersion="30" />
+<uses-permission
+  android:name="android.permission.BLUETOOTH_SCAN"
+  android:usesPermissionFlags="neverForLocation"
+  tools:targetApi="31" />
+<uses-permission
+  android:name="android.permission.BLUETOOTH_CONNECT"
+  tools:targetApi="31" />
+
+<uses-feature
+  android:name="android.hardware.bluetooth_le"
+  android:required="false" />
+```
+
+To use the foreground service, you must also add the following to your `AndroidManifest.xml` :
+
+```xml
+<application>
+  <!-- Other application details -->
+  <service
+    android:name="com.halleyassist.backgroundble.BackgroundBLEService"
+    android:foregroundServiceType="connectedDevice" />
+</application>
+```
+
+A drawable resource is also required for the notification icon. this should use the name `ic_notification` .
+
 ## API
 
 <docgen-index>
@@ -172,12 +211,12 @@ Stop the background scanner
 ### isRunning()
 
 ```typescript
-isRunning() => Promise<IsRunningResult>
+isRunning() => Promise<Result<'running', boolean>>
 ```
 
 Is the background scanner running
 
-**Returns:** <code>Promise&lt;<a href="#isrunningresult">IsRunningResult</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'running', boolean&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -231,13 +270,64 @@ Get the current list of devices
 
 #### PermissionStatus
 
+The permission state
+
+The permission state is a string that can be one of the following:
+- 'granted': The permission is granted
+- 'denied': The permission is denied
+- 'prompt': The permission is prompt
+- 'unavailable': The permission is unavailable
+
 | Prop                | Type                                                        |
 | ------------------- | ----------------------------------------------------------- |
 | **`bluetooth`**     | <code><a href="#permissionstate">PermissionState</a></code> |
 | **`notifications`** | <code><a href="#permissionstate">PermissionState</a></code> |
 
 
+#### AddDeviceOptions
+
+The options to add a device
+
+Only requires the serial and name of the device
+
+| Prop         | Type                | Description                    | Since |
+| ------------ | ------------------- | ------------------------------ | ----- |
+| **`serial`** | <code>string</code> | The serial of the device       | 1.0.0 |
+| **`name`**   | <code>string</code> | The display name of the device | 1.0.0 |
+
+
+#### AddDevicesOptions
+
+The options to add multiple devices
+
+| Prop          | Type                            | Description                                           | Since |
+| ------------- | ------------------------------- | ----------------------------------------------------- | ----- |
+| **`devices`** | <code>AddDeviceOptions[]</code> | The devices to add to the list of devices to scan for | 1.0.0 |
+
+
+#### RemoveDeviceOptions
+
+The options to remove a device
+
+Only requires the serial of the device
+
+| Prop         | Type                | Description              | Since |
+| ------------ | ------------------- | ------------------------ | ----- |
+| **`serial`** | <code>string</code> | The serial of the device | 1.0.0 |
+
+
+#### SetScanModeOptions
+
+The options to set the scan mode
+
+| Prop       | Type                                          | Description          | Default                | Since |
+| ---------- | --------------------------------------------- | -------------------- | ---------------------- | ----- |
+| **`mode`** | <code><a href="#scanmode">ScanMode</a></code> | The scan mode to set | <code>LOW_POWER</code> | 1.0.0 |
+
+
 #### Device
+
+A device
 
 | Prop              | Type                | Description                                                      | Since |
 | ----------------- | ------------------- | ---------------------------------------------------------------- | ----- |
@@ -246,27 +336,6 @@ Get the current list of devices
 | **`rssi`**        | <code>number</code> | The RSSI of the device 0 = device is not in range                | 1.0.0 |
 | **`txPower`**     | <code>number</code> | The TX power of the device -127 = unknown TX power               | 1.0.0 |
 | **`lastUpdated`** | <code>number</code> | The last time the device was updated in milliseconds since epoch | 1.0.0 |
-
-
-#### AddDevicesOptions
-
-| Prop          | Type                            | Description                                           | Since |
-| ------------- | ------------------------------- | ----------------------------------------------------- | ----- |
-| **`devices`** | <code>AddDeviceOptions[]</code> | The devices to add to the list of devices to scan for | 1.0.0 |
-
-
-#### IsRunningResult
-
-| Prop          | Type                 | Description                               | Since |
-| ------------- | -------------------- | ----------------------------------------- | ----- |
-| **`running`** | <code>boolean</code> | Whether the background scanner is running | 1.0.0 |
-
-
-#### SetScanModeOptions
-
-| Prop       | Type                                          | Description          | Default                | Since |
-| ---------- | --------------------------------------------- | -------------------- | ---------------------- | ----- |
-| **`mode`** | <code><a href="#scanmode">ScanMode</a></code> | The scan mode to set | <code>LOW_POWER</code> | 1.0.0 |
 
 
 ### Type Aliases
@@ -279,24 +348,9 @@ Get the current list of devices
 
 #### Result
 
+The result type is used to define the result of a function
+
 <code>{ [key in Key]: T; }</code>
-
-
-#### AddDeviceOptions
-
-<code><a href="#pick">Pick</a>&lt;<a href="#device">Device</a>, 'serial' | 'name'&gt;</code>
-
-
-#### Pick
-
-From T, pick a set of properties whose keys are in the union K
-
-<code>{ [P in K]: T[P]; }</code>
-
-
-#### RemoveDeviceOptions
-
-<code><a href="#pick">Pick</a>&lt;<a href="#device">Device</a>, 'serial'&gt;</code>
 
 
 ### Enums

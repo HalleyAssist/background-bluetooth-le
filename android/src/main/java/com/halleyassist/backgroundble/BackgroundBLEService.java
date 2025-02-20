@@ -118,7 +118,6 @@ public class BackgroundBLEService extends Service {
     private void startScanning(@NonNull List<Device> devices, int scanMode) {
         //  start scanning, filtering for devices with a name that starts with "HalleyHub"
         List<ScanFilter> filters = new ArrayList<>();
-        Logger.info(TAG, "Creating filters from " + devices);
         // add a filter for each device in the list
         for (Device device : devices) {
             ScanFilter filter = new ScanFilter.Builder().setDeviceName("H-" + device.serial).build();
@@ -126,11 +125,13 @@ public class BackgroundBLEService extends Service {
         }
         ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).build();
         bluetoothLeScanner.startScan(filters, settings, scanCallback);
+        Logger.info(TAG, "Background Scan Started");
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void stopScanning() {
         bluetoothLeScanner.stopScan(scanCallback);
+        Logger.info(TAG, "Background Scan Stopped");
     }
 
     @SuppressLint("MissingPermission")

@@ -4,7 +4,6 @@ import type {
   AddDevicesOptions,
   BackgroundBLEPlugin,
   Device,
-  IsRunningResult,
   PermissionStatus,
   RemoveDeviceOptions,
   Result,
@@ -20,7 +19,7 @@ export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLE
   clearDevices(): Promise<Result>;
   startForegroundService(): Promise<void>;
   stopForegroundService(): Promise<void>;
-  isRunning(): Promise<IsRunningResult>;
+  isRunning(): Promise<Result<'running', boolean>>;
   setScanMode(_options: SetScanModeOptions): Promise<void>;
   getDevices(): Promise<Result<'devices', Device[]>>;
 }

@@ -5,7 +5,6 @@ import type {
   AddDevicesOptions,
   BackgroundBLEPlugin,
   Device,
-  IsRunningResult,
   PermissionStatus,
   RemoveDeviceOptions,
   Result,
@@ -49,7 +48,7 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async isRunning(): Promise<IsRunningResult> {
+  async isRunning(): Promise<Result<'running', boolean>> {
     throw this.unimplemented('Not implemented on web.');
   }
 

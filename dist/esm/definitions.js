@@ -1,3 +1,6 @@
+/**
+ * The scan mode, taken from the Android API
+ */
 export var ScanMode;
 (function (ScanMode) {
   /**

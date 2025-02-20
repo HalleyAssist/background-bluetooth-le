@@ -181,9 +181,9 @@
       },
       {
         "name": "isRunning",
-        "signature": "() => Promise<IsRunningResult>",
+        "signature": "() => Promise<Result<'running', boolean>>",
         "parameters": [],
-        "returns": "Promise<IsRunningResult>",
+        "returns": "Promise<Result<'running', boolean>>",
         "tags": [
           {
             "name": "since",
@@ -192,7 +192,7 @@
         ],
         "docs": "Is the background scanner running",
         "complexTypes": [
-          "IsRunningResult"
+          "Result"
         ],
         "slug": "isrunning"
       },
@@ -248,8 +248,13 @@
     {
       "name": "PermissionStatus",
       "slug": "permissionstatus",
-      "docs": "",
-      "tags": [],
+      "docs": "The permission state\n\nThe permission state is a string that can be one of the following:\n- 'granted': The permission is granted\n- 'denied': The permission is denied\n- 'prompt': The permission is prompt\n- 'unavailable': The permission is unavailable",
+      "tags": [
+        {
+          "text": "1.0.0",
+          "name": "since"
+        }
+      ],
       "methods": [],
       "properties": [
         {
@@ -273,10 +278,138 @@
       ]
     },
     {
+      "name": "AddDeviceOptions",
+      "slug": "adddeviceoptions",
+      "docs": "The options to add a device\n\nOnly requires the serial and name of the device",
+      "tags": [
+        {
+          "text": "1.0.0",
+          "name": "since"
+        }
+      ],
+      "methods": [],
+      "properties": [
+        {
+          "name": "serial",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The serial of the device",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The display name of the device",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "AddDevicesOptions",
+      "slug": "adddevicesoptions",
+      "docs": "The options to add multiple devices",
+      "tags": [
+        {
+          "text": "1.0.0",
+          "name": "since"
+        }
+      ],
+      "methods": [],
+      "properties": [
+        {
+          "name": "devices",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The devices to add to the list of devices to scan for",
+          "complexTypes": [
+            "AddDeviceOptions"
+          ],
+          "type": "AddDeviceOptions[]"
+        }
+      ]
+    },
+    {
+      "name": "RemoveDeviceOptions",
+      "slug": "removedeviceoptions",
+      "docs": "The options to remove a device\n\nOnly requires the serial of the device",
+      "tags": [
+        {
+          "text": "1.0.0",
+          "name": "since"
+        }
+      ],
+      "methods": [],
+      "properties": [
+        {
+          "name": "serial",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The serial of the device",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SetScanModeOptions",
+      "slug": "setscanmodeoptions",
+      "docs": "The options to set the scan mode",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "mode",
+          "tags": [
+            {
+              "text": "ScanMode *",
+              "name": "see"
+            },
+            {
+              "text": "LOW_POWER",
+              "name": "default"
+            },
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The scan mode to set",
+          "complexTypes": [
+            "ScanMode"
+          ],
+          "type": "ScanMode"
+        }
+      ]
+    },
+    {
       "name": "Device",
       "slug": "device",
-      "docs": "",
-      "tags": [],
+      "docs": "A device",
+      "tags": [
+        {
+          "text": "1.0.0",
+          "name": "since"
+        }
+      ],
       "methods": [],
       "properties": [
         {
@@ -340,81 +473,6 @@
           "type": "number"
         }
       ]
-    },
-    {
-      "name": "AddDevicesOptions",
-      "slug": "adddevicesoptions",
-      "docs": "",
-      "tags": [],
-      "methods": [],
-      "properties": [
-        {
-          "name": "devices",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "The devices to add to the list of devices to scan for",
-          "complexTypes": [
-            "AddDeviceOptions"
-          ],
-          "type": "AddDeviceOptions[]"
-        }
-      ]
-    },
-    {
-      "name": "IsRunningResult",
-      "slug": "isrunningresult",
-      "docs": "",
-      "tags": [],
-      "methods": [],
-      "properties": [
-        {
-          "name": "running",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "Whether the background scanner is running",
-          "complexTypes": [],
-          "type": "boolean"
-        }
-      ]
-    },
-    {
-      "name": "SetScanModeOptions",
-      "slug": "setscanmodeoptions",
-      "docs": "",
-      "tags": [],
-      "methods": [],
-      "properties": [
-        {
-          "name": "mode",
-          "tags": [
-            {
-              "text": "ScanMode *",
-              "name": "see"
-            },
-            {
-              "text": "LOW_POWER",
-              "name": "default"
-            },
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "The scan mode to set",
-          "complexTypes": [
-            "ScanMode"
-          ],
-          "type": "ScanMode"
-        }
-      ]
     }
   ],
   "enums": [
@@ -476,56 +534,13 @@
     {
       "name": "Result",
       "slug": "result",
-      "docs": "",
+      "docs": "The result type is used to define the result of a function",
       "types": [
         {
           "text": "{\n  [key in Key]: T;\n}",
           "complexTypes": [
             "Key",
             "T"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "AddDeviceOptions",
-      "slug": "adddeviceoptions",
-      "docs": "",
-      "types": [
-        {
-          "text": "Pick<Device, 'serial' | 'name'>",
-          "complexTypes": [
-            "Pick",
-            "Device"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Pick",
-      "slug": "pick",
-      "docs": "From T, pick a set of properties whose keys are in the union K",
-      "types": [
-        {
-          "text": "{\r\n    [P in K]: T[P];\r\n}",
-          "complexTypes": [
-            "K",
-            "T",
-            "P"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "RemoveDeviceOptions",
-      "slug": "removedeviceoptions",
-      "docs": "",
-      "types": [
-        {
-          "text": "Pick<Device, 'serial'>",
-          "complexTypes": [
-            "Pick",
-            "Device"
           ]
         }
       ]

@@ -1,10 +1,26 @@
 import type { PermissionState } from '@capacitor/core';
 
+/**
+ * The permission state
+ *
+ * The permission state is a string that can be one of the following:
+ * - 'granted': The permission is granted
+ * - 'denied': The permission is denied
+ * - 'prompt': The permission is prompt
+ * - 'unavailable': The permission is unavailable
+ *
+ * @since 1.0.0
+ */
 export interface PermissionStatus {
   bluetooth: PermissionState;
   notifications: PermissionState;
 }
 
+/**
+ * A device
+ *
+ * @since 1.0.0
+ */
 export interface Device {
   /**
    * The serial of the device
@@ -44,8 +60,33 @@ export interface Device {
   lastUpdated: number;
 }
 
-export type AddDeviceOptions = Pick<Device, 'serial' | 'name'>;
+/**
+ * The options to add a device
+ *
+ * Only requires the serial and name of the device
+ *
+ * @since 1.0.0
+ */
+export interface AddDeviceOptions {
+  /**
+   * The serial of the device
+   *
+   * @since 1.0.0
+   */
+  serial: string;
+  /**
+   * The display name of the device
+   *
+   * @since 1.0.0
+   */
+  name: string;
+}
 
+/**
+ * The options to add multiple devices
+ *
+ * @since 1.0.0
+ */
 export interface AddDevicesOptions {
   /**
    * The devices to add to the list of devices to scan for
@@ -55,21 +96,36 @@ export interface AddDevicesOptions {
   devices: AddDeviceOptions[];
 }
 
-export type RemoveDeviceOptions = Pick<Device, 'serial'>;
+/**
+ * The options to remove a device
+ *
+ * Only requires the serial of the device
+ *
+ * @since 1.0.0
+ */
+export interface RemoveDeviceOptions {
+  /**
+   * The serial of the device
+   *
+   * @since 1.0.0
+   */
+  serial: string;
+}
 
+/**
+ * The result type is used to define the result of a function
+ *
+ * @default { result: string }
+ *
+ * @since 1.0.0
+ */
 export type Result<Key extends string = 'result', T = string> = {
   [key in Key]: T;
 };
 
-export interface IsRunningResult {
-  /**
-   * Whether the background scanner is running
-   *
-   * @since 1.0.0
-   */
-  running: boolean;
-}
-
+/**
+ * The scan mode, taken from the Android API
+ */
 export enum ScanMode {
   /**
    * A special Bluetooth LE scan mode.
@@ -93,6 +149,9 @@ export enum ScanMode {
   LOW_LATENCY = 2,
 }
 
+/**
+ * The options to set the scan mode
+ */
 export interface SetScanModeOptions {
   /**
    * The scan mode to set
@@ -164,7 +223,7 @@ export interface BackgroundBLEPlugin {
    *
    * @since 1.0.0
    */
-  isRunning(): Promise<IsRunningResult>;
+  isRunning(): Promise<Result<'running', boolean>>;
   /**
    * Set the scan mode
    *

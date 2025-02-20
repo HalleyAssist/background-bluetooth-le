@@ -58,7 +58,6 @@ public class BackgroundBLEPlugin extends Plugin {
     private List<String> getRequiredPermissions() {
         permissions = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permissions.add("ACCESS_FINE_LOCATION");
             permissions.add("BLUETOOTH_SCAN");
             permissions.add("BLUETOOTH_CONNECT");
         } else {

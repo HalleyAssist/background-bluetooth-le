@@ -1,6 +1,9 @@
 var capacitorBackgroundBLE = (function (exports, core) {
   'use strict';
 
+  /**
+   * The scan mode, taken from the Android API
+   */
   exports.ScanMode = void 0;
   (function (ScanMode) {
     /**
