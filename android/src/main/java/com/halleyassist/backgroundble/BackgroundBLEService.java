@@ -53,6 +53,8 @@ public class BackgroundBLEService extends Service {
     private ScheduledExecutorService executorService;
     private ScheduledFuture<?> timerFuture;
 
+    private boolean isRunning = false;
+
     //  singleton
     private static BackgroundBLEService instance;
 
@@ -129,12 +131,14 @@ public class BackgroundBLEService extends Service {
         ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).build();
         bluetoothLeScanner.startScan(filters, settings, scanCallback);
         Logger.info(TAG, "Background Scan Started");
+        isRunning = true;
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void stopScanning() {
         bluetoothLeScanner.stopScan(scanCallback);
         Logger.info(TAG, "Background Scan Stopped");
+        isRunning = false;
     }
 
     @SuppressLint("MissingPermission")
@@ -347,5 +351,9 @@ public class BackgroundBLEService extends Service {
 
     public List<Device> getDevices() {
         return devices;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 }

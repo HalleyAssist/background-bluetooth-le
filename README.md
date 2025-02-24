@@ -57,6 +57,7 @@ A drawable resource is also required for the notification icon. this should use 
 * [`checkPermissions()`](#checkpermissions)
 * [`requestPermissions()`](#requestpermissions)
 * [`initialise()`](#initialise)
+* [`getDevices()`](#getdevices)
 * [`addDevice(...)`](#adddevice)
 * [`addDevices(...)`](#adddevices)
 * [`removeDevice(...)`](#removedevice)
@@ -65,7 +66,6 @@ A drawable resource is also required for the notification icon. this should use 
 * [`stopForegroundService()`](#stopforegroundservice)
 * [`isRunning()`](#isrunning)
 * [`setScanMode(...)`](#setscanmode)
-* [`getDevices()`](#getdevices)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 * [Enums](#enums)
@@ -110,10 +110,25 @@ Initialise the background scanner
 --------------------
 
 
+### getDevices()
+
+```typescript
+getDevices() => Promise<Result<'devices', Device[]>>
+```
+
+Get the current list of devices
+
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
+
+**Since:** 1.0.0
+
+--------------------
+
+
 ### addDevice(...)
 
 ```typescript
-addDevice(options: AddDeviceOptions) => Promise<Result>
+addDevice(options: AddDeviceOptions) => Promise<Result<'devices', Device[]>>
 ```
 
 Add a device to the list of devices to scan for
@@ -122,7 +137,7 @@ Add a device to the list of devices to scan for
 | ------------- | ------------------------------------------------------------- | --------------------------- |
 | **`options`** | <code><a href="#adddeviceoptions">AddDeviceOptions</a></code> | The options to add a device |
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -132,7 +147,7 @@ Add a device to the list of devices to scan for
 ### addDevices(...)
 
 ```typescript
-addDevices(options: AddDevicesOptions) => Promise<Result>
+addDevices(options: AddDevicesOptions) => Promise<Result<'devices', Device[]>>
 ```
 
 Add multiple devices to the list of devices to scan for
@@ -141,7 +156,7 @@ Add multiple devices to the list of devices to scan for
 | ------------- | --------------------------------------------------------------- | ----------------------------------- |
 | **`options`** | <code><a href="#adddevicesoptions">AddDevicesOptions</a></code> | The options to add multiple devices |
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -151,7 +166,7 @@ Add multiple devices to the list of devices to scan for
 ### removeDevice(...)
 
 ```typescript
-removeDevice(options: RemoveDeviceOptions) => Promise<Result>
+removeDevice(options: RemoveDeviceOptions) => Promise<Result<'devices', Device[]>>
 ```
 
 Remove a device from the list of devices to scan for
@@ -160,7 +175,7 @@ Remove a device from the list of devices to scan for
 | ------------- | ------------------------------------------------------------------- | ------------------------------ |
 | **`options`** | <code><a href="#removedeviceoptions">RemoveDeviceOptions</a></code> | The options to remove a device |
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -170,12 +185,12 @@ Remove a device from the list of devices to scan for
 ### clearDevices()
 
 ```typescript
-clearDevices() => Promise<Result>
+clearDevices() => Promise<Result<'devices', Device[]>>
 ```
 
 Clear the list of devices to scan for
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -185,10 +200,12 @@ Clear the list of devices to scan for
 ### startForegroundService()
 
 ```typescript
-startForegroundService() => Promise<void>
+startForegroundService() => Promise<Result<'result', string>>
 ```
 
 Start the background scanner
+
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -226,7 +243,7 @@ Is the background scanner running
 ### setScanMode(...)
 
 ```typescript
-setScanMode(options: SetScanModeOptions) => Promise<void>
+setScanMode(options: SetScanModeOptions) => Promise<Result<'result', ScanMode>>
 ```
 
 Set the scan mode
@@ -245,20 +262,7 @@ The scan mode can be one of the following:
 | ------------- | ----------------------------------------------------------------- | -------------------------------- |
 | **`options`** | <code><a href="#setscanmodeoptions">SetScanModeOptions</a></code> | The options to set the scan mode |
 
-**Since:** 1.0.0
-
---------------------
-
-
-### getDevices()
-
-```typescript
-getDevices() => Promise<Result<'devices', Device[]>>
-```
-
-Get the current list of devices
-
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', <a href="#scanmode">ScanMode</a>&gt;&gt;</code>
 
 **Since:** 1.0.0
 
@@ -282,6 +286,19 @@ The permission state is a string that can be one of the following:
 | ------------------- | ----------------------------------------------------------- |
 | **`bluetooth`**     | <code><a href="#permissionstate">PermissionState</a></code> |
 | **`notifications`** | <code><a href="#permissionstate">PermissionState</a></code> |
+
+
+#### Device
+
+A device
+
+| Prop              | Type                | Description                                                      | Since |
+| ----------------- | ------------------- | ---------------------------------------------------------------- | ----- |
+| **`serial`**      | <code>string</code> | The serial of the device                                         | 1.0.0 |
+| **`name`**        | <code>string</code> | The display name of the device                                   | 1.0.0 |
+| **`rssi`**        | <code>number</code> | The RSSI of the device 0 = device is not in range                | 1.0.0 |
+| **`txPower`**     | <code>number</code> | The TX power of the device -127 = unknown TX power               | 1.0.0 |
+| **`lastUpdated`** | <code>number</code> | The last time the device was updated in milliseconds since epoch | 1.0.0 |
 
 
 #### AddDeviceOptions
@@ -323,19 +340,6 @@ The options to set the scan mode
 | Prop       | Type                                          | Description          | Default                | Since |
 | ---------- | --------------------------------------------- | -------------------- | ---------------------- | ----- |
 | **`mode`** | <code><a href="#scanmode">ScanMode</a></code> | The scan mode to set | <code>LOW_POWER</code> | 1.0.0 |
-
-
-#### Device
-
-A device
-
-| Prop              | Type                | Description                                                      | Since |
-| ----------------- | ------------------- | ---------------------------------------------------------------- | ----- |
-| **`serial`**      | <code>string</code> | The serial of the device                                         | 1.0.0 |
-| **`name`**        | <code>string</code> | The display name of the device                                   | 1.0.0 |
-| **`rssi`**        | <code>number</code> | The RSSI of the device 0 = device is not in range                | 1.0.0 |
-| **`txPower`**     | <code>number</code> | The TX power of the device -127 = unknown TX power               | 1.0.0 |
-| **`lastUpdated`** | <code>number</code> | The last time the device was updated in milliseconds since epoch | 1.0.0 |
 
 
 ### Type Aliases

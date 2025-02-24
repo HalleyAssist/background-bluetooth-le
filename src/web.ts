@@ -8,6 +8,7 @@ import type {
   PermissionStatus,
   RemoveDeviceOptions,
   Result,
+  ScanMode,
   SetScanModeOptions,
 } from './definitions';
 
@@ -24,23 +25,27 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async addDevice(_options: AddDeviceOptions): Promise<Result> {
+  async getDevices(): Promise<Result<'devices', Device[]>> {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async addDevices(_options: AddDevicesOptions): Promise<Result> {
+  async addDevice(_options: AddDeviceOptions): Promise<Result<'devices', Device[]>> {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async removeDevice(_options: RemoveDeviceOptions): Promise<Result> {
+  async addDevices(_options: AddDevicesOptions): Promise<Result<'devices', Device[]>> {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async clearDevices(): Promise<Result> {
+  async removeDevice(_options: RemoveDeviceOptions): Promise<Result<'devices', Device[]>> {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async startForegroundService(): Promise<void> {
+  async clearDevices(): Promise<Result<'devices', Device[]>> {
+    throw this.unimplemented('Not implemented on web.');
+  }
+
+  async startForegroundService(): Promise<Result<'result', string>> {
     throw this.unimplemented('Not implemented on web.');
   }
 
@@ -52,11 +57,7 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  async setScanMode(_options: SetScanModeOptions): Promise<void> {
-    throw this.unimplemented('Not implemented on web.');
-  }
-
-  async getDevices(): Promise<Result<'devices', Device[]>> {
+  async setScanMode(_options: SetScanModeOptions): Promise<Result<'result', ScanMode>> {
     throw this.unimplemented('Not implemented on web.');
   }
 }

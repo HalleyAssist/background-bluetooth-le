@@ -3,6 +3,7 @@ package com.halleyassist.backgroundble;
 import static android.bluetooth.le.ScanResult.TX_POWER_NOT_PRESENT;
 
 import androidx.annotation.NonNull;
+import com.getcapacitor.JSObject;
 
 public class Device {
 
@@ -50,5 +51,15 @@ public class Device {
         this.rssi = rssi;
         this.txPower = txPower;
         this.lastUpdated = System.currentTimeMillis();
+    }
+
+    public JSObject toObject() {
+        JSObject object = new JSObject();
+        object.put("serial", serial);
+        object.put("name", name);
+        object.put("rssi", rssi);
+        object.put("txPower", txPower);
+        object.put("lastUpdated", lastUpdated);
+        return object;
     }
 }

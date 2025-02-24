@@ -49,8 +49,26 @@
         "slug": "initialise"
       },
       {
+        "name": "getDevices",
+        "signature": "() => Promise<Result<'devices', Device[]>>",
+        "parameters": [],
+        "returns": "Promise<Result<'devices', Device[]>>",
+        "tags": [
+          {
+            "name": "since",
+            "text": "1.0.0"
+          }
+        ],
+        "docs": "Get the current list of devices",
+        "complexTypes": [
+          "Result",
+          "Device"
+        ],
+        "slug": "getdevices"
+      },
+      {
         "name": "addDevice",
-        "signature": "(options: AddDeviceOptions) => Promise<Result>",
+        "signature": "(options: AddDeviceOptions) => Promise<Result<'devices', Device[]>>",
         "parameters": [
           {
             "name": "options",
@@ -58,7 +76,7 @@
             "type": "AddDeviceOptions"
           }
         ],
-        "returns": "Promise<Result<'result', string>>",
+        "returns": "Promise<Result<'devices', Device[]>>",
         "tags": [
           {
             "name": "param",
@@ -72,13 +90,14 @@
         "docs": "Add a device to the list of devices to scan for",
         "complexTypes": [
           "Result",
+          "Device",
           "AddDeviceOptions"
         ],
         "slug": "adddevice"
       },
       {
         "name": "addDevices",
-        "signature": "(options: AddDevicesOptions) => Promise<Result>",
+        "signature": "(options: AddDevicesOptions) => Promise<Result<'devices', Device[]>>",
         "parameters": [
           {
             "name": "options",
@@ -86,7 +105,7 @@
             "type": "AddDevicesOptions"
           }
         ],
-        "returns": "Promise<Result<'result', string>>",
+        "returns": "Promise<Result<'devices', Device[]>>",
         "tags": [
           {
             "name": "param",
@@ -100,13 +119,14 @@
         "docs": "Add multiple devices to the list of devices to scan for",
         "complexTypes": [
           "Result",
+          "Device",
           "AddDevicesOptions"
         ],
         "slug": "adddevices"
       },
       {
         "name": "removeDevice",
-        "signature": "(options: RemoveDeviceOptions) => Promise<Result>",
+        "signature": "(options: RemoveDeviceOptions) => Promise<Result<'devices', Device[]>>",
         "parameters": [
           {
             "name": "options",
@@ -114,7 +134,7 @@
             "type": "RemoveDeviceOptions"
           }
         ],
-        "returns": "Promise<Result<'result', string>>",
+        "returns": "Promise<Result<'devices', Device[]>>",
         "tags": [
           {
             "name": "param",
@@ -128,15 +148,16 @@
         "docs": "Remove a device from the list of devices to scan for",
         "complexTypes": [
           "Result",
+          "Device",
           "RemoveDeviceOptions"
         ],
         "slug": "removedevice"
       },
       {
         "name": "clearDevices",
-        "signature": "() => Promise<Result>",
+        "signature": "() => Promise<Result<'devices', Device[]>>",
         "parameters": [],
-        "returns": "Promise<Result<'result', string>>",
+        "returns": "Promise<Result<'devices', Device[]>>",
         "tags": [
           {
             "name": "since",
@@ -145,15 +166,16 @@
         ],
         "docs": "Clear the list of devices to scan for",
         "complexTypes": [
-          "Result"
+          "Result",
+          "Device"
         ],
         "slug": "cleardevices"
       },
       {
         "name": "startForegroundService",
-        "signature": "() => Promise<void>",
+        "signature": "() => Promise<Result<'result', string>>",
         "parameters": [],
-        "returns": "Promise<void>",
+        "returns": "Promise<Result<'result', string>>",
         "tags": [
           {
             "name": "since",
@@ -161,7 +183,9 @@
           }
         ],
         "docs": "Start the background scanner",
-        "complexTypes": [],
+        "complexTypes": [
+          "Result"
+        ],
         "slug": "startforegroundservice"
       },
       {
@@ -198,7 +222,7 @@
       },
       {
         "name": "setScanMode",
-        "signature": "(options: SetScanModeOptions) => Promise<void>",
+        "signature": "(options: SetScanModeOptions) => Promise<Result<'result', ScanMode>>",
         "parameters": [
           {
             "name": "options",
@@ -206,7 +230,7 @@
             "type": "SetScanModeOptions"
           }
         ],
-        "returns": "Promise<void>",
+        "returns": "Promise<Result<'result', ScanMode>>",
         "tags": [
           {
             "name": "param",
@@ -219,27 +243,11 @@
         ],
         "docs": "Set the scan mode\n\nThe scan mode can be one of the following:\n- OPPORTUNISTIC: A special Bluetooth LE scan mode.\n                 Applications using this scan mode will passively listen for other scan results without starting BLE scans themselves.\n- LOW_POWER:     Perform Bluetooth LE scan in low power mode.\n                 This is the default scan mode as it consumes the least power.\n- BALANCED:      Perform Bluetooth LE scan in balanced power mode.\n                 Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption.\n- LOW_LATENCY:   Scan for Bluetooth LE devices using a high duty cycle.\n                 It's recommended to only use this mode when the application is running in the foreground.",
         "complexTypes": [
+          "Result",
+          "ScanMode",
           "SetScanModeOptions"
         ],
         "slug": "setscanmode"
-      },
-      {
-        "name": "getDevices",
-        "signature": "() => Promise<Result<'devices', Device[]>>",
-        "parameters": [],
-        "returns": "Promise<Result<'devices', Device[]>>",
-        "tags": [
-          {
-            "name": "since",
-            "text": "1.0.0"
-          }
-        ],
-        "docs": "Get the current list of devices",
-        "complexTypes": [
-          "Result",
-          "Device"
-        ],
-        "slug": "getdevices"
       }
     ],
     "properties": []
@@ -274,6 +282,80 @@
             "PermissionState"
           ],
           "type": "PermissionState"
+        }
+      ]
+    },
+    {
+      "name": "Device",
+      "slug": "device",
+      "docs": "A device",
+      "tags": [
+        {
+          "text": "1.0.0",
+          "name": "since"
+        }
+      ],
+      "methods": [],
+      "properties": [
+        {
+          "name": "serial",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The serial of the device",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The display name of the device",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "rssi",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The RSSI of the device\n\n0 = device is not in range",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "txPower",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The TX power of the device\n\n-127 = unknown TX power",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "lastUpdated",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The last time the device was updated\n\nin milliseconds since epoch",
+          "complexTypes": [],
+          "type": "number"
         }
       ]
     },
@@ -397,80 +479,6 @@
             "ScanMode"
           ],
           "type": "ScanMode"
-        }
-      ]
-    },
-    {
-      "name": "Device",
-      "slug": "device",
-      "docs": "A device",
-      "tags": [
-        {
-          "text": "1.0.0",
-          "name": "since"
-        }
-      ],
-      "methods": [],
-      "properties": [
-        {
-          "name": "serial",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "The serial of the device",
-          "complexTypes": [],
-          "type": "string"
-        },
-        {
-          "name": "name",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "The display name of the device",
-          "complexTypes": [],
-          "type": "string"
-        },
-        {
-          "name": "rssi",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "The RSSI of the device\n\n0 = device is not in range",
-          "complexTypes": [],
-          "type": "number"
-        },
-        {
-          "name": "txPower",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "The TX power of the device\n\n-127 = unknown TX power",
-          "complexTypes": [],
-          "type": "number"
-        },
-        {
-          "name": "lastUpdated",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "The last time the device was updated\n\nin milliseconds since epoch",
-          "complexTypes": [],
-          "type": "number"
         }
       ]
     }

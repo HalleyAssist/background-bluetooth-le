@@ -168,13 +168,19 @@ export interface BackgroundBLEPlugin {
    */
   initialise(): Promise<void>;
   /**
+   * Get the current list of devices
+   *
+   * @since 1.0.0
+   */
+  getDevices(): Promise<Result<'devices', Device[]>>;
+  /**
    * Add a device to the list of devices to scan for
    *
    * @param options The options to add a device
    *
    * @since 1.0.0
    */
-  addDevice(options: AddDeviceOptions): Promise<Result>;
+  addDevice(options: AddDeviceOptions): Promise<Result<'devices', Device[]>>;
   /**
    * Add multiple devices to the list of devices to scan for
    *
@@ -182,7 +188,7 @@ export interface BackgroundBLEPlugin {
    *
    * @since 1.0.0
    */
-  addDevices(options: AddDevicesOptions): Promise<Result>;
+  addDevices(options: AddDevicesOptions): Promise<Result<'devices', Device[]>>;
   /**
    * Remove a device from the list of devices to scan for
    *
@@ -190,19 +196,19 @@ export interface BackgroundBLEPlugin {
    *
    * @since 1.0.0
    */
-  removeDevice(options: RemoveDeviceOptions): Promise<Result>;
+  removeDevice(options: RemoveDeviceOptions): Promise<Result<'devices', Device[]>>;
   /**
    * Clear the list of devices to scan for
    *
    * @since 1.0.0
    */
-  clearDevices(): Promise<Result>;
+  clearDevices(): Promise<Result<'devices', Device[]>>;
   /**
    * Start the background scanner
    *
    * @since 1.0.0
    */
-  startForegroundService(): Promise<void>;
+  startForegroundService(): Promise<Result<'result', string>>;
   /**
    * Stop the background scanner
    *
@@ -232,11 +238,5 @@ export interface BackgroundBLEPlugin {
    *
    * @since 1.0.0
    */
-  setScanMode(options: SetScanModeOptions): Promise<void>;
-  /**
-   * Get the current list of devices
-   *
-   * @since 1.0.0
-   */
-  getDevices(): Promise<Result<'devices', Device[]>>;
+  setScanMode(options: SetScanModeOptions): Promise<Result<'result', ScanMode>>;
 }

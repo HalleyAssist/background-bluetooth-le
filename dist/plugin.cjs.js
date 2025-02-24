@@ -48,6 +48,9 @@ class BackgroundBLEWeb extends core.WebPlugin {
   async initialise() {
     throw this.unimplemented('Not implemented on web.');
   }
+  async getDevices() {
+    throw this.unimplemented('Not implemented on web.');
+  }
   async addDevice(_options) {
     throw this.unimplemented('Not implemented on web.');
   }
@@ -70,9 +73,6 @@ class BackgroundBLEWeb extends core.WebPlugin {
     throw this.unimplemented('Not implemented on web.');
   }
   async setScanMode(_options) {
-    throw this.unimplemented('Not implemented on web.');
-  }
-  async getDevices() {
     throw this.unimplemented('Not implemented on web.');
   }
 }

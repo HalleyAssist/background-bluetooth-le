@@ -15,10 +15,11 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -87,20 +88,36 @@ public class BackgroundBLEPlugin extends Plugin {
         }
     }
 
+    /**
+     * Gets the devices that have been found by the plugin.
+     */
     @PluginMethod
-    public void addDevice(@NonNull PluginCall call) {
-        String serial = call.getString("serial");
-        String name = call.getString("name");
-        String result = implementation.addDevice(serial, name);
-        JSObject ret = new JSObject();
-        ret.put("result", result);
-        call.resolve(ret);
+    public Disposable getDevices(@NonNull PluginCall call) {
+        return implementation
+            .getDevices()
+            .subscribe(
+                devices -> call.resolve(resolveDevices(devices)),
+                throwable -> call.reject("Failed to get devices", throwable.getMessage())
+            );
     }
 
     @PluginMethod
-    public void addDevices(@NonNull PluginCall call) {
+    public Disposable addDevice(@NonNull PluginCall call) {
+        String serial = call.getString("serial");
+        String name = call.getString("name");
+        return implementation
+            .addDevice(serial, name)
+            .subscribe(
+                devices -> call.resolve(resolveDevices(devices)),
+                throwable -> call.reject("Failed to add device", throwable.getMessage())
+            );
+    }
+
+    @PluginMethod
+    public Disposable addDevices(@NonNull PluginCall call) {
         JSArray devices = call.getArray("devices");
         try {
+            //  extract the devices array
             List<JSONObject> deviceList = devices.toList();
             ArrayList<Device> list = new ArrayList<>();
             //  parse the devices array
@@ -113,37 +130,51 @@ public class BackgroundBLEPlugin extends Plugin {
                 }
             }
 
-            Set<String> result = implementation.addDevices(list);
-            JSObject ret = new JSObject();
-            ret.put("result", result.toString());
-            call.resolve(ret);
+            return implementation
+                .addDevices(list)
+                .subscribe(
+                    devices1 -> call.resolve(resolveDevices(devices1)),
+                    throwable -> call.reject("Failed to add devices", throwable.getMessage())
+                );
         } catch (JSONException ex) {
             call.reject(ex.toString());
+            return Single.just("").subscribe();
         }
     }
 
     @PluginMethod
-    public void removeDevice(@NonNull PluginCall call) {
+    public Disposable removeDevice(@NonNull PluginCall call) {
         String serial = call.getString("serial");
-        String result = implementation.removeDevice(serial);
-        JSObject ret = new JSObject();
-        ret.put("result", result);
-        call.resolve(ret);
+        return implementation
+            .removeDevice(serial)
+            .subscribe(
+                devices -> call.resolve(resolveDevices(devices)),
+                throwable -> call.reject("Failed to remove device", throwable.getMessage())
+            );
     }
 
     @PluginMethod
-    public void clearDevices(@NonNull PluginCall call) {
-        String result = implementation.clearDevices();
-        JSObject ret = new JSObject();
-        ret.put("result", result);
-        call.resolve(ret);
+    public Disposable clearDevices(@NonNull PluginCall call) {
+        return implementation
+            .clearDevices()
+            .subscribe(
+                devices -> call.resolve(resolveDevices(devices)),
+                throwable -> call.reject("Failed to clear devices", throwable.getMessage())
+            );
     }
 
     @PluginMethod
-    public void startForegroundService(@NonNull PluginCall call) {
-        String result = implementation.startForegroundService();
-        Logger.info(TAG, "Started Foreground Service: " + result);
-        call.resolve();
+    public Disposable startForegroundService(@NonNull PluginCall call) {
+        return implementation
+            .startForegroundService()
+            .subscribe(
+                result -> {
+                    JSObject ret = new JSObject();
+                    ret.put("result", result);
+                    call.resolve(ret);
+                },
+                throwable -> call.reject("Failed to start foreground service", throwable.getMessage())
+            );
     }
 
     @PluginMethod
@@ -166,26 +197,29 @@ public class BackgroundBLEPlugin extends Plugin {
      * @param call The plugin call containing the 'mode' parameter.
      */
     @PluginMethod
-    public void setScanMode(@NonNull PluginCall call) {
+    public Disposable setScanMode(@NonNull PluginCall call) {
         Integer mode = call.getInt("mode");
 
         if (mode == null) {
             call.reject("Scan mode is required", "MISSING_PARAMETER");
-            return;
         }
-
         // Validate the mode if necessary
-        if (!isValidScanMode(mode)) {
+        else if (!isValidScanMode(mode)) {
             call.reject("Invalid scan mode", "INVALID_PARAMETER_VALUE");
-            return;
+        } else {
+            return implementation
+                .setScanMode(mode)
+                .subscribe(
+                    result -> {
+                        JSObject ret = new JSObject();
+                        ret.put("result", result);
+                        call.resolve(ret);
+                    },
+                    throwable -> call.reject("Failed to set scan mode", throwable.getMessage())
+                );
         }
 
-        try {
-            implementation.setScanMode(mode);
-            call.resolve();
-        } catch (Exception e) {
-            call.reject("Failed to set scan mode", e);
-        }
+        return Single.just("").subscribe();
     }
 
     /**
@@ -196,27 +230,23 @@ public class BackgroundBLEPlugin extends Plugin {
      */
     private boolean isValidScanMode(int mode) {
         // Example: Check if the mode is within a specific range or a known set of values
-        return mode >= -1 && mode <= 2; // Example: Valid modes are 0, 1, and 2
+        return mode >= -1 && mode <= 2; // Example: Valid modes are -1, 0, 1, and 2
     }
 
-    /**
-     * Gets the devices that have been found by the plugin.
-     */
-    @PluginMethod
-    public void getDevices(@NonNull PluginCall call) {
-        List<Device> devices = implementation.getDevices();
+    @NonNull
+    private JSArray devicesToJSArray(@NonNull List<Device> devices) {
         JSArray deviceArray = new JSArray();
         for (Device device : devices) {
-            JSObject object = new JSObject();
-            object.put("serial", device.serial);
-            object.put("name", device.name);
-            object.put("rssi", device.rssi);
-            object.put("txPower", device.txPower);
-            object.put("lastUpdated", device.lastUpdated);
-            deviceArray.put(object);
+            deviceArray.put(device.toObject());
         }
+        return deviceArray;
+    }
+
+    @NonNull
+    private JSObject resolveDevices(List<Device> devices) {
         JSObject ret = new JSObject();
+        JSArray deviceArray = devicesToJSArray(devices);
         ret.put("devices", deviceArray);
-        call.resolve(ret);
+        return ret;
     }
 }
