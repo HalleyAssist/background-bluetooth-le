@@ -41,6 +41,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BackgroundBLEService extends Service {
 
+    private static final String DEFAULT_CHANNEL_ID = "BluetoothScanner";
+    private static final int NOTIFICATION_ID = 1;
+
     private BluetoothLeScanner bluetoothLeScanner;
 
     private Notification.Builder builder;
@@ -175,7 +178,7 @@ public class BackgroundBLEService extends Service {
 
     private void createNotificationChannel() {
         NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, "Bluetooth Scanner", NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription("Shows the nearest Hubs");
+        channel.setDescription("Shows the nearest Hub, Enabling you to quickly open the hub in the app");
         channel.enableLights(false);
         channel.enableVibration(false);
         channel.setSound(null, null);
@@ -317,11 +320,7 @@ public class BackgroundBLEService extends Service {
         return null;
     }
 
-    private static final String DEFAULT_CHANNEL_ID = "BluetoothScanner";
-    private static final int NOTIFICATION_ID = 1;
-
     @Nullable
-    @SuppressLint("MissingPermission")
     private Device getClosestDevice() {
         if (devices.isEmpty()) {
             return null;

@@ -32,7 +32,9 @@ public class Device {
         return name;
     }
 
-    /*public String estimateDistance() {
+    /*
+      Estimate the distance to the device, based on the RSSI and TX power (not precise, but close enough)
+    public String estimateDistance() {
         if (txPower == TX_POWER_NOT_PRESENT || rssi == 0) {
             return "rssi: " + rssi;
         }
@@ -41,7 +43,8 @@ public class Device {
         double exponent = (txPower - rssi) / (10 * 2.0);
         Log.d(TAG, "txPower: " + txPower + ", rssi: " + rssi + ", exponent: " + exponent);
         return String.format(Locale.ENGLISH, "%.2fm", Math.pow(10, exponent));
-    }*/
+    }
+    */
 
     public void update(int rssi, int txPower) {
         this.rssi = rssi;
