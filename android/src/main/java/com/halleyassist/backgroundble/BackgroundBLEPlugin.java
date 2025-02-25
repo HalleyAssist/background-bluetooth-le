@@ -65,6 +65,7 @@ public class BackgroundBLEPlugin extends Plugin {
             permissions.add("ACCESS_FINE_LOCATION");
             permissions.add("BLUETOOTH");
         }
+        permissions.add("POST_NOTIFICATIONS");
         return permissions;
     }
 
