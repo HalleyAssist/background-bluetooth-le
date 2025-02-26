@@ -24,11 +24,13 @@ public class BackgroundBLE {
     public static final String TAG = "BackgroundBLE";
 
     private final Context context;
-    private final RxDataStore<Preferences> dataStore;
+    private static RxDataStore<Preferences> dataStore = null;
 
     public BackgroundBLE(Context context) {
         this.context = context;
-        this.dataStore = new RxPreferenceDataStoreBuilder(context, "background_ble").build();
+        if (dataStore == null) {
+          dataStore = new RxPreferenceDataStoreBuilder(context, "background_ble").build();
+        }
     }
 
     public void canUseBluetooth() {
