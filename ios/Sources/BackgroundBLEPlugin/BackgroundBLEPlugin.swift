@@ -26,6 +26,10 @@ public class BackgroundBLEPlugin: CAPPlugin, CAPBridgedPlugin {
         call.unimplemented("Not implemented on iOS")
     }
 
+    @objc public func getDevices(_ call: CAPPluginCall) {
+        call.unimplemented("Not implemented on iOS")
+    }
+
     @objc public func addDevice(_ call: CAPPluginCall) {
         call.unimplemented("Not implemented on iOS")
     }
@@ -47,10 +51,6 @@ public class BackgroundBLEPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc public func isRunning(_ call: CAPPluginCall) {
-        call.unimplemented("Not implemented on iOS")
-    }
-
-    @objc public func getDevices(_ call: CAPPluginCall) {
         call.unimplemented("Not implemented on iOS")
     }
 

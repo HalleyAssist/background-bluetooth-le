@@ -13,14 +13,20 @@ npx cap sync
 
 ## Permissions
 
-On Android, the following permissions are required:
+### Android
+
+The following permissions are required:
 
 ```xml
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 
-<uses-permission android:name="android.permission.ACCESS_COURSE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission
+  android:name="android.permission.ACCESS_COURSE_LOCATION"
+  android:maxSdkVersion="30" />
+<uses-permission
+  android:name="android.permission.ACCESS_FINE_LOCATION"
+  android:maxSdkVersion="30" />
 <uses-permission
   android:name="android.permission.BLUETOOTH"
   android:maxSdkVersion="30" />
@@ -31,6 +37,9 @@ On Android, the following permissions are required:
 <uses-permission
   android:name="android.permission.BLUETOOTH_CONNECT"
   tools:targetApi="31" />
+  
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 
 <uses-feature
   android:name="android.hardware.bluetooth_le"

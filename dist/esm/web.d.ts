@@ -1,5 +1,5 @@
 import { WebPlugin } from '@capacitor/core';
-import type {
+import {
   AddDeviceOptions,
   AddDevicesOptions,
   BackgroundBLEPlugin,

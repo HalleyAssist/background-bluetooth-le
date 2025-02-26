@@ -39,40 +39,40 @@ var capacitorBackgroundBLE = (function (exports, core) {
 
   class BackgroundBLEWeb extends core.WebPlugin {
     async checkPermissions() {
-      throw this.unimplemented('Not implemented on web.');
+      return { bluetooth: 'denied', notifications: 'denied' };
     }
     async requestPermissions() {
-      throw this.unimplemented('Not implemented on web.');
+      return { bluetooth: 'denied', notifications: 'denied' };
     }
     async initialise() {
-      throw this.unimplemented('Not implemented on web.');
+      return;
     }
     async getDevices() {
-      throw this.unimplemented('Not implemented on web.');
+      return { devices: [] };
     }
     async addDevice(_options) {
-      throw this.unimplemented('Not implemented on web.');
+      return { devices: [] };
     }
     async addDevices(_options) {
-      throw this.unimplemented('Not implemented on web.');
+      return { devices: [] };
     }
     async removeDevice(_options) {
-      throw this.unimplemented('Not implemented on web.');
+      return { devices: [] };
     }
     async clearDevices() {
-      throw this.unimplemented('Not implemented on web.');
+      return { devices: [] };
     }
     async startForegroundService() {
-      throw this.unimplemented('Not implemented on web.');
+      return { result: 'not supported' };
     }
     async stopForegroundService() {
-      throw this.unimplemented('Not implemented on web.');
+      return;
     }
     async isRunning() {
-      throw this.unimplemented('Not implemented on web.');
+      return { running: false };
     }
     async setScanMode(_options) {
-      throw this.unimplemented('Not implemented on web.');
+      return { result: exports.ScanMode.OPPORTUNISTIC };
     }
   }
 
