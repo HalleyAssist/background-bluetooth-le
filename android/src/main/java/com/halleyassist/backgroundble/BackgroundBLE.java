@@ -29,7 +29,7 @@ public class BackgroundBLE {
     public BackgroundBLE(Context context) {
         this.context = context;
         if (dataStore == null) {
-          dataStore = new RxPreferenceDataStoreBuilder(context, "background_ble").build();
+            dataStore = new RxPreferenceDataStoreBuilder(context, "background_ble").build();
         }
     }
 
