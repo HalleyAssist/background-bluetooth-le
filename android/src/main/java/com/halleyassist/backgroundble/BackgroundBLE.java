@@ -17,6 +17,7 @@ import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class BackgroundBLE {
 
@@ -167,6 +168,17 @@ public class BackgroundBLE {
         return dataStore
             .updateDataAsync(preferences -> {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                // get all the keys in the preferences
+                Set<Preferences.Key<?>> keys = mutablePreferences.asMap().keySet();
+                // if any key is not in the proved device list, remove the entry
+                for (Preferences.Key<?> key : keys) {
+                    if (key.toString().equals("scanMode")) {
+                        continue;
+                    }
+                    if (devices.stream().noneMatch(device -> device.serial.equals(key.toString()))) {
+                        mutablePreferences.remove(key);
+                    }
+                }
                 // iterate map
                 for (Device device : devices) {
                     Preferences.Key<String> key = PreferencesKeys.stringKey(device.serial);
