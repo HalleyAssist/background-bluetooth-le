@@ -18,11 +18,8 @@ npx cap sync
 The following permissions are required:
 
 ```xml
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
-
 <uses-permission
-  android:name="android.permission.ACCESS_COURSE_LOCATION"
+  android:name="android.permission.ACCESS_COARSE_LOCATION"
   android:maxSdkVersion="30" />
 <uses-permission
   android:name="android.permission.ACCESS_FINE_LOCATION"
