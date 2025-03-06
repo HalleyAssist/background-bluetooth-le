@@ -149,6 +149,10 @@ public class BackgroundBLEService extends Service {
             // add or update the device list with the scanned device
             BluetoothDevice bDevice = result.getDevice();
             String name = bDevice.getName();
+            //  name must be present and start with "H-" to be a valid device
+            if (name == null || !name.startsWith("H-")) {
+                return;
+            }
             // extract the serial number from the device name (H-{serial})
             String serial = name.split("-")[1];
             // create a device if it does not exist in the array (should never happen)
