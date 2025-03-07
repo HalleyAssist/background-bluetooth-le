@@ -15,6 +15,7 @@ export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLE
   requestPermissions(): Promise<PermissionStatus>;
   initialise(): Promise<void>;
   getDevices(): Promise<Result<'devices', Device[]>>;
+  setDevices(_devices: Device[]): Promise<Result<'devices', Device[]>>;
   addDevice(_options: AddDeviceOptions): Promise<Result<'devices', Device[]>>;
   addDevices(_options: AddDevicesOptions): Promise<Result<'devices', Device[]>>;
   removeDevice(_options: RemoveDeviceOptions): Promise<Result<'devices', Device[]>>;

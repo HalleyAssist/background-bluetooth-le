@@ -103,6 +103,35 @@ public class BackgroundBLEPlugin extends Plugin {
     }
 
     @PluginMethod
+    public Disposable setDevices(@NonNull PluginCall call) {
+        JSArray devices = call.getArray("devices");
+        try {
+            //  extract the devices array
+            List<JSONObject> deviceList = devices.toList();
+            ArrayList<Device> list = new ArrayList<>();
+            //  parse the devices array
+            for (JSONObject object : deviceList) {
+                try {
+                    Device device = new Device(object.getString("serial"), object.getString("name"));
+                    list.add(device);
+                } catch (JSONException e) {
+                    Logger.error("BackgroundBLE Error parsing device: " + e.getMessage());
+                }
+            }
+
+            return implementation
+                .setDevices(list)
+                .subscribe(
+                    devices1 -> call.resolve(resolveDevices(devices1)),
+                    throwable -> call.reject("Failed to set devices", throwable.getMessage())
+                );
+        } catch (JSONException ex) {
+            call.reject(ex.toString());
+            return Single.just("").subscribe();
+        }
+    }
+
+    @PluginMethod
     public Disposable addDevice(@NonNull PluginCall call) {
         String serial = call.getString("serial");
         String name = call.getString("name");

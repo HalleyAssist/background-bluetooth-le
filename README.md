@@ -64,6 +64,7 @@ A drawable resource is also required for the notification icon. this should use 
 * [`requestPermissions()`](#requestpermissions)
 * [`initialise()`](#initialise)
 * [`getDevices()`](#getdevices)
+* [`setDevices(...)`](#setdevices)
 * [`addDevice(...)`](#adddevice)
 * [`addDevices(...)`](#adddevices)
 * [`removeDevice(...)`](#removedevice)
@@ -123,6 +124,25 @@ getDevices() => Promise<Result<'devices', Device[]>>
 ```
 
 Get the current list of devices
+
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
+
+**Since:** 1.0.0
+
+--------------------
+
+
+### setDevices(...)
+
+```typescript
+setDevices(devices: Device[]) => Promise<Result<'devices', Device[]>>
+```
+
+Set the list of devices to scan for
+
+| Param         | Type                  | Description             |
+| ------------- | --------------------- | ----------------------- |
+| **`devices`** | <code>Device[]</code> | The devices to scan for |
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
 

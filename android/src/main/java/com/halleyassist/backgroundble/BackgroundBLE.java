@@ -62,6 +62,10 @@ public class BackgroundBLE {
         return Single.just(new ArrayList<>());
     }
 
+    public Single<List<Device>> setDevices(@NonNull List<Device> devices) {
+        return saveDevices(devices);
+    }
+
     public Single<List<Device>> addDevice(String serial, String name) {
         return loadDevices()
             .flatMap(devices -> {

@@ -50,6 +50,9 @@ var capacitorBackgroundBLE = (function (exports, core) {
     async getDevices() {
       return { devices: [] };
     }
+    async setDevices(_devices) {
+      return { devices: [] };
+    }
     async addDevice(_options) {
       return { devices: [] };
     }

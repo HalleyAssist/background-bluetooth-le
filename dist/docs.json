@@ -67,6 +67,34 @@
         "slug": "getdevices"
       },
       {
+        "name": "setDevices",
+        "signature": "(devices: Device[]) => Promise<Result<'devices', Device[]>>",
+        "parameters": [
+          {
+            "name": "devices",
+            "docs": "The devices to scan for",
+            "type": "Device[]"
+          }
+        ],
+        "returns": "Promise<Result<'devices', Device[]>>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "devices The devices to scan for"
+          },
+          {
+            "name": "since",
+            "text": "1.0.0"
+          }
+        ],
+        "docs": "Set the list of devices to scan for",
+        "complexTypes": [
+          "Result",
+          "Device"
+        ],
+        "slug": "setdevices"
+      },
+      {
         "name": "addDevice",
         "signature": "(options: AddDeviceOptions) => Promise<Result<'devices', Device[]>>",
         "parameters": [

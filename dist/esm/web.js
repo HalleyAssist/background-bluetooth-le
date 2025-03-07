@@ -13,6 +13,9 @@ export class BackgroundBLEWeb extends WebPlugin {
   async getDevices() {
     return { devices: [] };
   }
+  async setDevices(_devices) {
+    return { devices: [] };
+  }
   async addDevice(_options) {
     return { devices: [] };
   }
