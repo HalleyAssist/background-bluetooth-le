@@ -65,9 +65,6 @@ A drawable resource is also required for the notification icon. this should use 
 * [`initialise()`](#initialise)
 * [`getDevices()`](#getdevices)
 * [`setDevices(...)`](#setdevices)
-* [`addDevice(...)`](#adddevice)
-* [`addDevices(...)`](#adddevices)
-* [`removeDevice(...)`](#removedevice)
 * [`clearDevices()`](#cleardevices)
 * [`startForegroundService()`](#startforegroundservice)
 * [`stopForegroundService()`](#stopforegroundservice)
@@ -135,71 +132,14 @@ Get the current list of devices
 ### setDevices(...)
 
 ```typescript
-setDevices(options: AddDeviceOptions) => Promise<Result<'devices', Device[]>>
+setDevices(options: AddDevicesOptions) => Promise<Result<'devices', Device[]>>
 ```
 
 Set the list of devices to scan for
 
-| Param         | Type                                                          |
-| ------------- | ------------------------------------------------------------- |
-| **`options`** | <code><a href="#adddeviceoptions">AddDeviceOptions</a></code> |
-
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
-
-**Since:** 1.0.0
-
---------------------
-
-
-### addDevice(...)
-
-```typescript
-addDevice(options: AddDeviceOptions) => Promise<Result<'devices', Device[]>>
-```
-
-Add a device to the list of devices to scan for
-
-| Param         | Type                                                          | Description                 |
-| ------------- | ------------------------------------------------------------- | --------------------------- |
-| **`options`** | <code><a href="#adddeviceoptions">AddDeviceOptions</a></code> | The options to add a device |
-
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
-
-**Since:** 1.0.0
-
---------------------
-
-
-### addDevices(...)
-
-```typescript
-addDevices(options: AddDevicesOptions) => Promise<Result<'devices', Device[]>>
-```
-
-Add multiple devices to the list of devices to scan for
-
-| Param         | Type                                                            | Description                         |
-| ------------- | --------------------------------------------------------------- | ----------------------------------- |
-| **`options`** | <code><a href="#adddevicesoptions">AddDevicesOptions</a></code> | The options to add multiple devices |
-
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
-
-**Since:** 1.0.0
-
---------------------
-
-
-### removeDevice(...)
-
-```typescript
-removeDevice(options: RemoveDeviceOptions) => Promise<Result<'devices', Device[]>>
-```
-
-Remove a device from the list of devices to scan for
-
-| Param         | Type                                                                | Description                    |
-| ------------- | ------------------------------------------------------------------- | ------------------------------ |
-| **`options`** | <code><a href="#removedeviceoptions">RemoveDeviceOptions</a></code> | The options to remove a device |
+| Param         | Type                                                            |
+| ------------- | --------------------------------------------------------------- |
+| **`options`** | <code><a href="#adddevicesoptions">AddDevicesOptions</a></code> |
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
 
@@ -327,6 +267,15 @@ A device
 | **`lastUpdated`** | <code>number</code> | The last time the device was updated in milliseconds since epoch | 1.0.0 |
 
 
+#### AddDevicesOptions
+
+The options to add multiple devices
+
+| Prop          | Type                            | Description                                           | Since |
+| ------------- | ------------------------------- | ----------------------------------------------------- | ----- |
+| **`devices`** | <code>AddDeviceOptions[]</code> | The devices to add to the list of devices to scan for | 1.0.0 |
+
+
 #### AddDeviceOptions
 
 The options to add a device
@@ -337,26 +286,6 @@ Only requires the serial and name of the device
 | ------------ | ------------------- | ------------------------------ | ----- |
 | **`serial`** | <code>string</code> | The serial of the device       | 1.0.0 |
 | **`name`**   | <code>string</code> | The display name of the device | 1.0.0 |
-
-
-#### AddDevicesOptions
-
-The options to add multiple devices
-
-| Prop          | Type                            | Description                                           | Since |
-| ------------- | ------------------------------- | ----------------------------------------------------- | ----- |
-| **`devices`** | <code>AddDeviceOptions[]</code> | The devices to add to the list of devices to scan for | 1.0.0 |
-
-
-#### RemoveDeviceOptions
-
-The options to remove a device
-
-Only requires the serial of the device
-
-| Prop         | Type                | Description              | Since |
-| ------------ | ------------------- | ------------------------ | ----- |
-| **`serial`** | <code>string</code> | The serial of the device | 1.0.0 |
 
 
 #### SetScanModeOptions

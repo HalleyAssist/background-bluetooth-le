@@ -66,35 +66,6 @@ public class BackgroundBLE {
         return saveDevices(devices);
     }
 
-    public Single<List<Device>> addDevice(String serial, String name) {
-        return loadDevices()
-            .flatMap(devices -> {
-                devices.add(new Device(serial, name));
-                return saveDevices(devices);
-            });
-    }
-
-    public Single<List<Device>> addDevices(@NonNull List<Device> devices) {
-        return loadDevices()
-            .flatMap(devices1 -> {
-                // add any device that does not already exist
-                for (Device device : devices) {
-                    if (devices1.stream().noneMatch(d -> d.serial.equals(device.serial))) {
-                        devices1.add(device);
-                    }
-                }
-                return saveDevices(devices1);
-            });
-    }
-
-    public Single<List<Device>> removeDevice(String serial) {
-        return loadDevices()
-            .flatMap(devices -> {
-                devices.removeIf(device -> device.serial.equals(serial));
-                return saveDevices(devices);
-            });
-    }
-
     public Single<List<Device>> clearDevices() {
         return saveDevices(new ArrayList<>());
     }

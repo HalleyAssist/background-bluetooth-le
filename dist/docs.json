@@ -68,12 +68,12 @@
       },
       {
         "name": "setDevices",
-        "signature": "(options: AddDeviceOptions) => Promise<Result<'devices', Device[]>>",
+        "signature": "(options: AddDevicesOptions) => Promise<Result<'devices', Device[]>>",
         "parameters": [
           {
             "name": "options",
             "docs": "",
-            "type": "AddDeviceOptions"
+            "type": "AddDevicesOptions"
           }
         ],
         "returns": "Promise<Result<'devices', Device[]>>",
@@ -91,96 +91,9 @@
         "complexTypes": [
           "Result",
           "Device",
-          "AddDeviceOptions"
-        ],
-        "slug": "setdevices"
-      },
-      {
-        "name": "addDevice",
-        "signature": "(options: AddDeviceOptions) => Promise<Result<'devices', Device[]>>",
-        "parameters": [
-          {
-            "name": "options",
-            "docs": "The options to add a device",
-            "type": "AddDeviceOptions"
-          }
-        ],
-        "returns": "Promise<Result<'devices', Device[]>>",
-        "tags": [
-          {
-            "name": "param",
-            "text": "options The options to add a device"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
-          }
-        ],
-        "docs": "Add a device to the list of devices to scan for",
-        "complexTypes": [
-          "Result",
-          "Device",
-          "AddDeviceOptions"
-        ],
-        "slug": "adddevice"
-      },
-      {
-        "name": "addDevices",
-        "signature": "(options: AddDevicesOptions) => Promise<Result<'devices', Device[]>>",
-        "parameters": [
-          {
-            "name": "options",
-            "docs": "The options to add multiple devices",
-            "type": "AddDevicesOptions"
-          }
-        ],
-        "returns": "Promise<Result<'devices', Device[]>>",
-        "tags": [
-          {
-            "name": "param",
-            "text": "options The options to add multiple devices"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
-          }
-        ],
-        "docs": "Add multiple devices to the list of devices to scan for",
-        "complexTypes": [
-          "Result",
-          "Device",
           "AddDevicesOptions"
         ],
-        "slug": "adddevices"
-      },
-      {
-        "name": "removeDevice",
-        "signature": "(options: RemoveDeviceOptions) => Promise<Result<'devices', Device[]>>",
-        "parameters": [
-          {
-            "name": "options",
-            "docs": "The options to remove a device",
-            "type": "RemoveDeviceOptions"
-          }
-        ],
-        "returns": "Promise<Result<'devices', Device[]>>",
-        "tags": [
-          {
-            "name": "param",
-            "text": "options The options to remove a device"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
-          }
-        ],
-        "docs": "Remove a device from the list of devices to scan for",
-        "complexTypes": [
-          "Result",
-          "Device",
-          "RemoveDeviceOptions"
-        ],
-        "slug": "removedevice"
+        "slug": "setdevices"
       },
       {
         "name": "clearDevices",
@@ -389,6 +302,34 @@
       ]
     },
     {
+      "name": "AddDevicesOptions",
+      "slug": "adddevicesoptions",
+      "docs": "The options to add multiple devices",
+      "tags": [
+        {
+          "text": "1.0.0",
+          "name": "since"
+        }
+      ],
+      "methods": [],
+      "properties": [
+        {
+          "name": "devices",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The devices to add to the list of devices to scan for",
+          "complexTypes": [
+            "AddDeviceOptions"
+          ],
+          "type": "AddDeviceOptions[]"
+        }
+      ]
+    },
+    {
       "name": "AddDeviceOptions",
       "slug": "adddeviceoptions",
       "docs": "The options to add a device\n\nOnly requires the serial and name of the device",
@@ -421,60 +362,6 @@
             }
           ],
           "docs": "The display name of the device",
-          "complexTypes": [],
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "AddDevicesOptions",
-      "slug": "adddevicesoptions",
-      "docs": "The options to add multiple devices",
-      "tags": [
-        {
-          "text": "1.0.0",
-          "name": "since"
-        }
-      ],
-      "methods": [],
-      "properties": [
-        {
-          "name": "devices",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "The devices to add to the list of devices to scan for",
-          "complexTypes": [
-            "AddDeviceOptions"
-          ],
-          "type": "AddDeviceOptions[]"
-        }
-      ]
-    },
-    {
-      "name": "RemoveDeviceOptions",
-      "slug": "removedeviceoptions",
-      "docs": "The options to remove a device\n\nOnly requires the serial of the device",
-      "tags": [
-        {
-          "text": "1.0.0",
-          "name": "since"
-        }
-      ],
-      "methods": [],
-      "properties": [
-        {
-          "name": "serial",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
-          "docs": "The serial of the device",
           "complexTypes": [],
           "type": "string"
         }

@@ -1,12 +1,10 @@
 import { WebPlugin } from '@capacitor/core';
 
 import {
-  AddDeviceOptions,
   AddDevicesOptions,
   BackgroundBLEPlugin,
   Device,
   PermissionStatus,
-  RemoveDeviceOptions,
   Result,
   ScanMode,
   SetScanModeOptions,
@@ -29,19 +27,7 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     return { devices: [] };
   }
 
-  async setDevices(_options: AddDeviceOptions): Promise<Result<'devices', Device[]>> {
-    return { devices: [] };
-  }
-
-  async addDevice(_options: AddDeviceOptions): Promise<Result<'devices', Device[]>> {
-    return { devices: [] };
-  }
-
-  async addDevices(_options: AddDevicesOptions): Promise<Result<'devices', Device[]>> {
-    return { devices: [] };
-  }
-
-  async removeDevice(_options: RemoveDeviceOptions): Promise<Result<'devices', Device[]>> {
+  async setDevices(_options: AddDevicesOptions): Promise<Result<'devices', Device[]>> {
     return { devices: [] };
   }
 

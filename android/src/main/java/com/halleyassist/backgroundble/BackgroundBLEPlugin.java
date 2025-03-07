@@ -132,58 +132,6 @@ public class BackgroundBLEPlugin extends Plugin {
     }
 
     @PluginMethod
-    public Disposable addDevice(@NonNull PluginCall call) {
-        String serial = call.getString("serial");
-        String name = call.getString("name");
-        return implementation
-            .addDevice(serial, name)
-            .subscribe(
-                devices -> call.resolve(resolveDevices(devices)),
-                throwable -> call.reject("Failed to add device", throwable.getMessage())
-            );
-    }
-
-    @PluginMethod
-    public Disposable addDevices(@NonNull PluginCall call) {
-        JSArray devices = call.getArray("devices");
-        try {
-            //  extract the devices array
-            List<JSONObject> deviceList = devices.toList();
-            ArrayList<Device> list = new ArrayList<>();
-            //  parse the devices array
-            for (JSONObject object : deviceList) {
-                try {
-                    Device device = new Device(object.getString("serial"), object.getString("name"));
-                    list.add(device);
-                } catch (JSONException e) {
-                    Logger.error("BackgroundBLE Error parsing device: " + e.getMessage());
-                }
-            }
-
-            return implementation
-                .addDevices(list)
-                .subscribe(
-                    devices1 -> call.resolve(resolveDevices(devices1)),
-                    throwable -> call.reject("Failed to add devices", throwable.getMessage())
-                );
-        } catch (JSONException ex) {
-            call.reject(ex.toString());
-            return Single.just("").subscribe();
-        }
-    }
-
-    @PluginMethod
-    public Disposable removeDevice(@NonNull PluginCall call) {
-        String serial = call.getString("serial");
-        return implementation
-            .removeDevice(serial)
-            .subscribe(
-                devices -> call.resolve(resolveDevices(devices)),
-                throwable -> call.reject("Failed to remove device", throwable.getMessage())
-            );
-    }
-
-    @PluginMethod
     public Disposable clearDevices(@NonNull PluginCall call) {
         return implementation
             .clearDevices()

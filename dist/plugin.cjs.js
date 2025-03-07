@@ -54,15 +54,6 @@ class BackgroundBLEWeb extends core.WebPlugin {
   async setDevices(_options) {
     return { devices: [] };
   }
-  async addDevice(_options) {
-    return { devices: [] };
-  }
-  async addDevices(_options) {
-    return { devices: [] };
-  }
-  async removeDevice(_options) {
-    return { devices: [] };
-  }
   async clearDevices() {
     return { devices: [] };
   }
