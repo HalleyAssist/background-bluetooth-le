@@ -135,14 +135,14 @@ Get the current list of devices
 ### setDevices(...)
 
 ```typescript
-setDevices(devices: Device[]) => Promise<Result<'devices', Device[]>>
+setDevices(options: AddDeviceOptions) => Promise<Result<'devices', Device[]>>
 ```
 
 Set the list of devices to scan for
 
-| Param         | Type                  | Description             |
-| ------------- | --------------------- | ----------------------- |
-| **`devices`** | <code>Device[]</code> | The devices to scan for |
+| Param         | Type                                                          |
+| ------------- | ------------------------------------------------------------- |
+| **`options`** | <code><a href="#adddeviceoptions">AddDeviceOptions</a></code> |
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
 

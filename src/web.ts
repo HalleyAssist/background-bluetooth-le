@@ -29,7 +29,7 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     return { devices: [] };
   }
 
-  async setDevices(_devices: Device[]): Promise<Result<'devices', Device[]>> {
+  async setDevices(_options: AddDeviceOptions): Promise<Result<'devices', Device[]>> {
     return { devices: [] };
   }
 

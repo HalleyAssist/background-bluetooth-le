@@ -189,7 +189,7 @@ export interface BackgroundBLEPlugin {
    *
    * @since 1.0.0
    */
-  setDevices(devices: Device[]): Promise<Result<'devices', Device[]>>;
+  setDevices(options: AddDeviceOptions): Promise<Result<'devices', Device[]>>;
   /**
    * Add a device to the list of devices to scan for
    *

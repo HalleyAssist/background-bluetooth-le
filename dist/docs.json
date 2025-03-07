@@ -68,12 +68,12 @@
       },
       {
         "name": "setDevices",
-        "signature": "(devices: Device[]) => Promise<Result<'devices', Device[]>>",
+        "signature": "(options: AddDeviceOptions) => Promise<Result<'devices', Device[]>>",
         "parameters": [
           {
-            "name": "devices",
-            "docs": "The devices to scan for",
-            "type": "Device[]"
+            "name": "options",
+            "docs": "",
+            "type": "AddDeviceOptions"
           }
         ],
         "returns": "Promise<Result<'devices', Device[]>>",
@@ -90,7 +90,8 @@
         "docs": "Set the list of devices to scan for",
         "complexTypes": [
           "Result",
-          "Device"
+          "Device",
+          "AddDeviceOptions"
         ],
         "slug": "setdevices"
       },
