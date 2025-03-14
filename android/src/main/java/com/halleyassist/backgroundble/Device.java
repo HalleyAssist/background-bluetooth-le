@@ -16,7 +16,7 @@ public class Device {
      */
     String name;
 
-    int rssi = 0;
+    float rssi = 0;
     int txPower = TX_POWER_NOT_PRESENT;
 
     // last updated time
@@ -47,7 +47,7 @@ public class Device {
     }
     */
 
-    public void update(int rssi, int txPower) {
+    public void update(float rssi, int txPower) {
         this.rssi = rssi;
         this.txPower = txPower;
         this.lastUpdated = System.currentTimeMillis();

@@ -32,6 +32,7 @@ import androidx.annotation.RequiresPermission;
 import com.getcapacitor.Logger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -166,7 +167,7 @@ public class BackgroundBLEService extends Service {
                 .findFirst()
                 .ifPresent(foundDevice -> {
                     //  smooth the rssi value
-                    int rssi = (foundDevice.rssi + result.getRssi()) / 2;
+                    float rssi = (foundDevice.rssi + result.getRssi()) / 2;
                     foundDevice.update(rssi, result.getTxPower());
                 });
             //  update the notification
@@ -333,24 +334,18 @@ public class BackgroundBLEService extends Service {
         if (devices.isEmpty()) {
             return null;
         }
-        //  get the closest device from the list of found devices
+        //  sort the devices by rssi, smallest first
         devices.sort((device1, device2) -> {
             //  compare the signal strength of the two devices
-            int rssi1 = device1.rssi;
-            int rssi2 = device2.rssi;
-            return Integer.compare(rssi1, rssi2);
+            float rssi1 = device1.rssi;
+            float rssi2 = device2.rssi;
+            //  sort by rssi, largest first
+            return Float.compare(rssi2, rssi1);
         });
-        Device closestDevice;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            closestDevice = devices.getFirst();
-        } else {
-            closestDevice = devices.get(0);
-        }
-
-        if (closestDevice.rssi == 0) {
-            return null;
-        }
-        return closestDevice;
+        Optional<Device> closestDevice;
+        // get the first devices with a non-zero rssi
+        closestDevice = devices.stream().filter(d -> d.rssi != 0).findFirst();
+        return closestDevice.orElse(null);
     }
 
     public List<Device> getDevices() {
