@@ -15,6 +15,7 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+import com.halleyassist.backgroundble.Device.Device;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import java.util.ArrayList;

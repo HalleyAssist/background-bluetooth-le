@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import com.getcapacitor.Logger;
+import com.halleyassist.backgroundble.Device.Device;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -166,9 +167,7 @@ public class BackgroundBLEService extends Service {
                 .filter(d -> d.serial.equals(serial))
                 .findFirst()
                 .ifPresent(foundDevice -> {
-                    //  smooth the rssi value
-                    float rssi = (foundDevice.rssi + result.getRssi()) / 2;
-                    foundDevice.update(rssi, result.getTxPower());
+                    foundDevice.update(result.getRssi(), result.getTxPower());
                 });
             //  update the notification
             checkClosestDevice();

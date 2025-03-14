@@ -13,6 +13,7 @@ import androidx.datastore.preferences.core.PreferencesKeys;
 import androidx.datastore.preferences.rxjava2.RxPreferenceDataStoreBuilder;
 import androidx.datastore.rxjava2.RxDataStore;
 import com.getcapacitor.plugin.util.AssetUtil;
+import com.halleyassist.backgroundble.Device.Device;
 import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.List;
