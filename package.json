@@ -48,10 +48,10 @@
     "prepublishOnly": "yarn run build"
   },
   "devDependencies": {
-    "@capacitor/android": "^7.0.0",
-    "@capacitor/core": "^7.0.0",
+    "@capacitor/android": "^7.1.0",
+    "@capacitor/core": "^7.1.0",
     "@capacitor/docgen": "^0.3.0",
-    "@capacitor/ios": "^7.0.0",
+    "@capacitor/ios": "^7.1.0",
     "@eslint/js": "^9.22.0",
     "@ionic/prettier-config": "^4.0.0",
     "@ionic/swiftlint-config": "^2.0.0",
