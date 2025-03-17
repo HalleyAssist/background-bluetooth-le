@@ -2,7 +2,7 @@
   "api": {
     "name": "BackgroundBLEPlugin",
     "slug": "backgroundbleplugin",
-    "docs": "",
+    "docs": "The background BLE plugin",
     "tags": [],
     "methods": [
       {
@@ -190,6 +190,25 @@
           "SetScanModeOptions"
         ],
         "slug": "setscanmode"
+      },
+      {
+        "name": "setDebugMode",
+        "signature": "(options: DebugModeOptions) => Promise<Result<'debug', boolean>>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "DebugModeOptions"
+          }
+        ],
+        "returns": "Promise<Result<'debug', boolean>>",
+        "tags": [],
+        "docs": "Set debug mode",
+        "complexTypes": [
+          "Result",
+          "DebugModeOptions"
+        ],
+        "slug": "setdebugmode"
       }
     ],
     "properties": []
@@ -395,6 +414,31 @@
             "ScanMode"
           ],
           "type": "ScanMode"
+        }
+      ]
+    },
+    {
+      "name": "DebugModeOptions",
+      "slug": "debugmodeoptions",
+      "docs": "The debug mode options",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "debug",
+          "tags": [
+            {
+              "text": "false",
+              "name": "default"
+            },
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The debug mode to set",
+          "complexTypes": [],
+          "type": "boolean"
         }
       ]
     }

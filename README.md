@@ -70,6 +70,7 @@ A drawable resource is also required for the notification icon. this should use 
 * [`stopForegroundService()`](#stopforegroundservice)
 * [`isRunning()`](#isrunning)
 * [`setScanMode(...)`](#setscanmode)
+* [`setDebugMode(...)`](#setdebugmode)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 * [Enums](#enums)
@@ -78,6 +79,8 @@ A drawable resource is also required for the notification icon. this should use 
 
 <docgen-api>
 <!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
+
+The background BLE plugin
 
 ### checkPermissions()
 
@@ -235,6 +238,23 @@ The scan mode can be one of the following:
 --------------------
 
 
+### setDebugMode(...)
+
+```typescript
+setDebugMode(options: DebugModeOptions) => Promise<Result<'debug', boolean>>
+```
+
+Set debug mode
+
+| Param         | Type                                                          |
+| ------------- | ------------------------------------------------------------- |
+| **`options`** | <code><a href="#debugmodeoptions">DebugModeOptions</a></code> |
+
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'debug', boolean&gt;&gt;</code>
+
+--------------------
+
+
 ### Interfaces
 
 
@@ -295,6 +315,15 @@ The options to set the scan mode
 | Prop       | Type                                          | Description          | Default                | Since |
 | ---------- | --------------------------------------------- | -------------------- | ---------------------- | ----- |
 | **`mode`** | <code><a href="#scanmode">ScanMode</a></code> | The scan mode to set | <code>LOW_POWER</code> | 1.0.0 |
+
+
+#### DebugModeOptions
+
+The debug mode options
+
+| Prop        | Type                 | Description           | Default            | Since |
+| ----------- | -------------------- | --------------------- | ------------------ | ----- |
+| **`debug`** | <code>boolean</code> | The debug mode to set | <code>false</code> | 1.0.0 |
 
 
 ### Type Aliases

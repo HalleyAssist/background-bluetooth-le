@@ -156,6 +156,22 @@ export interface SetScanModeOptions {
    */
   mode: ScanMode;
 }
+/**
+ * The debug mode options
+ */
+export interface DebugModeOptions {
+  /**
+   * The debug mode to set
+   *
+   * @default false
+   *
+   * @since 1.0.0
+   */
+  debug: boolean;
+}
+/**
+ * The background BLE plugin
+ */
 export interface BackgroundBLEPlugin {
   checkPermissions(): Promise<PermissionStatus>;
   requestPermissions(): Promise<PermissionStatus>;
@@ -223,4 +239,8 @@ export interface BackgroundBLEPlugin {
    * @since 1.0.0
    */
   setScanMode(options: SetScanModeOptions): Promise<Result<'result', ScanMode>>;
+  /**
+   * Set debug mode
+   */
+  setDebugMode(options: DebugModeOptions): Promise<Result<'debug', boolean>>;
 }

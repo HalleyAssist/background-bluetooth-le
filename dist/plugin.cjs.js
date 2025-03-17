@@ -69,6 +69,9 @@ class BackgroundBLEWeb extends core.WebPlugin {
   async setScanMode(_options) {
     return { result: exports.ScanMode.OPPORTUNISTIC };
   }
+  async setDebugMode(options) {
+    return { debug: options.debug };
+  }
 }
 
 var web = /*#__PURE__*/ Object.freeze({

@@ -57,6 +57,8 @@ public class BackgroundBLEService extends Service {
 
     private boolean isRunning = false;
 
+    private boolean debugMode = false;
+
     //  singleton
     private static BackgroundBLEService instance;
 
@@ -85,6 +87,8 @@ public class BackgroundBLEService extends Service {
                     return START_NOT_STICKY;
                 }
             }
+
+            debugMode = intent.getBooleanExtra("debugMode", false);
 
             notificationManager = getSystemService(NotificationManager.class);
             createNotificationChannel();
@@ -254,17 +258,39 @@ public class BackgroundBLEService extends Service {
 
     //#endregion Notification
 
+    /**
+     * Check the closest device from the list of found devices
+     *
+     * Updates the notification with the closest device
+     */
     private void checkClosestDevice() {
         //  get the closest device from the list of found devices
         Device closestDevice = getClosestDevice();
-        //  get the name of the device from the devices arrayList
-        if (closestDevice == null) {
-            // when no devices are found, reset the notification to default
-            updateNotification("No devices nearby", "halleyassist://app");
-            return;
+
+        if (debugMode) {
+            //  in debug mode, the notification will show the rssi of all devices sorted by closest first, separated by a newline
+            StringBuilder debugText = new StringBuilder();
+            devices.forEach(device -> {
+                debugText.append(device.name).append(": ").append(device.rssi).append("\n");
+            });
+            //  deep link to the closest device, if present
+            StringBuilder deepLink = new StringBuilder();
+            if (closestDevice != null) {
+                deepLink.append("halleyassist://app/clients/").append(closestDevice.serial);
+            } else {
+                deepLink.append("halleyassist://app");
+            }
+            updateNotification(debugText.toString(), deepLink.toString());
+        } else {
+            //  get the name of the device from the devices arrayList
+            if (closestDevice == null) {
+                // when no devices are found, reset the notification to default
+                updateNotification("No devices nearby", "halleyassist://app");
+                return;
+            }
+            //  update the notification
+            updateNotification("Tap to open " + closestDevice, "halleyassist://app/clients/" + closestDevice.serial);
         }
-        //  update the notification
-        updateNotification("Tap to open " + closestDevice, "halleyassist://app/clients/" + closestDevice.serial);
         //  start a timer to clear the notification text once no devices are in range
         startTimer();
     }

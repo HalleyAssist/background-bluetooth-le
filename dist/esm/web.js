@@ -31,5 +31,8 @@ export class BackgroundBLEWeb extends WebPlugin {
   async setScanMode(_options) {
     return { result: ScanMode.OPPORTUNISTIC };
   }
+  async setDebugMode(options) {
+    return { debug: options.debug };
+  }
 }
 //# sourceMappingURL=web.js.map

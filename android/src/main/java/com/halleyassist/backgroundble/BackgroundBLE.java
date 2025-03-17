@@ -74,6 +74,7 @@ public class BackgroundBLE {
     public Single<String> startForegroundService() {
         int iconResourceId = AssetUtil.getResourceID(context, AssetUtil.getResourceBaseName("ic_notification"), "drawable");
         int scanMode = getScanMode();
+        boolean debugMode = getDebugMode();
 
         return loadDevices()
             .map(devices -> {
@@ -86,6 +87,7 @@ public class BackgroundBLE {
                 serviceIntent.putExtra("devices", devicesBundle);
                 serviceIntent.putExtra("icon", iconResourceId);
                 serviceIntent.putExtra("scanMode", scanMode);
+                serviceIntent.putExtra("debugMode", debugMode);
                 context.startForegroundService(serviceIntent);
 
                 return "Started";
@@ -110,6 +112,17 @@ public class BackgroundBLE {
 
     public Single<Integer> setScanMode(int mode) {
         Preferences.Key<Integer> key = PreferencesKeys.intKey("scanMode");
+        return dataStore
+            .updateDataAsync(preferences -> {
+                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                mutablePreferences.set(key, mode);
+                return Single.just(mutablePreferences);
+            })
+            .map(preferences -> preferences.get(key));
+    }
+
+    public Single<Boolean> setDebugMode(boolean mode) {
+        Preferences.Key<Boolean> key = PreferencesKeys.booleanKey("debugMode");
         return dataStore
             .updateDataAsync(preferences -> {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
@@ -170,6 +183,12 @@ public class BackgroundBLE {
     private int getScanMode() {
         Preferences.Key<Integer> key = PreferencesKeys.intKey("scanMode");
         Single<Integer> value = dataStore.data().firstOrError().map(prefs -> prefs.get(key)).onErrorReturnItem(0);
+        return value.blockingGet();
+    }
+
+    private boolean getDebugMode() {
+        Preferences.Key<Boolean> key = PreferencesKeys.booleanKey("debugMode");
+        Single<Boolean> value = dataStore.data().firstOrError().map(prefs -> prefs.get(key)).onErrorReturnItem(false);
         return value.blockingGet();
     }
 }

@@ -3,6 +3,7 @@ import { WebPlugin } from '@capacitor/core';
 import {
   AddDevicesOptions,
   BackgroundBLEPlugin,
+  DebugModeOptions,
   Device,
   PermissionStatus,
   Result,
@@ -49,5 +50,9 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
 
   async setScanMode(_options: SetScanModeOptions): Promise<Result<'result', ScanMode>> {
     return { result: ScanMode.OPPORTUNISTIC };
+  }
+
+  async setDebugMode(options: DebugModeOptions): Promise<Result<'debug', boolean>> {
+    return { debug: options.debug };
   }
 }

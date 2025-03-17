@@ -201,6 +201,28 @@ public class BackgroundBLEPlugin extends Plugin {
         return Single.just("").subscribe();
     }
 
+    @PluginMethod
+    public Disposable setDebugMode(@NonNull PluginCall call) {
+        Boolean mode = call.getBoolean("debug");
+
+        if (mode == null) {
+            call.reject("Debug is required", "MISSING_PARAMETER");
+        } else {
+            return implementation
+                .setDebugMode(mode)
+                .subscribe(
+                    result -> {
+                        JSObject ret = new JSObject();
+                        ret.put("result", result);
+                        call.resolve(ret);
+                    },
+                    throwable -> call.reject("Failed to set debug mode", throwable.getMessage())
+                );
+        }
+
+        return Single.just("").subscribe();
+    }
+
     /**
      * Checks if the given scan mode is valid.
      *
