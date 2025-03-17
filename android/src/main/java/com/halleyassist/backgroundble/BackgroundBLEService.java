@@ -170,9 +170,7 @@ public class BackgroundBLEService extends Service {
                 .stream()
                 .filter(d -> d.serial.equals(serial))
                 .findFirst()
-                .ifPresent(foundDevice -> {
-                    foundDevice.update(result.getRssi(), result.getTxPower());
-                });
+                .ifPresent(foundDevice -> foundDevice.update(result.getRssi(), result.getTxPower()));
             //  update the notification
             checkClosestDevice();
         }
@@ -259,8 +257,7 @@ public class BackgroundBLEService extends Service {
     //#endregion Notification
 
     /**
-     * Check the closest device from the list of found devices
-     *
+     * Check the closest device from the list of found devices.
      * Updates the notification with the closest device
      */
     private void checkClosestDevice() {
@@ -270,9 +267,7 @@ public class BackgroundBLEService extends Service {
         if (debugMode) {
             //  in debug mode, the notification will show the rssi of all devices sorted by closest first, separated by a newline
             StringBuilder debugText = new StringBuilder();
-            devices.forEach(device -> {
-                debugText.append(device.name).append(": ").append(device.rssi).append("\n");
-            });
+            devices.forEach(device -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
             //  deep link to the closest device, if present
             StringBuilder deepLink = new StringBuilder();
             if (closestDevice != null) {
@@ -305,8 +300,8 @@ public class BackgroundBLEService extends Service {
             () -> {
                 // update any devices that have not been updated in the last 30 seconds
                 devices.forEach(device -> {
-                    if (device.rssi != 0 && System.currentTimeMillis() - device.lastUpdated > 30000) {
-                        device.update(0, TX_POWER_NOT_PRESENT);
+                    if (device.rssi != -127 && System.currentTimeMillis() - device.lastUpdated > 30000) {
+                        device.update(-127, TX_POWER_NOT_PRESENT);
                     }
                 });
 
@@ -323,7 +318,7 @@ public class BackgroundBLEService extends Service {
     }
 
     private boolean shouldStopTimer() {
-        return devices.stream().allMatch(d -> d.rssi == 0);
+        return devices.stream().allMatch(d -> d.rssi == -127);
     }
 
     private void stopTimer() {
@@ -359,17 +354,11 @@ public class BackgroundBLEService extends Service {
         if (devices.isEmpty()) {
             return null;
         }
-        //  sort the devices by rssi, smallest first
-        devices.sort((device1, device2) -> {
-            //  compare the signal strength of the two devices
-            float rssi1 = device1.rssi;
-            float rssi2 = device2.rssi;
-            //  sort by rssi, largest first
-            return Float.compare(rssi2, rssi1);
-        });
+        //  sort the devices by rssi, largest first
+        devices.sort((device1, device2) -> (int) (device1.rssi - device2.rssi));
         Optional<Device> closestDevice;
         // get the first devices with a non-zero rssi
-        closestDevice = devices.stream().filter(d -> d.rssi != 0).findFirst();
+        closestDevice = devices.stream().filter(d -> d.rssi != -127).findFirst();
         return closestDevice.orElse(null);
     }
 

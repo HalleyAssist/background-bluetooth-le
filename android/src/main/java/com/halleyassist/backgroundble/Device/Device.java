@@ -17,7 +17,7 @@ public class Device {
      */
     public String name;
 
-    public float rssi = 0;
+    public float rssi = -127;
     int txPower = TX_POWER_NOT_PRESENT;
 
     // last updated time
