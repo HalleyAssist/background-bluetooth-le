@@ -37,12 +37,19 @@ public class Device {
     }
 
     public void update(float rssi, int txPower) {
+        this.txPower = txPower;
+        this.lastUpdated = System.currentTimeMillis();
+        //  if the rssi is zero, clear the smoothing buffer and set the rssi to zero
+        if (rssi == 0) {
+            medianSmoother.clear();
+            this.rssi = 0;
+            return;
+        }
+        //  if the rssi is not zero, smooth the rssi
         float median = medianSmoother.smooth(rssi);
         float smoothingFactor = 0.8f;
         this.rssi = smoothingFactor * median + (1 - smoothingFactor) * this.rssi;
         Logger.debug("BackgroundBLE.Device", name + " RSSI: " + rssi + ", median: " + median + ", smoothed: " + this.rssi);
-        this.txPower = txPower;
-        this.lastUpdated = System.currentTimeMillis();
     }
 
     public JSObject toObject() {

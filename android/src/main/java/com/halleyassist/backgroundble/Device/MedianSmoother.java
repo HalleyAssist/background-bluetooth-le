@@ -31,4 +31,8 @@ public class MedianSmoother {
         Collections.sort(sortedHistory);
         return sortedHistory.get(filterSize / 2); // Get the middle element (median)
     }
+
+    public void clear() {
+        history.clear();
+    }
 }
