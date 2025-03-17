@@ -267,7 +267,10 @@ public class BackgroundBLEService extends Service {
         if (debugMode) {
             //  in debug mode, the notification will show the rssi of all devices sorted by closest first, separated by a newline
             StringBuilder debugText = new StringBuilder();
-            devices.forEach(device -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
+            devices
+                .stream()
+                .filter(d -> d.rssi > -100)
+                .forEach(device -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
             //  deep link to the closest device, if present
             StringBuilder deepLink = new StringBuilder();
             if (closestDevice != null) {
@@ -355,10 +358,10 @@ public class BackgroundBLEService extends Service {
             return null;
         }
         //  sort the devices by rssi, largest first
-        devices.sort((device1, device2) -> (int) (device1.rssi - device2.rssi));
+        devices.sort((device1, device2) -> (int) (device2.rssi - device1.rssi));
         Optional<Device> closestDevice;
-        // get the first devices with a non-zero rssi
-        closestDevice = devices.stream().filter(d -> d.rssi != -127).findFirst();
+        // get the first devices with a rssi greater than -100
+        closestDevice = devices.stream().filter(d -> d.rssi > -100).findFirst();
         return closestDevice.orElse(null);
     }
 
