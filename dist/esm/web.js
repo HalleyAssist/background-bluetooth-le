@@ -28,11 +28,17 @@ export class BackgroundBLEWeb extends WebPlugin {
   async isRunning() {
     return { running: false };
   }
-  async setScanMode(_options) {
-    return { result: ScanMode.OPPORTUNISTIC };
+  async setConfig(options) {
+    return { config: options.config };
   }
-  async setDebugMode(options) {
-    return { debug: options.debug };
+  async getConfig() {
+    return {
+      config: {
+        mode: ScanMode.OPPORTUNISTIC,
+        debug: false,
+        deviceTimeout: 30000,
+      },
+    };
   }
 }
 //# sourceMappingURL=web.js.map

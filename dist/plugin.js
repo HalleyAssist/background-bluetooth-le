@@ -65,11 +65,17 @@ var capacitorBackgroundBLE = (function (exports, core) {
     async isRunning() {
       return { running: false };
     }
-    async setScanMode(_options) {
-      return { result: exports.ScanMode.OPPORTUNISTIC };
+    async setConfig(options) {
+      return { config: options.config };
     }
-    async setDebugMode(options) {
-      return { debug: options.debug };
+    async getConfig() {
+      return {
+        config: {
+          mode: exports.ScanMode.OPPORTUNISTIC,
+          debug: false,
+          deviceTimeout: 30000,
+        },
+      };
     }
   }
 

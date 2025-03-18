@@ -83,6 +83,10 @@
             "text": "devices The devices to scan for"
           },
           {
+            "name": "returns",
+            "text": "The new list of devices"
+          },
+          {
             "name": "since",
             "text": "1.0.0"
           }
@@ -102,6 +106,10 @@
         "returns": "Promise<Result<'devices', Device[]>>",
         "tags": [
           {
+            "name": "returns",
+            "text": "The list of devices"
+          },
+          {
             "name": "since",
             "text": "1.0.0"
           }
@@ -119,6 +127,10 @@
         "parameters": [],
         "returns": "Promise<Result<'result', string>>",
         "tags": [
+          {
+            "name": "returns",
+            "text": "The result of starting the background scanner"
+          },
           {
             "name": "since",
             "text": "1.0.0"
@@ -152,6 +164,10 @@
         "returns": "Promise<Result<'running', boolean>>",
         "tags": [
           {
+            "name": "returns",
+            "text": "The result of whether the background scanner is running"
+          },
+          {
             "name": "since",
             "text": "1.0.0"
           }
@@ -163,52 +179,59 @@
         "slug": "isrunning"
       },
       {
-        "name": "setScanMode",
-        "signature": "(options: SetScanModeOptions) => Promise<Result<'result', ScanMode>>",
-        "parameters": [
-          {
-            "name": "options",
-            "docs": "The options to set the scan mode",
-            "type": "SetScanModeOptions"
-          }
-        ],
-        "returns": "Promise<Result<'result', ScanMode>>",
+        "name": "getConfig",
+        "signature": "() => Promise<Result<'config', ScanConfig>>",
+        "parameters": [],
+        "returns": "Promise<Result<'config', ScanConfig>>",
         "tags": [
           {
-            "name": "param",
-            "text": "options The options to set the scan mode"
+            "name": "returns",
+            "text": "The scanner configuration"
           },
           {
             "name": "since",
             "text": "1.0.0"
           }
         ],
-        "docs": "Set the scan mode\n\nThe scan mode can be one of the following:\n- OPPORTUNISTIC: A special Bluetooth LE scan mode.\n                 Applications using this scan mode will passively listen for other scan results without starting BLE scans themselves.\n- LOW_POWER:     Perform Bluetooth LE scan in low power mode.\n                 This is the default scan mode as it consumes the least power.\n- BALANCED:      Perform Bluetooth LE scan in balanced power mode.\n                 Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption.\n- LOW_LATENCY:   Scan for Bluetooth LE devices using a high duty cycle.\n                 It's recommended to only use this mode when the application is running in the foreground.",
+        "docs": "Get the scanner configuration",
         "complexTypes": [
           "Result",
-          "ScanMode",
-          "SetScanModeOptions"
+          "ScanConfig"
         ],
-        "slug": "setscanmode"
+        "slug": "getconfig"
       },
       {
-        "name": "setDebugMode",
-        "signature": "(options: DebugModeOptions) => Promise<Result<'debug', boolean>>",
+        "name": "setConfig",
+        "signature": "(options: SetConfigOptions) => Promise<Result<'config', ScanConfig>>",
         "parameters": [
           {
             "name": "options",
-            "docs": "",
-            "type": "DebugModeOptions"
+            "docs": "The options to set the scanner configuration",
+            "type": "SetConfigOptions"
           }
         ],
-        "returns": "Promise<Result<'debug', boolean>>",
-        "tags": [],
-        "docs": "Set debug mode",
+        "returns": "Promise<Result<'config', ScanConfig>>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "options The options to set the scanner configuration"
+          },
+          {
+            "name": "returns",
+            "text": "The new scanner configuration"
+          },
+          {
+            "name": "since",
+            "text": "1.0.0"
+          }
+        ],
+        "docs": "Set the scanner configuration",
         "complexTypes": [
           "Result",
-          "DebugModeOptions"
+          "ScanConfig",
+          "SetConfigOptions"
         ],
-        "slug": "setdebugmode"
+        "slug": "setconfig"
       }
     ],
     "properties": []
@@ -387,9 +410,9 @@
       ]
     },
     {
-      "name": "SetScanModeOptions",
-      "slug": "setscanmodeoptions",
-      "docs": "The options to set the scan mode",
+      "name": "ScanConfig",
+      "slug": "scanconfig",
+      "docs": "The scan configuration",
       "tags": [],
       "methods": [],
       "properties": [
@@ -401,7 +424,7 @@
               "name": "see"
             },
             {
-              "text": "LOW_POWER",
+              "text": "ScanMode.LOW_POWER",
               "name": "default"
             },
             {
@@ -409,21 +432,12 @@
               "name": "since"
             }
           ],
-          "docs": "The scan mode to set",
+          "docs": "The scan mode",
           "complexTypes": [
             "ScanMode"
           ],
           "type": "ScanMode"
-        }
-      ]
-    },
-    {
-      "name": "DebugModeOptions",
-      "slug": "debugmodeoptions",
-      "docs": "The debug mode options",
-      "tags": [],
-      "methods": [],
-      "properties": [
+        },
         {
           "name": "debug",
           "tags": [
@@ -436,9 +450,49 @@
               "name": "since"
             }
           ],
-          "docs": "The debug mode to set",
+          "docs": "The debug mode",
           "complexTypes": [],
           "type": "boolean"
+        },
+        {
+          "name": "deviceTimeout",
+          "tags": [
+            {
+              "text": "30000",
+              "name": "default"
+            },
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The device timeout in milliseconds\n\nIf a device has not had a scan result for this amount of time, it will be assumed to be out of range and will be pushed down the list",
+          "complexTypes": [],
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "SetConfigOptions",
+      "slug": "setconfigoptions",
+      "docs": "The options to set the configuration",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "config",
+          "tags": [
+            {
+              "text": "1.0.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The configuration to set",
+          "complexTypes": [
+            "Partial",
+            "ScanConfig"
+          ],
+          "type": "Partial<ScanConfig>"
         }
       ]
     }
@@ -509,6 +563,20 @@
           "complexTypes": [
             "Key",
             "T"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Partial",
+      "slug": "partial",
+      "docs": "Make all properties in T optional",
+      "types": [
+        {
+          "text": "{\r\n    [P in keyof T]?: T[P];\r\n}",
+          "complexTypes": [
+            "T",
+            "P"
           ]
         }
       ]

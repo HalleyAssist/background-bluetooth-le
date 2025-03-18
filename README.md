@@ -69,8 +69,8 @@ A drawable resource is also required for the notification icon. this should use 
 * [`startForegroundService()`](#startforegroundservice)
 * [`stopForegroundService()`](#stopforegroundservice)
 * [`isRunning()`](#isrunning)
-* [`setScanMode(...)`](#setscanmode)
-* [`setDebugMode(...)`](#setdebugmode)
+* [`getConfig()`](#getconfig)
+* [`setConfig(...)`](#setconfig)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 * [Enums](#enums)
@@ -209,48 +209,36 @@ Is the background scanner running
 --------------------
 
 
-### setScanMode(...)
+### getConfig()
 
 ```typescript
-setScanMode(options: SetScanModeOptions) => Promise<Result<'result', ScanMode>>
+getConfig() => Promise<Result<'config', ScanConfig>>
 ```
 
-Set the scan mode
+Get the scanner configuration
 
-The scan mode can be one of the following:
-- OPPORTUNISTIC: A special Bluetooth LE scan mode.
-                 Applications using this scan mode will passively listen for other scan results without starting BLE scans themselves.
-- LOW_POWER:     Perform Bluetooth LE scan in low power mode.
-                 This is the default scan mode as it consumes the least power.
-- BALANCED:      Perform Bluetooth LE scan in balanced power mode.
-                 Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption.
-- LOW_LATENCY:   Scan for Bluetooth LE devices using a high duty cycle.
-                 It's recommended to only use this mode when the application is running in the foreground.
-
-| Param         | Type                                                              | Description                      |
-| ------------- | ----------------------------------------------------------------- | -------------------------------- |
-| **`options`** | <code><a href="#setscanmodeoptions">SetScanModeOptions</a></code> | The options to set the scan mode |
-
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', <a href="#scanmode">ScanMode</a>&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'config', <a href="#scanconfig">ScanConfig</a>&gt;&gt;</code>
 
 **Since:** 1.0.0
 
 --------------------
 
 
-### setDebugMode(...)
+### setConfig(...)
 
 ```typescript
-setDebugMode(options: DebugModeOptions) => Promise<Result<'debug', boolean>>
+setConfig(options: SetConfigOptions) => Promise<Result<'config', ScanConfig>>
 ```
 
-Set debug mode
+Set the scanner configuration
 
-| Param         | Type                                                          |
-| ------------- | ------------------------------------------------------------- |
-| **`options`** | <code><a href="#debugmodeoptions">DebugModeOptions</a></code> |
+| Param         | Type                                                          | Description                                  |
+| ------------- | ------------------------------------------------------------- | -------------------------------------------- |
+| **`options`** | <code><a href="#setconfigoptions">SetConfigOptions</a></code> | The options to set the scanner configuration |
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'debug', boolean&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'config', <a href="#scanconfig">ScanConfig</a>&gt;&gt;</code>
+
+**Since:** 1.0.0
 
 --------------------
 
@@ -308,22 +296,24 @@ Only requires the serial and name of the device
 | **`name`**   | <code>string</code> | The display name of the device | 1.0.0 |
 
 
-#### SetScanModeOptions
+#### ScanConfig
 
-The options to set the scan mode
+The scan configuration
 
-| Prop       | Type                                          | Description          | Default                | Since |
-| ---------- | --------------------------------------------- | -------------------- | ---------------------- | ----- |
-| **`mode`** | <code><a href="#scanmode">ScanMode</a></code> | The scan mode to set | <code>LOW_POWER</code> | 1.0.0 |
+| Prop                | Type                                          | Description                                                                                                                                                              | Default                         | Since |
+| ------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- | ----- |
+| **`mode`**          | <code><a href="#scanmode">ScanMode</a></code> | The scan mode                                                                                                                                                            | <code>ScanMode.LOW_POWER</code> | 1.0.0 |
+| **`debug`**         | <code>boolean</code>                          | The debug mode                                                                                                                                                           | <code>false</code>              | 1.0.0 |
+| **`deviceTimeout`** | <code>number</code>                           | The device timeout in milliseconds If a device has not had a scan result for this amount of time, it will be assumed to be out of range and will be pushed down the list | <code>30000</code>              | 1.0.0 |
 
 
-#### DebugModeOptions
+#### SetConfigOptions
 
-The debug mode options
+The options to set the configuration
 
-| Prop        | Type                 | Description           | Default            | Since |
-| ----------- | -------------------- | --------------------- | ------------------ | ----- |
-| **`debug`** | <code>boolean</code> | The debug mode to set | <code>false</code> | 1.0.0 |
+| Prop         | Type                                                                                    | Description              | Since |
+| ------------ | --------------------------------------------------------------------------------------- | ------------------------ | ----- |
+| **`config`** | <code><a href="#partial">Partial</a>&lt;<a href="#scanconfig">ScanConfig</a>&gt;</code> | The configuration to set | 1.0.0 |
 
 
 ### Type Aliases
@@ -339,6 +329,13 @@ The debug mode options
 The result type is used to define the result of a function
 
 <code>{ [key in Key]: T; }</code>
+
+
+#### Partial
+
+Make all properties in T optional
+
+<code>{ [P in keyof T]?: T[P]; }</code>
 
 
 ### Enums

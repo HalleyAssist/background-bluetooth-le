@@ -16,6 +16,7 @@ import com.getcapacitor.plugin.util.AssetUtil;
 import com.halleyassist.backgroundble.Device.Device;
 import io.reactivex.Single;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,21 +74,19 @@ public class BackgroundBLE {
 
     public Single<String> startForegroundService() {
         int iconResourceId = AssetUtil.getResourceID(context, AssetUtil.getResourceBaseName("ic_notification"), "drawable");
-        int scanMode = getScanMode();
-        boolean debugMode = getDebugMode();
-
-        return loadDevices()
-            .map(devices -> {
+        return getConfigWithDevices()
+            .map(config -> {
                 Bundle devicesBundle = new Bundle();
-                for (Device device : devices) {
+                for (Device device : config.devices) {
                     devicesBundle.putString(device.serial, device.name);
                 }
 
                 Intent serviceIntent = new Intent(context, BackgroundBLEService.class);
                 serviceIntent.putExtra("devices", devicesBundle);
                 serviceIntent.putExtra("icon", iconResourceId);
-                serviceIntent.putExtra("scanMode", scanMode);
-                serviceIntent.putExtra("debugMode", debugMode);
+                serviceIntent.putExtra("scanMode", config.getMode());
+                serviceIntent.putExtra("debugMode", config.isDebug());
+                serviceIntent.putExtra("deviceTimeout", config.getDeviceTimeout());
                 context.startForegroundService(serviceIntent);
 
                 return "Started";
@@ -110,26 +109,40 @@ public class BackgroundBLE {
         return false;
     }
 
-    public Single<Integer> setScanMode(int mode) {
-        Preferences.Key<Integer> key = PreferencesKeys.intKey("scanMode");
-        return dataStore
-            .updateDataAsync(preferences -> {
-                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
-                mutablePreferences.set(key, mode);
-                return Single.just(mutablePreferences);
-            })
-            .map(preferences -> preferences.get(key));
+    public Single<ScanConfig> getScanConfig() {
+        Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
+        String[] keys = ScanConfig.KEYS;
+        return preferences.map(pref -> {
+            ScanConfig config = new ScanConfig();
+            for (String key : keys) {
+                if (pref.containsKey(PreferencesKeys.stringKey(key))) {
+                    switch (key) {
+                        case "mode":
+                            config.setMode((int) pref.get(PreferencesKeys.intKey(key)));
+                            break;
+                        case "debug":
+                            config.setDebug((boolean) pref.get(PreferencesKeys.booleanKey(key)));
+                            break;
+                        case "deviceTimeout":
+                            config.setDeviceTimeout((int) pref.get(PreferencesKeys.intKey(key)));
+                            break;
+                    }
+                }
+            }
+            return config;
+        });
     }
 
-    public Single<Boolean> setDebugMode(boolean mode) {
-        Preferences.Key<Boolean> key = PreferencesKeys.booleanKey("debugMode");
+    public Single<ScanConfig> setScanConfig(@NonNull ScanConfig config) {
         return dataStore
             .updateDataAsync(preferences -> {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
-                mutablePreferences.set(key, mode);
+                mutablePreferences.set(PreferencesKeys.intKey("mode"), config.getMode());
+                mutablePreferences.set(PreferencesKeys.booleanKey("debug"), config.isDebug());
+                mutablePreferences.set(PreferencesKeys.intKey("deviceTimeout"), config.getDeviceTimeout());
                 return Single.just(mutablePreferences);
             })
-            .map(preferences -> preferences.get(key));
+            .map(preferences -> config);
     }
 
     //  load device list from key store
@@ -140,9 +153,10 @@ public class BackgroundBLE {
         //  iterate map
         return preferences.map(pref -> {
             List<Device> deviceList = new ArrayList<>();
-            // iterate map, if the key is 'scanMode' skip
+            String[] ignoreKeys = ScanConfig.KEYS;
+            // iterate map, if the key is in the ignore array skip
             for (Map.Entry<Preferences.Key<?>, ?> entry : pref.entrySet()) {
-                if (entry.getKey().toString().equals("scanMode")) {
+                if (Arrays.stream(ignoreKeys).anyMatch(k -> k.equals(entry.getKey().toString()))) {
                     continue;
                 }
                 //  get the device name
@@ -161,9 +175,10 @@ public class BackgroundBLE {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
                 // get all the keys in the preferences
                 Set<Preferences.Key<?>> keys = mutablePreferences.asMap().keySet();
+                String[] ignoreKeys = ScanConfig.KEYS;
                 // if any key is not in the proved device list, remove the entry
                 for (Preferences.Key<?> key : keys) {
-                    if (key.toString().equals("scanMode")) {
+                    if (Arrays.stream(ignoreKeys).anyMatch(k -> k.equals(key.toString()))) {
                         continue;
                     }
                     if (devices.stream().noneMatch(device -> device.serial.equals(key.toString()))) {
@@ -180,15 +195,29 @@ public class BackgroundBLE {
             .map(preferences -> devices);
     }
 
-    private int getScanMode() {
-        Preferences.Key<Integer> key = PreferencesKeys.intKey("scanMode");
-        Single<Integer> value = dataStore.data().firstOrError().map(prefs -> prefs.get(key)).onErrorReturnItem(0);
-        return value.blockingGet();
-    }
-
-    private boolean getDebugMode() {
-        Preferences.Key<Boolean> key = PreferencesKeys.booleanKey("debugMode");
-        Single<Boolean> value = dataStore.data().firstOrError().map(prefs -> prefs.get(key)).onErrorReturnItem(false);
-        return value.blockingGet();
+    @NonNull
+    private Single<ScanConfig> getConfigWithDevices() {
+        //  return every key in the preferences
+        Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
+        return preferences.map(prefs -> {
+            ScanConfig config = new ScanConfig();
+            for (Map.Entry<Preferences.Key<?>, ?> entry : prefs.entrySet()) {
+                switch (entry.getKey().toString()) {
+                    case "mode":
+                        config.setMode((int) entry.getValue());
+                        break;
+                    case "debug":
+                        config.setDebug((boolean) entry.getValue());
+                        break;
+                    case "deviceTimeout":
+                        config.setDeviceTimeout((int) entry.getValue());
+                        break;
+                    default:
+                        config.devices.add(new Device(entry.getKey().toString(), entry.getValue().toString()));
+                        break;
+                }
+            }
+            return config;
+        });
     }
 }

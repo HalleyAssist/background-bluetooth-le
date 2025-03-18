@@ -3,12 +3,12 @@ import { WebPlugin } from '@capacitor/core';
 import {
   AddDevicesOptions,
   BackgroundBLEPlugin,
-  DebugModeOptions,
   Device,
   PermissionStatus,
   Result,
+  ScanConfig,
   ScanMode,
-  SetScanModeOptions,
+  SetConfigOptions,
 } from './definitions';
 
 export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
@@ -48,11 +48,17 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     return { running: false };
   }
 
-  async setScanMode(_options: SetScanModeOptions): Promise<Result<'result', ScanMode>> {
-    return { result: ScanMode.OPPORTUNISTIC };
+  async setConfig(options: SetConfigOptions): Promise<Result<'config', ScanConfig>> {
+    return { config: options.config as ScanConfig };
   }
 
-  async setDebugMode(options: DebugModeOptions): Promise<Result<'debug', boolean>> {
-    return { debug: options.debug };
+  async getConfig(): Promise<Result<'config', ScanConfig>> {
+    return {
+      config: {
+        mode: ScanMode.OPPORTUNISTIC,
+        debug: false,
+        deviceTimeout: 30000,
+      },
+    };
   }
 }

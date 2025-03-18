@@ -170,57 +170,33 @@ public class BackgroundBLEPlugin extends Plugin {
         call.resolve(ret);
     }
 
-    /**
-     * Sets the scan mode for the plugin.
-     *
-     * @param call The plugin call containing the 'mode' parameter.
-     */
     @PluginMethod
-    public Disposable setScanMode(@NonNull PluginCall call) {
-        Integer mode = call.getInt("mode");
-
-        if (mode == null) {
-            call.reject("Scan mode is required", "MISSING_PARAMETER");
-        }
-        // Validate the mode if necessary
-        else if (!isValidScanMode(mode)) {
-            call.reject("Invalid scan mode", "INVALID_PARAMETER_VALUE");
-        } else {
-            return implementation
-                .setScanMode(mode)
-                .subscribe(
-                    result -> {
-                        JSObject ret = new JSObject();
-                        ret.put("result", result);
-                        call.resolve(ret);
-                    },
-                    throwable -> call.reject("Failed to set scan mode", throwable.getMessage())
-                );
-        }
-
-        return Single.just("").subscribe();
+    public Disposable setConfig(@NonNull PluginCall call) {
+        JSObject config = call.getObject("config");
+        return implementation
+            .setScanConfig(ScanConfig.fromJSObject(config))
+            .subscribe(
+                result -> {
+                    JSObject ret = new JSObject();
+                    ret.put("config", result.toJSObject());
+                    call.resolve(ret);
+                },
+                throwable -> call.reject("Failed to set config", throwable.getMessage())
+            );
     }
 
     @PluginMethod
-    public Disposable setDebugMode(@NonNull PluginCall call) {
-        Boolean mode = call.getBoolean("debug");
-
-        if (mode == null) {
-            call.reject("Debug is required", "MISSING_PARAMETER");
-        } else {
-            return implementation
-                .setDebugMode(mode)
-                .subscribe(
-                    result -> {
-                        JSObject ret = new JSObject();
-                        ret.put("result", result);
-                        call.resolve(ret);
-                    },
-                    throwable -> call.reject("Failed to set debug mode", throwable.getMessage())
-                );
-        }
-
-        return Single.just("").subscribe();
+    public Disposable getConfig(@NonNull PluginCall call) {
+        return implementation
+            .getScanConfig()
+            .subscribe(
+                config -> {
+                    JSObject ret = new JSObject();
+                    ret.put("config", config.toJSObject());
+                    call.resolve(ret);
+                },
+                throwable -> call.reject("Failed to get config", throwable.getMessage())
+            );
     }
 
     /**

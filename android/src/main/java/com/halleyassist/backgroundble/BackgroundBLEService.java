@@ -59,6 +59,8 @@ public class BackgroundBLEService extends Service {
 
     private boolean debugMode = false;
 
+    private int deviceTimeout = 30000;
+
     //  singleton
     private static BackgroundBLEService instance;
 
@@ -89,6 +91,8 @@ public class BackgroundBLEService extends Service {
             }
 
             debugMode = intent.getBooleanExtra("debugMode", false);
+
+            deviceTimeout = intent.getIntExtra("deviceTimeout", 30000);
 
             notificationManager = getSystemService(NotificationManager.class);
             createNotificationChannel();
@@ -298,12 +302,12 @@ public class BackgroundBLEService extends Service {
         timerRunning.set(true);
 
         executorService = Executors.newSingleThreadScheduledExecutor();
-        long TIMER_INTERVAL_MS = 15000;
         timerFuture = executorService.scheduleWithFixedDelay(
             () -> {
-                // update any devices that have not been updated in the last 30 seconds
+                // update any devices that have not been updated in the last (timeout) seconds
                 devices.forEach(device -> {
-                    if (device.rssi != -127 && System.currentTimeMillis() - device.lastUpdated > 30000) {
+                    //  if the device has an rssi greater than -100 and has not been updated in the last (timeout) seconds, update the device with an rssi of -127
+                    if (device.rssi > -100 && System.currentTimeMillis() - device.lastUpdated > deviceTimeout) {
                         device.update(-127, TX_POWER_NOT_PRESENT);
                     }
                 });
@@ -314,14 +318,15 @@ public class BackgroundBLEService extends Service {
                     stopTimer();
                 }
             },
-            TIMER_INTERVAL_MS,
-            TIMER_INTERVAL_MS,
+            deviceTimeout,
+            deviceTimeout,
             TimeUnit.MILLISECONDS
         );
     }
 
     private boolean shouldStopTimer() {
-        return devices.stream().allMatch(d -> d.rssi == -127);
+        //  stop the timer if all devices have an rssi less than -101 (effectively out of range)
+        return devices.stream().allMatch(d -> d.rssi < -101);
     }
 
     private void stopTimer() {
