@@ -39,7 +39,10 @@ public class Device {
         this.rssi = smoothingFactor * rssi + (1 - smoothingFactor) * this.rssi;
         Logger.debug("BackgroundBLE.Device", name + " RSSI: " + rssi + ", smoothed: " + this.rssi);
         this.txPower = txPower;
-        this.lastUpdated = System.currentTimeMillis();
+        if (rssi != -127) {
+            //  only update the last updated time if the rssi is not -127
+            this.lastUpdated = System.currentTimeMillis();
+        }
     }
 
     public JSObject toObject() {

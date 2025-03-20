@@ -305,12 +305,10 @@ public class BackgroundBLEService extends Service {
         timerFuture = executorService.scheduleWithFixedDelay(
             () -> {
                 // update any devices that have not been updated in the last (timeout) seconds
-                devices.forEach(device -> {
-                    //  if the device has an rssi greater than -100 and has not been updated in the last (timeout) seconds, update the device with an rssi of -127
-                    if (device.rssi > -100 && System.currentTimeMillis() - device.lastUpdated > deviceTimeout) {
-                        device.update(-127, TX_POWER_NOT_PRESENT);
-                    }
-                });
+                devices
+                    .stream()
+                    .filter(d -> System.currentTimeMillis() - d.lastUpdated > deviceTimeout)
+                    .forEach(d -> d.update(-127, TX_POWER_NOT_PRESENT));
 
                 checkClosestDevice();
 
@@ -318,9 +316,9 @@ public class BackgroundBLEService extends Service {
                     stopTimer();
                 }
             },
-            deviceTimeout,
-            deviceTimeout,
-            TimeUnit.MILLISECONDS
+            5,
+            5,
+            TimeUnit.SECONDS
         );
     }
 

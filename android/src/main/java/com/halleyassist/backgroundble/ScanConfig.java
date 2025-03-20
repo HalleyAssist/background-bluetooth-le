@@ -29,6 +29,12 @@ public class ScanConfig {
         this.deviceTimeout = deviceTimeout;
     }
 
+    public ScanConfig(JSObject config) {
+        this.mode = config.getInteger("mode", 0);
+        this.debug = config.getBoolean("debug", false);
+        this.deviceTimeout = config.getInteger("deviceTimeout", 30000);
+    }
+
     public Integer getMode() {
         return mode;
     }
@@ -59,15 +65,5 @@ public class ScanConfig {
         ret.put("debug", debug);
         ret.put("deviceTimeout", deviceTimeout);
         return ret;
-    }
-
-    @NonNull
-    public static ScanConfig fromJSObject(@NonNull JSObject config) {
-        //  extract the values from the JSObject
-        Integer mode = config.getInteger("mode", 0);
-        Boolean debug = config.getBoolean("debug", false);
-        Integer deviceTimeout = config.getInteger("deviceTimeout", 30000);
-
-        return new ScanConfig(mode, debug, deviceTimeout);
     }
 }

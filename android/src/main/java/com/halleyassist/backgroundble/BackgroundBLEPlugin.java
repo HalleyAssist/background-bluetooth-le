@@ -174,7 +174,7 @@ public class BackgroundBLEPlugin extends Plugin {
     public Disposable setConfig(@NonNull PluginCall call) {
         JSObject config = call.getObject("config");
         return implementation
-            .setScanConfig(ScanConfig.fromJSObject(config))
+            .setScanConfig(new ScanConfig(config))
             .subscribe(
                 result -> {
                     JSObject ret = new JSObject();
