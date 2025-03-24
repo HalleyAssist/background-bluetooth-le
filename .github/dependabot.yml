@@ -37,6 +37,15 @@ updates:
       patterns:
       - "@types*"
 
+    eslint:
+      patterns:
+      - "eslint*"
+      - "@eslint*"
+      - "typescript-eslint"
+      update-types:
+      - "minor"
+      - "patch"
+
   ignore:
   - dependency-name: "@capacitor*"
     update-types: [ "version-update:semver-major" ]
