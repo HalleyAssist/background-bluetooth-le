@@ -120,7 +120,7 @@ public class BackgroundBLEService extends Service {
 
             startScanning(devices, scanMode);
         } catch (SecurityException e) {
-            Logger.error(TAG, e.getMessage(), e);
+            Logger.error(TAG, "Missing permission: " + e.getMessage(), e);
             return START_NOT_STICKY;
         } catch (Exception e) {
             Logger.error(TAG, e.getMessage(), e);
@@ -265,6 +265,7 @@ public class BackgroundBLEService extends Service {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
+    @NonNull
     private Notification.Action getStopAction() {
         Intent stopIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
         stopIntent.setAction("STOP");
@@ -276,7 +277,8 @@ public class BackgroundBLEService extends Service {
     /**
      * Get the action for the notification
      */
-    private Notification.Action getDeviceAction(Device device) {
+    @NonNull
+    private Notification.Action getDeviceAction(@NonNull Device device) {
         PendingIntent pendingIntent = getPendingIntent("halleyassist://app/clients/" + device.serial);
         return new Notification.Action.Builder(null, "Open " + device.name, pendingIntent).build();
     }
@@ -302,13 +304,13 @@ public class BackgroundBLEService extends Service {
         if (closeDevices.isEmpty()) {
             actions = new Notification.Action[] { getStopAction() };
         } else {
-            int size = closeDevices.size() + 1;
+            int size = closeDevices.size() + 2;
             if (size > 3) {
                 size = 3;
             }
             actions = new Notification.Action[size];
             actions[0] = getStopAction();
-            for (int i = 0; i < size - 1; i++) {
+            for (int i = 1; i < size - 1; i++) {
                 actions[i + 1] = getDeviceAction(closeDevices.get(i));
             }
         }
