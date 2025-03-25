@@ -318,7 +318,7 @@ public class BackgroundBLEService extends Service {
             actions = new Notification.Action[size];
             actions[0] = getStopAction();
             for (int i = 0; i < size - 1; i++) {
-                actions[i + 1] = getDeviceAction(closeDevices.get(i));
+                actions[i + 1] = getDeviceAction(twoClosest.get(i));
             }
         }
 
