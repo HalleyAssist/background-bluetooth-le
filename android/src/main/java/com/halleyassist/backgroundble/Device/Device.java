@@ -4,7 +4,6 @@ import static android.bluetooth.le.ScanResult.TX_POWER_NOT_PRESENT;
 
 import androidx.annotation.NonNull;
 import com.getcapacitor.JSObject;
-import com.getcapacitor.Logger;
 
 public class Device {
 
@@ -37,7 +36,6 @@ public class Device {
     public void update(float rssi, int txPower) {
         float smoothingFactor = 0.8f;
         this.rssi = smoothingFactor * rssi + (1 - smoothingFactor) * this.rssi;
-        Logger.debug("BackgroundBLE.Device", name + " RSSI: " + rssi + ", smoothed: " + this.rssi);
         this.txPower = txPower;
         if (rssi != -127) {
             //  only update the last updated time if the rssi is not -127

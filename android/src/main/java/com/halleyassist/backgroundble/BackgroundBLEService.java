@@ -121,9 +121,10 @@ public class BackgroundBLEService extends Service {
             startScanning(devices, scanMode);
         } catch (SecurityException e) {
             Logger.error(TAG, e.getMessage(), e);
-            // Handle the exception
+            return START_NOT_STICKY;
         } catch (Exception e) {
             Logger.error(TAG, e.getMessage(), e);
+            return START_NOT_STICKY;
         }
         Logger.info(TAG, "BackgroundBLEService started");
         return START_STICKY;
@@ -194,7 +195,7 @@ public class BackgroundBLEService extends Service {
 
     private void createNotificationChannel() {
         NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, "Bluetooth Scanner", NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription("Shows the nearest Hub, Enabling you to quickly open the hub in the app");
+        channel.setDescription("Shows the nearest Hub, Enabling you to quickly open the app to the Hub");
         channel.enableLights(false);
         channel.enableVibration(false);
         channel.setSound(null, null);
@@ -262,7 +263,6 @@ public class BackgroundBLEService extends Service {
         builder.setActions(actions);
         //  update the notification
         notificationManager.notify(NOTIFICATION_ID, builder.build());
-        Logger.info(TAG, "Notification updated: " + text);
     }
 
     private Notification.Action getStopAction() {
