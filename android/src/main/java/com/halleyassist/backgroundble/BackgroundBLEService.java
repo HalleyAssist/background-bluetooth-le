@@ -301,16 +301,23 @@ public class BackgroundBLEService extends Service {
         //  create a list of actions, one for stopping the scan, one for the closest device, and one for the second closest device
         //  if no devices are close, only show the stop action
         Notification.Action[] actions;
-        if (closeDevices.isEmpty()) {
+        //  get the 2 closest devices, not including the closest device
+        List<Device> twoClosest;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            twoClosest = closeDevices.stream().skip(1).limit(2).toList();
+        } else {
+            twoClosest = closeDevices.stream().skip(1).limit(2).collect(Collectors.toList());
+        }
+        if (twoClosest.isEmpty()) {
             actions = new Notification.Action[] { getStopAction() };
         } else {
-            int size = closeDevices.size() + 2;
+            int size = twoClosest.size() + 1;
             if (size > 3) {
                 size = 3;
             }
             actions = new Notification.Action[size];
             actions[0] = getStopAction();
-            for (int i = 1; i < size - 1; i++) {
+            for (int i = 0; i < size - 1; i++) {
                 actions[i + 1] = getDeviceAction(closeDevices.get(i));
             }
         }
