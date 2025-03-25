@@ -44,6 +44,11 @@
   resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-7.1.0.tgz#2b983666bdc74701c9c35f01aada910f48100e12"
   integrity sha512-ND7GNxtBRnD6Az14D5YRFKFL4VtdLeXE6Zym1SVcKac0NZF18n4DBympBcnfCR61421FCmRlswbpPa9Fr+Czxw==
 
+"@capacitor/preferences@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/preferences/-/preferences-7.0.0.tgz#37a0f5b5d9a83dc316d362b72db0bbdabfbb53ef"
+  integrity sha512-crlTtTIWcdlLfQULJ9ZiCPpvpm51WoZ8CIVG3+XSJGyavjD4bscHP15U24ya5SjpYmI44bGY9lvhvcSCfB5+AA==
+
 "@chevrotain/cst-dts-gen@11.0.3":
   version "11.0.3"
   resolved "https://registry.yarnpkg.com/@chevrotain/cst-dts-gen/-/cst-dts-gen-11.0.3.tgz#5e0863cc57dc45e204ccfee6303225d15d9d4783"

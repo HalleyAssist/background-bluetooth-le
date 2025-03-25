@@ -10,6 +10,11 @@ import {
   ScanMode,
   SetConfigOptions,
 } from './definitions';
+import { Preferences } from '@capacitor/preferences';
+
+const DEVICES_KEY = 'backgroundble.devices';
+const CONFIG_KEY = 'backgroundble.config';
+const RUNNING_KEY = 'backgroundble.running';
 
 export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   async checkPermissions(): Promise<PermissionStatus> {
@@ -25,40 +30,55 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   }
 
   async getDevices(): Promise<Result<'devices', Device[]>> {
+    const devices = await Preferences.get({ key: DEVICES_KEY });
+    if (devices && devices.value) {
+      return { devices: JSON.parse(devices.value) };
+    }
     return { devices: [] };
   }
 
   async setDevices(_options: AddDevicesOptions): Promise<Result<'devices', Device[]>> {
-    return { devices: [] };
+    await Preferences.set({ key: DEVICES_KEY, value: JSON.stringify(_options.devices) });
+    return { devices: _options.devices as Device[] };
   }
 
   async clearDevices(): Promise<Result<'devices', Device[]>> {
-    return { devices: [] };
+    return this.setDevices({ devices: [] });
   }
 
   async startForegroundService(): Promise<Result<'result', string>> {
-    return { result: 'not supported' };
+    await Preferences.set({ key: RUNNING_KEY, value: 'true' });
+    return { result: 'started' };
   }
 
   async stopForegroundService(): Promise<void> {
-    return;
+    await Preferences.set({ key: RUNNING_KEY, value: 'false' });
   }
 
   async isRunning(): Promise<Result<'running', boolean>> {
-    return { running: false };
+    const running = await Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');
+    return { running };
   }
 
   async setConfig(options: SetConfigOptions): Promise<Result<'config', ScanConfig>> {
+    await Preferences.set({ key: CONFIG_KEY, value: JSON.stringify(options.config) });
     return { config: options.config as ScanConfig };
   }
 
   async getConfig(): Promise<Result<'config', ScanConfig>> {
-    return {
-      config: {
-        mode: ScanMode.OPPORTUNISTIC,
-        debug: false,
-        deviceTimeout: 30000,
-      },
-    };
+    const config = await Preferences.get({ key: CONFIG_KEY }).then((res) =>
+      res.value ? (JSON.parse(res.value) as ScanConfig) : undefined,
+    );
+    if (config) {
+      return { config };
+    } else {
+      return this.setConfig({
+        config: {
+          mode: ScanMode.OPPORTUNISTIC,
+          debug: false,
+          deviceTimeout: 30000,
+        },
+      });
+    }
   }
 }

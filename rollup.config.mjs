@@ -7,6 +7,7 @@ export default {
       name: 'capacitorBackgroundBLE',
       globals: {
         '@capacitor/core': 'capacitorExports',
+        '@capacitor/preferences': 'capacitorPreferencesExports',
       },
       sourcemap: true,
       inlineDynamicImports: true,
@@ -18,5 +19,5 @@ export default {
       inlineDynamicImports: true,
     },
   ],
-  external: ['@capacitor/core'],
+  external: ['@capacitor/core', '@capacitor/preferences'],
 };

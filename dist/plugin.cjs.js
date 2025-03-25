@@ -1,6 +1,7 @@
 'use strict';
 
 var core = require('@capacitor/core');
+var preferences = require('@capacitor/preferences');
 
 /**
  * The scan mode, taken from the Android API
@@ -38,6 +39,9 @@ const BackgroundBLE = core.registerPlugin('BackgroundBLE', {
       .then((m) => new m.BackgroundBLEWeb()),
 });
 
+const DEVICES_KEY = 'backgroundble.devices';
+const CONFIG_KEY = 'backgroundble.config';
+const RUNNING_KEY = 'backgroundble.running';
 class BackgroundBLEWeb extends core.WebPlugin {
   async checkPermissions() {
     return { bluetooth: 'denied', notifications: 'denied' };
@@ -49,34 +53,49 @@ class BackgroundBLEWeb extends core.WebPlugin {
     return;
   }
   async getDevices() {
+    const devices = await preferences.Preferences.get({ key: DEVICES_KEY });
+    if (devices && devices.value) {
+      return { devices: JSON.parse(devices.value) };
+    }
     return { devices: [] };
   }
   async setDevices(_options) {
-    return { devices: [] };
+    await preferences.Preferences.set({ key: DEVICES_KEY, value: JSON.stringify(_options.devices) });
+    return { devices: _options.devices };
   }
   async clearDevices() {
-    return { devices: [] };
+    return this.setDevices({ devices: [] });
   }
   async startForegroundService() {
-    return { result: 'not supported' };
+    await preferences.Preferences.set({ key: RUNNING_KEY, value: 'true' });
+    return { result: 'started' };
   }
   async stopForegroundService() {
-    return;
+    await preferences.Preferences.set({ key: RUNNING_KEY, value: 'false' });
   }
   async isRunning() {
-    return { running: false };
+    const running = await preferences.Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');
+    return { running };
   }
   async setConfig(options) {
+    await preferences.Preferences.set({ key: CONFIG_KEY, value: JSON.stringify(options.config) });
     return { config: options.config };
   }
   async getConfig() {
-    return {
-      config: {
-        mode: exports.ScanMode.OPPORTUNISTIC,
-        debug: false,
-        deviceTimeout: 30000,
-      },
-    };
+    const config = await preferences.Preferences.get({ key: CONFIG_KEY }).then((res) =>
+      res.value ? JSON.parse(res.value) : undefined,
+    );
+    if (config) {
+      return { config };
+    } else {
+      return this.setConfig({
+        config: {
+          mode: exports.ScanMode.OPPORTUNISTIC,
+          debug: false,
+          deviceTimeout: 30000,
+        },
+      });
+    }
   }
 }
 
