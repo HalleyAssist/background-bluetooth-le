@@ -27,19 +27,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import com.getcapacitor.Logger;
 import com.halleyassist.backgroundble.Device.Device;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class BackgroundBLEService extends Service {
 
@@ -87,6 +86,9 @@ public class BackgroundBLEService extends Service {
                     stopForeground(STOP_FOREGROUND_REMOVE);
                     stopSelf();
                     return START_NOT_STICKY;
+                } else if (action.equals("RENOTIFY")) {
+                    checkClosestDevice();
+                    return START_STICKY;
                 }
             }
 
@@ -222,13 +224,16 @@ public class BackgroundBLEService extends Service {
         //  Stop stops the scan and closes the notification
         Notification.Action[] actions = new Notification.Action[1];
         // Stop Action
-        Intent stopIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
-        stopIntent.setAction("STOP");
-        stopIntent.putExtra("buttonId", 0);
-        PendingIntent stopPendingIntent = PendingIntent.getService(getApplicationContext(), 111, stopIntent, getIntentFlags());
-        actions[0] = new Notification.Action.Builder(null, "Stop Scan", stopPendingIntent).build();
+        actions[0] = getStopAction();
         // Set actions
         builder.setActions(actions);
+
+        //  if the notification is dismissed, re notify
+        Intent reNotifyIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
+        reNotifyIntent.setAction("RENOTIFY");
+        PendingIntent reNotifyPendingIntent = PendingIntent.getService(getApplicationContext(), 200, reNotifyIntent, getIntentFlags());
+        builder.setDeleteIntent(reNotifyPendingIntent);
+
         //  return the notification
         return builder.build();
     }
@@ -247,15 +252,33 @@ public class BackgroundBLEService extends Service {
         return PendingIntent.getActivity(getApplicationContext(), 1337, deepLinkIntent, getIntentFlags());
     }
 
-    private void updateNotification(String text, String deeplink) {
+    private void updateNotification(String text, String deeplink, Notification.Action[] actions) {
         //  update the notification body
         builder.setContentText(text).setOngoing(true).setAutoCancel(false);
         //  update the content intent to launch the app with the closest device
         PendingIntent pendingIntent = getPendingIntent(deeplink);
         builder.setContentIntent(pendingIntent);
+        //  update the actions
+        builder.setActions(actions);
         //  update the notification
         notificationManager.notify(NOTIFICATION_ID, builder.build());
         Logger.info(TAG, "Notification updated: " + text);
+    }
+
+    private Notification.Action getStopAction() {
+        Intent stopIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
+        stopIntent.setAction("STOP");
+        stopIntent.putExtra("buttonId", 0);
+        PendingIntent stopPendingIntent = PendingIntent.getService(getApplicationContext(), 100, stopIntent, getIntentFlags());
+        return new Notification.Action.Builder(null, "Stop Scan", stopPendingIntent).build();
+    }
+
+    /**
+     * Get the action for the notification
+     */
+    private Notification.Action getDeviceAction(Device device) {
+        PendingIntent pendingIntent = getPendingIntent("halleyassist://app/clients/" + device.serial);
+        return new Notification.Action.Builder(null, "Open " + device.name, pendingIntent).build();
     }
 
     //#endregion Notification
@@ -265,9 +288,39 @@ public class BackgroundBLEService extends Service {
      * Updates the notification with the closest device
      */
     private void checkClosestDevice() {
-        //  get the closest device from the list of found devices
-        Device closestDevice = getClosestDevice();
+        sortDevices();
+        //  get the closest devices
+        List<Device> closeDevices;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            closeDevices = devices.stream().filter(d -> d.rssi > -100).toList();
+        } else {
+            closeDevices = devices.stream().filter(d -> d.rssi > -100).collect(Collectors.toList());
+        }
+        //  create a list of actions, one for stopping the scan, one for the closest device, and one for the second closest device
+        //  if no devices are close, only show the stop action
+        Notification.Action[] actions;
+        if (closeDevices.isEmpty()) {
+            actions = new Notification.Action[] { getStopAction() };
+        } else {
+            int size = closeDevices.size() + 1;
+            if (size > 3) {
+                size = 3;
+            }
+            actions = new Notification.Action[size];
+            actions[0] = getStopAction();
+            for (int i = 0; i < size - 1; i++) {
+                actions[i + 1] = getDeviceAction(closeDevices.get(i));
+            }
+        }
 
+        Device closestDevice = null;
+        if (!closeDevices.isEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                closestDevice = closeDevices.getFirst();
+            } else {
+                closestDevice = closeDevices.get(0);
+            }
+        }
         if (debugMode) {
             //  in debug mode, the notification will show the rssi of all devices sorted by closest first, separated by a newline
             StringBuilder debugText = new StringBuilder();
@@ -282,16 +335,16 @@ public class BackgroundBLEService extends Service {
             } else {
                 deepLink.append("halleyassist://app");
             }
-            updateNotification(debugText.toString(), deepLink.toString());
+            updateNotification(debugText.toString(), deepLink.toString(), actions);
         } else {
             //  get the name of the device from the devices arrayList
             if (closestDevice == null) {
                 // when no devices are found, reset the notification to default
-                updateNotification("No devices nearby", "halleyassist://app");
+                updateNotification("No devices nearby", "halleyassist://app", actions);
                 return;
             }
             //  update the notification
-            updateNotification("Tap to open " + closestDevice, "halleyassist://app/clients/" + closestDevice.serial);
+            updateNotification("Tap to open " + closestDevice, "halleyassist://app/clients/" + closestDevice.serial, actions);
         }
         //  start a timer to clear the notification text once no devices are in range
         startTimer();
@@ -355,17 +408,9 @@ public class BackgroundBLEService extends Service {
         return null;
     }
 
-    @Nullable
-    private Device getClosestDevice() {
-        if (devices.isEmpty()) {
-            return null;
-        }
+    private void sortDevices() {
         //  sort the devices by rssi, largest first
         devices.sort((device1, device2) -> (int) (device2.rssi - device1.rssi));
-        Optional<Device> closestDevice;
-        // get the first devices with a rssi greater than -100
-        closestDevice = devices.stream().filter(d -> d.rssi > -100).findFirst();
-        return closestDevice.orElse(null);
     }
 
     public List<Device> getDevices() {
