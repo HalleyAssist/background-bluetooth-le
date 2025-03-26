@@ -71,6 +71,8 @@ public class BackgroundBLEService extends Service {
     private ScheduledExecutorService executorService;
     private ScheduledFuture<?> timerFuture;
 
+    private PendingIntent resultIntent;
+
     private boolean isRunning = false;
 
     private boolean debugMode = false;
@@ -143,6 +145,13 @@ public class BackgroundBLEService extends Service {
                 startForeground(NOTIFICATION_ID, notification);
             }
 
+            resultIntent = PendingIntent.getBroadcast(
+                getApplicationContext(),
+                300,
+                new Intent(getApplicationContext(), BackgroundBLEReceiver.class),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
+            );
+
             startScanning(devices, scanMode);
         } catch (SecurityException e) {
             Logger.error(TAG, "Missing permission: " + e.getMessage(), e);
@@ -180,13 +189,6 @@ public class BackgroundBLEService extends Service {
         Logger.info(TAG, "Background Scan Stopped");
         isRunning = false;
     }
-
-    private final PendingIntent resultIntent = PendingIntent.getBroadcast(
-        getApplicationContext(),
-        300,
-        new Intent(getApplicationContext(), BackgroundBLEReceiver.class),
-        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
-    );
 
     @SuppressLint("MissingPermission")
     private final ScanCallback scanCallback = new ScanCallback() {
