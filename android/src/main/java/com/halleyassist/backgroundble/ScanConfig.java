@@ -1,5 +1,9 @@
 package com.halleyassist.backgroundble;
 
+import static com.halleyassist.backgroundble.BackgroundBLE.KEY_DEBUG;
+import static com.halleyassist.backgroundble.BackgroundBLE.KEY_DEVICE_TIMEOUT;
+import static com.halleyassist.backgroundble.BackgroundBLE.KEY_SCAN_MODE;
+
 import androidx.annotation.NonNull;
 import com.getcapacitor.JSObject;
 import com.halleyassist.backgroundble.Device.Device;
@@ -8,7 +12,7 @@ import java.util.List;
 
 public class ScanConfig {
 
-    public static final String[] KEYS = new String[] { "mode", "debug", "deviceTimeout" };
+    public static final String[] KEYS = new String[] { KEY_SCAN_MODE, KEY_DEBUG, KEY_DEVICE_TIMEOUT };
 
     private Integer mode;
     private Boolean debug;
@@ -29,10 +33,10 @@ public class ScanConfig {
         this.deviceTimeout = deviceTimeout;
     }
 
-    public ScanConfig(JSObject config) {
-        this.mode = config.getInteger("mode", 0);
-        this.debug = config.getBoolean("debug", false);
-        this.deviceTimeout = config.getInteger("deviceTimeout", 30000);
+    public ScanConfig(@NonNull JSObject config) {
+        this.mode = config.getInteger(KEY_SCAN_MODE, 0);
+        this.debug = config.getBoolean(KEY_DEBUG, false);
+        this.deviceTimeout = config.getInteger(KEY_DEVICE_TIMEOUT, 30000);
     }
 
     public Integer getMode() {
@@ -61,9 +65,9 @@ public class ScanConfig {
 
     public JSObject toJSObject() {
         JSObject ret = new JSObject();
-        ret.put("mode", mode);
-        ret.put("debug", debug);
-        ret.put("deviceTimeout", deviceTimeout);
+        ret.put(KEY_SCAN_MODE, mode);
+        ret.put(KEY_DEBUG, debug);
+        ret.put(KEY_DEVICE_TIMEOUT, deviceTimeout);
         return ret;
     }
 }

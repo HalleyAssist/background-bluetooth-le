@@ -1,5 +1,11 @@
 package com.halleyassist.backgroundble;
 
+import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_DEBUG_MODE;
+import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_DEVICES;
+import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_DEVICE_TIMEOUT;
+import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_ICON;
+import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_SCAN_MODE;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -24,6 +30,10 @@ import java.util.Set;
 public class BackgroundBLE {
 
     public static final String TAG = "BackgroundBLE";
+
+    public static final String KEY_SCAN_MODE = "mode";
+    public static final String KEY_DEBUG = "debug";
+    public static final String KEY_DEVICE_TIMEOUT = "deviceTimeout";
 
     private final Context context;
     private static RxDataStore<Preferences> dataStore = null;
@@ -82,11 +92,11 @@ public class BackgroundBLE {
                 }
 
                 Intent serviceIntent = new Intent(context, BackgroundBLEService.class);
-                serviceIntent.putExtra("devices", devicesBundle);
-                serviceIntent.putExtra("icon", iconResourceId);
-                serviceIntent.putExtra("scanMode", config.getMode());
-                serviceIntent.putExtra("debugMode", config.isDebug());
-                serviceIntent.putExtra("deviceTimeout", config.getDeviceTimeout());
+                serviceIntent.putExtra(EXTRA_DEVICES, devicesBundle);
+                serviceIntent.putExtra(EXTRA_ICON, iconResourceId);
+                serviceIntent.putExtra(EXTRA_SCAN_MODE, config.getMode());
+                serviceIntent.putExtra(EXTRA_DEBUG_MODE, config.isDebug());
+                serviceIntent.putExtra(EXTRA_DEVICE_TIMEOUT, config.getDeviceTimeout());
                 context.startForegroundService(serviceIntent);
 
                 return "Started";
@@ -117,13 +127,13 @@ public class BackgroundBLE {
             for (String key : keys) {
                 if (pref.containsKey(PreferencesKeys.stringKey(key))) {
                     switch (key) {
-                        case "mode":
+                        case KEY_SCAN_MODE:
                             config.setMode((int) pref.get(PreferencesKeys.intKey(key)));
                             break;
-                        case "debug":
+                        case KEY_DEBUG:
                             config.setDebug((boolean) pref.get(PreferencesKeys.booleanKey(key)));
                             break;
-                        case "deviceTimeout":
+                        case KEY_DEVICE_TIMEOUT:
                             config.setDeviceTimeout((int) pref.get(PreferencesKeys.intKey(key)));
                             break;
                     }
@@ -137,9 +147,9 @@ public class BackgroundBLE {
         return dataStore
             .updateDataAsync(preferences -> {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
-                mutablePreferences.set(PreferencesKeys.intKey("mode"), config.getMode());
-                mutablePreferences.set(PreferencesKeys.booleanKey("debug"), config.isDebug());
-                mutablePreferences.set(PreferencesKeys.intKey("deviceTimeout"), config.getDeviceTimeout());
+                mutablePreferences.set(PreferencesKeys.intKey(KEY_SCAN_MODE), config.getMode());
+                mutablePreferences.set(PreferencesKeys.booleanKey(KEY_DEBUG), config.isDebug());
+                mutablePreferences.set(PreferencesKeys.intKey(KEY_DEVICE_TIMEOUT), config.getDeviceTimeout());
                 return Single.just(mutablePreferences);
             })
             .map(preferences -> config);
