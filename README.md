@@ -51,6 +51,8 @@ To use the foreground service, you must also add the following to your `AndroidM
   <service
     android:name="com.halleyassist.backgroundble.BackgroundBLEService"
     android:foregroundServiceType="connectedDevice" />
+  <!-- Bluetooth Scan Reciver -->
+  <receiver android:name="com.halleyassist.backgroundble.BackgroundBLEReceiver"></receiver>
 </application>
 ```
 
@@ -335,7 +337,9 @@ The result type is used to define the result of a function
 
 Make all properties in T optional
 
-<code>{ [P in keyof T]?: T[P]; }</code>
+<code>{
+ [P in keyof T]?: T[P];
+ }</code>
 
 
 ### Enums
