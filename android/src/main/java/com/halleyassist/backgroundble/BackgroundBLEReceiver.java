@@ -8,6 +8,7 @@ import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import androidx.annotation.NonNull;
 import java.util.ArrayList;
 
@@ -24,7 +25,7 @@ public class BackgroundBLEReceiver extends BroadcastReceiver {
         }
         if (intent.hasExtra(EXTRA_LIST_SCAN_RESULT)) {
             ArrayList<ScanResult> results;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 results = intent.getParcelableArrayListExtra(EXTRA_LIST_SCAN_RESULT, ScanResult.class);
             } else {
                 results = intent.getParcelableArrayListExtra(EXTRA_LIST_SCAN_RESULT);

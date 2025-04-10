@@ -4,6 +4,7 @@ import static android.app.Notification.CATEGORY_SERVICE;
 import static android.bluetooth.le.ScanResult.TX_POWER_NOT_PRESENT;
 import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_POWER;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
+import static com.halleyassist.backgroundble.BLEDataStore.KEY_STOPPED;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
 import android.Manifest;
@@ -28,8 +29,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
+import androidx.datastore.preferences.core.MutablePreferences;
+import androidx.datastore.preferences.core.PreferencesKeys;
 import com.getcapacitor.Logger;
 import com.halleyassist.backgroundble.Device.Device;
+import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -101,21 +105,36 @@ public class BackgroundBLEService extends Service {
         try {
             String action = intent.getAction();
             if (action != null) {
-                if (action.equals(ACTION_STOP)) {
-                    stopForeground(STOP_FOREGROUND_REMOVE);
-                    stopSelf();
-                    return START_NOT_STICKY;
-                } else if (action.equals(ACTION_RENOTIFY)) {
-                    checkClosestDevice();
-                    return START_STICKY;
-                } else if (action.equals(ACTION_DEVICE_FOUND)) {
-                    //  update the device with the extras provided through the action
-                    String serial = intent.getStringExtra("serial");
-                    int rssi = intent.getIntExtra("rssi", -127);
-                    int txPower = intent.getIntExtra("txPower", TX_POWER_NOT_PRESENT);
-                    devices.stream().filter(d -> d.serial.equals(serial)).findFirst().ifPresent(device -> device.update(rssi, txPower));
-                    checkClosestDevice();
-                    return START_STICKY;
+                switch (action) {
+                    case ACTION_STOP -> {
+                        //  set the stopped flag to true
+                        BLEDataStore.getInstance(getApplicationContext())
+                            .getDataStore()
+                            .updateDataAsync(preferences -> {
+                                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                                //  set the stopped flag to true
+                                mutablePreferences.set(PreferencesKeys.booleanKey(KEY_STOPPED), true);
+                                return Single.just(preferences);
+                            })
+                            .subscribe();
+
+                        stopForeground(STOP_FOREGROUND_REMOVE);
+                        stopSelf();
+                        return START_NOT_STICKY;
+                    }
+                    case ACTION_RENOTIFY -> {
+                        checkClosestDevice();
+                        return START_STICKY;
+                    }
+                    case ACTION_DEVICE_FOUND -> {
+                        //  update the device with the extras provided through the action
+                        String serial = intent.getStringExtra("serial");
+                        int rssi = intent.getIntExtra("rssi", -127);
+                        int txPower = intent.getIntExtra("txPower", TX_POWER_NOT_PRESENT);
+                        devices.stream().filter(d -> d.serial.equals(serial)).findFirst().ifPresent(device -> device.update(rssi, txPower));
+                        checkClosestDevice();
+                        return START_STICKY;
+                    }
                 }
             }
 
@@ -160,6 +179,17 @@ public class BackgroundBLEService extends Service {
             Logger.error(TAG, e.getMessage(), e);
             return START_NOT_STICKY;
         }
+
+        //  set the stopped flag to false
+        BLEDataStore.getInstance(getApplicationContext())
+            .getDataStore()
+            .updateDataAsync(preferences -> {
+                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                //  set the stopped flag to false
+                mutablePreferences.set(PreferencesKeys.booleanKey(KEY_STOPPED), false);
+                return Single.just(preferences);
+            })
+            .subscribe();
         Logger.info(TAG, "BackgroundBLEService started");
         return START_STICKY;
     }

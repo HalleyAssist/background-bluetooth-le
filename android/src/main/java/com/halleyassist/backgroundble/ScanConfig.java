@@ -1,8 +1,8 @@
 package com.halleyassist.backgroundble;
 
-import static com.halleyassist.backgroundble.BackgroundBLE.KEY_DEBUG;
-import static com.halleyassist.backgroundble.BackgroundBLE.KEY_DEVICE_TIMEOUT;
-import static com.halleyassist.backgroundble.BackgroundBLE.KEY_SCAN_MODE;
+import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEBUG;
+import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEVICE_TIMEOUT;
+import static com.halleyassist.backgroundble.BLEDataStore.KEY_SCAN_MODE;
 
 import androidx.annotation.NonNull;
 import com.getcapacitor.JSObject;
@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScanConfig {
-
-    public static final String[] KEYS = new String[] { KEY_SCAN_MODE, KEY_DEBUG, KEY_DEVICE_TIMEOUT };
 
     private Integer mode;
     private Boolean debug;

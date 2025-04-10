@@ -253,6 +253,14 @@ export interface BackgroundBLEPlugin {
    * @since 1.0.0
    */
   isRunning(): Promise<Result<'running', boolean>>;
+  /**
+   * Did the user stop the background scanner from the notification
+   *
+   * @returns The result of whether the user stopped the background scanner
+   *
+   * @since 1.0.0
+   */
+  didUserStop(): Promise<Result<'userStopped', boolean>>;
 
   /**
    * Get the scanner configuration

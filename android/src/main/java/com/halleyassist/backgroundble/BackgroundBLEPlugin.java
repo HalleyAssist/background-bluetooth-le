@@ -171,6 +171,13 @@ public class BackgroundBLEPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void didUserStop(@NonNull PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("userStopped", implementation.didUserStop());
+        call.resolve(ret);
+    }
+
+    @PluginMethod
     public Disposable setConfig(@NonNull PluginCall call) {
         JSObject config = call.getObject("config");
         return implementation

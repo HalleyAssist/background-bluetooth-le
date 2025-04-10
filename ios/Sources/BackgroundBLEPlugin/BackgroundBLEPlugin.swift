@@ -11,14 +11,15 @@ public class BackgroundBLEPlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "BackgroundBLE"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "initialise", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "addDevice", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "addDevices", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "removeDevice", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getDevices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setDevices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "clearDevices", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "startForegroundService", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "stopForegroundService", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "isRunning", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "getDevices", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "setScanMode", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "didUserStop", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getConfig", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setConfig", returnType: CAPPluginReturnPromise),
     ]
     private let implementation = BackgroundBLE()
 
@@ -30,15 +31,11 @@ public class BackgroundBLEPlugin: CAPPlugin, CAPBridgedPlugin {
         call.unimplemented("Not implemented on iOS")
     }
 
-    @objc public func addDevice(_ call: CAPPluginCall) {
+    @objc public func setDevices(_ call: CAPPluginCall) {
         call.unimplemented("Not implemented on iOS")
     }
 
-    @objc public func addDevices(_ call: CAPPluginCall) {
-        call.unimplemented("Not implemented on iOS")
-    }
-
-    @objc public func removeDevice(_ call: CAPPluginCall) {
+    @objc public func clearDevices(_ call: CAPPluginCall) {
         call.unimplemented("Not implemented on iOS")
     }
 
@@ -54,7 +51,15 @@ public class BackgroundBLEPlugin: CAPPlugin, CAPBridgedPlugin {
         call.unimplemented("Not implemented on iOS")
     }
 
-    @objc public func setScanMode(_ call: CAPPluginCall) {
+    @objc public func didUserStop(_ call: CAPPluginCall) {
+        call.unimplemented("Not implemented on iOS")
+    }
+
+    @objc public func getConfig(_ call: CAPPluginCall) {
+        call.unimplemented("Not implemented on iOS")
+    }
+
+    @objc public func setConfig(_ call: CAPPluginCall) {
         call.unimplemented("Not implemented on iOS")
     }
 
