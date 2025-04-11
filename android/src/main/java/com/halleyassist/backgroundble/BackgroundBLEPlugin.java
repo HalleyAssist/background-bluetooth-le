@@ -213,17 +213,6 @@ public class BackgroundBLEPlugin extends Plugin {
             );
     }
 
-    /**
-     * Checks if the given scan mode is valid.
-     *
-     * @param mode The scan mode to check.
-     * @return True if the mode is valid, false otherwise.
-     */
-    private boolean isValidScanMode(int mode) {
-        // Example: Check if the mode is within a specific range or a known set of values
-        return mode >= -1 && mode <= 2; // Example: Valid modes are -1, 0, 1, and 2
-    }
-
     @NonNull
     private JSArray devicesToJSArray(@NonNull List<Device> devices) {
         JSArray deviceArray = new JSArray();

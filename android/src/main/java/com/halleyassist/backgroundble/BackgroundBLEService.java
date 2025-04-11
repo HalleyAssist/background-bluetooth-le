@@ -2,7 +2,9 @@ package com.halleyassist.backgroundble;
 
 import static android.app.Notification.CATEGORY_SERVICE;
 import static android.bluetooth.le.ScanResult.TX_POWER_NOT_PRESENT;
+import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY;
 import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_POWER;
+import static android.bluetooth.le.ScanSettings.SCAN_MODE_OPPORTUNISTIC;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_STOPPED;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
@@ -110,7 +112,7 @@ public class BackgroundBLEService extends Service {
                                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
                                 //  set the stopped flag to true
                                 mutablePreferences.set(PreferencesKeys.booleanKey(KEY_STOPPED), true);
-                                return Single.just(preferences);
+                                return Single.just(mutablePreferences);
                             })
                             .subscribe(
                                 prefs -> {
@@ -157,6 +159,10 @@ public class BackgroundBLEService extends Service {
             }
 
             int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, SCAN_MODE_LOW_POWER);
+            //  validate scan mode is in range, default to low power
+            if (scanMode < SCAN_MODE_OPPORTUNISTIC || scanMode > SCAN_MODE_LOW_LATENCY) {
+                scanMode = SCAN_MODE_LOW_POWER;
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
