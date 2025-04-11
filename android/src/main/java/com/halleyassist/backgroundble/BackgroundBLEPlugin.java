@@ -171,10 +171,17 @@ public class BackgroundBLEPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void didUserStop(@NonNull PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("userStopped", implementation.didUserStop());
-        call.resolve(ret);
+    public Disposable didUserStop(@NonNull PluginCall call) {
+        return implementation
+            .didUserStop()
+            .subscribe(
+                result -> {
+                    JSObject ret = new JSObject();
+                    ret.put("userStopped", result);
+                    call.resolve(ret);
+                },
+                throwable -> call.reject("Failed to check if user stopped", throwable.getMessage())
+            );
     }
 
     @PluginMethod
