@@ -120,7 +120,12 @@ public class BackgroundBLEService extends Service {
                                     stopForeground(STOP_FOREGROUND_REMOVE);
                                     stopSelf();
                                 },
-                                throwable -> Logger.error(TAG, "Failed to set stopped flag", throwable)
+                                throwable -> {
+                                    Logger.error(TAG, "Failed to set stopped flag", throwable);
+                                    //  still stop the service
+                                    stopForeground(STOP_FOREGROUND_REMOVE);
+                                    stopSelf();
+                                }
                             );
                         return START_NOT_STICKY;
                     }
