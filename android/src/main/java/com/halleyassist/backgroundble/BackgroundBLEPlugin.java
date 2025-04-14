@@ -171,6 +171,20 @@ public class BackgroundBLEPlugin extends Plugin {
     }
 
     @PluginMethod
+    public Disposable didUserStop(@NonNull PluginCall call) {
+        return implementation
+            .didUserStop()
+            .subscribe(
+                result -> {
+                    JSObject ret = new JSObject();
+                    ret.put("userStopped", result);
+                    call.resolve(ret);
+                },
+                throwable -> call.reject("Failed to check if user stopped", throwable.getMessage())
+            );
+    }
+
+    @PluginMethod
     public Disposable setConfig(@NonNull PluginCall call) {
         JSObject config = call.getObject("config");
         return implementation
@@ -197,17 +211,6 @@ public class BackgroundBLEPlugin extends Plugin {
                 },
                 throwable -> call.reject("Failed to get config", throwable.getMessage())
             );
-    }
-
-    /**
-     * Checks if the given scan mode is valid.
-     *
-     * @param mode The scan mode to check.
-     * @return True if the mode is valid, false otherwise.
-     */
-    private boolean isValidScanMode(int mode) {
-        // Example: Check if the mode is within a specific range or a known set of values
-        return mode >= -1 && mode <= 2; // Example: Valid modes are -1, 0, 1, and 2
     }
 
     @NonNull

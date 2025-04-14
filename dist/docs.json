@@ -179,6 +179,27 @@
         "slug": "isrunning"
       },
       {
+        "name": "didUserStop",
+        "signature": "() => Promise<Result<'userStopped', boolean>>",
+        "parameters": [],
+        "returns": "Promise<Result<'userStopped', boolean>>",
+        "tags": [
+          {
+            "name": "returns",
+            "text": "The result of whether the user stopped the background scanner"
+          },
+          {
+            "name": "since",
+            "text": "1.0.0"
+          }
+        ],
+        "docs": "Did the user stop the background scanner from the notification",
+        "complexTypes": [
+          "Result"
+        ],
+        "slug": "diduserstop"
+      },
+      {
         "name": "getConfig",
         "signature": "() => Promise<Result<'config', ScanConfig>>",
         "parameters": [],

@@ -15,6 +15,7 @@ import { Preferences } from '@capacitor/preferences';
 const DEVICES_KEY = 'backgroundble.devices';
 const CONFIG_KEY = 'backgroundble.config';
 const RUNNING_KEY = 'backgroundble.running';
+const STOPPED_KEY = 'backgroundble.stopped';
 
 export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   async checkPermissions(): Promise<PermissionStatus> {
@@ -58,6 +59,11 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   async isRunning(): Promise<Result<'running', boolean>> {
     const running = await Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');
     return { running };
+  }
+
+  async didUserStop(): Promise<Result<'userStopped', boolean>> {
+    const stopped = await Preferences.get({ key: STOPPED_KEY }).then((res) => res.value === 'true');
+    return { userStopped: stopped };
   }
 
   async setConfig(options: SetConfigOptions): Promise<Result<'config', ScanConfig>> {

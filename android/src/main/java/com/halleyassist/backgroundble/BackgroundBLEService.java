@@ -2,24 +2,23 @@ package com.halleyassist.backgroundble;
 
 import static android.app.Notification.CATEGORY_SERVICE;
 import static android.bluetooth.le.ScanResult.TX_POWER_NOT_PRESENT;
+import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY;
 import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_POWER;
+import static android.bluetooth.le.ScanSettings.SCAN_MODE_OPPORTUNISTIC;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
+import static com.halleyassist.backgroundble.BLEDataStore.KEY_STOPPED;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
 import android.net.Uri;
@@ -28,8 +27,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
+import androidx.datastore.preferences.core.MutablePreferences;
+import androidx.datastore.preferences.core.PreferencesKeys;
 import com.getcapacitor.Logger;
 import com.halleyassist.backgroundble.Device.Device;
+import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -42,8 +44,25 @@ import java.util.stream.Collectors;
 
 public class BackgroundBLEService extends Service {
 
+    //  constants
+    //  notifications
     private static final String DEFAULT_CHANNEL_ID = "BluetoothScanner";
     private static final int NOTIFICATION_ID = 1;
+
+    //  actions
+    public static final String ACTION_STOP = "STOP";
+    public static final String ACTION_RENOTIFY = "RENOTIFY";
+    public static final String ACTION_DEVICE_FOUND = "DEVICE_UPDATE";
+    public static final String EXTRA_DEVICE_SERIAL = "serial";
+    public static final String EXTRA_DEVICE_RSSI = "rssi";
+    public static final String EXTRA_DEVICE_TX_POWER = "txPower";
+
+    //  service extras
+    public static final String EXTRA_DEVICES = "devices";
+    public static final String EXTRA_SCAN_MODE = "scanMode";
+    public static final String EXTRA_ICON = "icon";
+    public static final String EXTRA_DEBUG_MODE = "debugMode";
+    public static final String EXTRA_DEVICE_TIMEOUT = "deviceTimeout";
 
     private BluetoothLeScanner bluetoothLeScanner;
 
@@ -53,6 +72,8 @@ public class BackgroundBLEService extends Service {
     private final AtomicBoolean timerRunning = new AtomicBoolean(false);
     private ScheduledExecutorService executorService;
     private ScheduledFuture<?> timerFuture;
+
+    private PendingIntent resultIntent;
 
     private boolean isRunning = false;
 
@@ -82,26 +103,53 @@ public class BackgroundBLEService extends Service {
         try {
             String action = intent.getAction();
             if (action != null) {
-                if (action.equals("STOP")) {
-                    stopForeground(STOP_FOREGROUND_REMOVE);
-                    stopSelf();
-                    return START_NOT_STICKY;
-                } else if (action.equals("RENOTIFY")) {
-                    checkClosestDevice();
-                    return START_STICKY;
+                switch (action) {
+                    case ACTION_STOP -> {
+                        //  set the stopped flag to true
+                        BLEDataStore.getInstance(getApplicationContext())
+                            .getDataStore()
+                            .updateDataAsync(preferences -> {
+                                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                                //  set the stopped flag to true
+                                mutablePreferences.set(PreferencesKeys.booleanKey(KEY_STOPPED), true);
+                                return Single.just(mutablePreferences);
+                            })
+                            .subscribe(
+                                prefs -> {
+                                    Logger.info(TAG, "Stopped flag set to true");
+                                    stopForeground(STOP_FOREGROUND_REMOVE);
+                                    stopSelf();
+                                },
+                                throwable -> Logger.error(TAG, "Failed to set stopped flag", throwable)
+                            );
+                        return START_NOT_STICKY;
+                    }
+                    case ACTION_RENOTIFY -> {
+                        checkClosestDevice();
+                        return START_STICKY;
+                    }
+                    case ACTION_DEVICE_FOUND -> {
+                        //  update the device with the extras provided through the action
+                        String serial = intent.getStringExtra("serial");
+                        int rssi = intent.getIntExtra("rssi", -127);
+                        int txPower = intent.getIntExtra("txPower", TX_POWER_NOT_PRESENT);
+                        devices.stream().filter(d -> d.serial.equals(serial)).findFirst().ifPresent(device -> device.update(rssi, txPower));
+                        checkClosestDevice();
+                        return START_STICKY;
+                    }
                 }
             }
 
-            debugMode = intent.getBooleanExtra("debugMode", false);
+            debugMode = intent.getBooleanExtra(EXTRA_DEBUG_MODE, false);
 
-            deviceTimeout = intent.getIntExtra("deviceTimeout", 30000);
+            deviceTimeout = intent.getIntExtra(EXTRA_DEVICE_TIMEOUT, 30000);
 
             notificationManager = getSystemService(NotificationManager.class);
             createNotificationChannel();
             Notification notification = createNotification(intent);
 
             //  get the list of devices from the intent
-            Bundle devicesBundle = intent.getBundleExtra("devices");
+            Bundle devicesBundle = intent.getBundleExtra(EXTRA_DEVICES);
             assert devicesBundle != null;
             Set<String> keys = devicesBundle.keySet();
             devices = new ArrayList<>();
@@ -110,13 +158,24 @@ public class BackgroundBLEService extends Service {
                 devices.add(new Device(serial, name));
             }
 
-            int scanMode = intent.getIntExtra("scanMode", SCAN_MODE_LOW_POWER);
+            int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, SCAN_MODE_LOW_POWER);
+            //  validate scan mode is in range, default to low power
+            if (scanMode < SCAN_MODE_OPPORTUNISTIC || scanMode > SCAN_MODE_LOW_LATENCY) {
+                scanMode = SCAN_MODE_LOW_POWER;
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
             } else {
                 startForeground(NOTIFICATION_ID, notification);
             }
+
+            resultIntent = PendingIntent.getBroadcast(
+                getApplicationContext(),
+                300,
+                new Intent(getApplicationContext(), BackgroundBLEReceiver.class),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
+            );
 
             startScanning(devices, scanMode);
         } catch (SecurityException e) {
@@ -126,6 +185,17 @@ public class BackgroundBLEService extends Service {
             Logger.error(TAG, e.getMessage(), e);
             return START_NOT_STICKY;
         }
+
+        //  set the stopped flag to false
+        BLEDataStore.getInstance(getApplicationContext())
+            .getDataStore()
+            .updateDataAsync(preferences -> {
+                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                //  set the stopped flag to false
+                mutablePreferences.set(PreferencesKeys.booleanKey(KEY_STOPPED), false);
+                return Single.just(preferences);
+            })
+            .subscribe();
         Logger.info(TAG, "BackgroundBLEService started");
         return START_STICKY;
     }
@@ -142,52 +212,19 @@ public class BackgroundBLEService extends Service {
             filters.add(filter);
         }
         ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).build();
-        bluetoothLeScanner.startScan(filters, settings, scanCallback);
+        //  create an intent to send to the service when a device is scanned
+
+        bluetoothLeScanner.startScan(filters, settings, resultIntent);
         Logger.info(TAG, "Background Scan Started");
         isRunning = true;
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void stopScanning() {
-        bluetoothLeScanner.stopScan(scanCallback);
+        bluetoothLeScanner.stopScan(resultIntent);
         Logger.info(TAG, "Background Scan Stopped");
         isRunning = false;
     }
-
-    @SuppressLint("MissingPermission")
-    private final ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
-            // add or update the device list with the scanned device
-            BluetoothDevice bDevice = result.getDevice();
-            String name = bDevice.getName();
-            //  name must be present and start with "H-" to be a valid device
-            if (name == null || !name.startsWith("H-")) {
-                return;
-            }
-            // extract the serial number from the device name (H-{serial})
-            String serial = name.split("-")[1];
-            // create a device if it does not exist in the array (should never happen)
-            if (devices.stream().noneMatch(d -> d.serial.equals(serial))) {
-                devices.add(new Device(serial, name));
-            }
-            //  find the device in the list of devices, and update the rssi of the device
-            devices
-                .stream()
-                .filter(d -> d.serial.equals(serial))
-                .findFirst()
-                .ifPresent(foundDevice -> foundDevice.update(result.getRssi(), result.getTxPower()));
-            //  update the notification
-            checkClosestDevice();
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            super.onScanFailed(errorCode);
-            Logger.error("BackgroundBLEService Scan failed with error code: " + errorCode);
-        }
-    };
 
     //#endregion Scanning
 
@@ -206,7 +243,7 @@ public class BackgroundBLEService extends Service {
     @NonNull
     private Notification createNotification(@NonNull Intent intent) {
         String body = "Scanning for Nearby Hubs";
-        int icon = intent.getIntExtra("icon", 0);
+        int icon = intent.getIntExtra(EXTRA_ICON, 0);
         String title = "Nearby Hub Scanning Active";
 
         PendingIntent pendingIntent = getPendingIntent("halleyassist://app");
@@ -231,7 +268,7 @@ public class BackgroundBLEService extends Service {
 
         //  if the notification is dismissed, re notify
         Intent reNotifyIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
-        reNotifyIntent.setAction("RENOTIFY");
+        reNotifyIntent.setAction(ACTION_RENOTIFY);
         PendingIntent reNotifyPendingIntent = PendingIntent.getService(getApplicationContext(), 200, reNotifyIntent, getIntentFlags());
         builder.setDeleteIntent(reNotifyPendingIntent);
 
@@ -268,7 +305,7 @@ public class BackgroundBLEService extends Service {
     @NonNull
     private Notification.Action getStopAction() {
         Intent stopIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
-        stopIntent.setAction("STOP");
+        stopIntent.setAction(ACTION_STOP);
         stopIntent.putExtra("buttonId", 0);
         PendingIntent stopPendingIntent = PendingIntent.getService(getApplicationContext(), 100, stopIntent, getIntentFlags());
         return new Notification.Action.Builder(null, "Stop Scan", stopPendingIntent).build();

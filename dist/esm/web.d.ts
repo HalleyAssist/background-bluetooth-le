@@ -18,6 +18,7 @@ export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLE
   startForegroundService(): Promise<Result<'result', string>>;
   stopForegroundService(): Promise<void>;
   isRunning(): Promise<Result<'running', boolean>>;
+  didUserStop(): Promise<Result<'userStopped', boolean>>;
   setConfig(options: SetConfigOptions): Promise<Result<'config', ScanConfig>>;
   getConfig(): Promise<Result<'config', ScanConfig>>;
 }

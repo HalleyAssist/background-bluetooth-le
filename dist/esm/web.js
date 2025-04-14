@@ -4,6 +4,7 @@ import { Preferences } from '@capacitor/preferences';
 const DEVICES_KEY = 'backgroundble.devices';
 const CONFIG_KEY = 'backgroundble.config';
 const RUNNING_KEY = 'backgroundble.running';
+const STOPPED_KEY = 'backgroundble.stopped';
 export class BackgroundBLEWeb extends WebPlugin {
   async checkPermissions() {
     return { bluetooth: 'denied', notifications: 'denied' };
@@ -38,6 +39,10 @@ export class BackgroundBLEWeb extends WebPlugin {
   async isRunning() {
     const running = await Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');
     return { running };
+  }
+  async didUserStop() {
+    const stopped = await Preferences.get({ key: STOPPED_KEY }).then((res) => res.value === 'true');
+    return { userStopped: stopped };
   }
   async setConfig(options) {
     await Preferences.set({ key: CONFIG_KEY, value: JSON.stringify(options.config) });

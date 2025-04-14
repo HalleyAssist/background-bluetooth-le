@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="second_hub">Second Hub</string>
+    <string name="third_hub">Third Hub</string>
+    <string name="stop_button_text">Stop Scan</string>
+    <string name="notification_text">Notification Text</string>
+</resources>

@@ -42,6 +42,7 @@ const BackgroundBLE = core.registerPlugin('BackgroundBLE', {
 const DEVICES_KEY = 'backgroundble.devices';
 const CONFIG_KEY = 'backgroundble.config';
 const RUNNING_KEY = 'backgroundble.running';
+const STOPPED_KEY = 'backgroundble.stopped';
 class BackgroundBLEWeb extends core.WebPlugin {
   async checkPermissions() {
     return { bluetooth: 'denied', notifications: 'denied' };
@@ -76,6 +77,10 @@ class BackgroundBLEWeb extends core.WebPlugin {
   async isRunning() {
     const running = await preferences.Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');
     return { running };
+  }
+  async didUserStop() {
+    const stopped = await preferences.Preferences.get({ key: STOPPED_KEY }).then((res) => res.value === 'true');
+    return { userStopped: stopped };
   }
   async setConfig(options) {
     await preferences.Preferences.set({ key: CONFIG_KEY, value: JSON.stringify(options.config) });

@@ -51,6 +51,8 @@ To use the foreground service, you must also add the following to your `AndroidM
   <service
     android:name="com.halleyassist.backgroundble.BackgroundBLEService"
     android:foregroundServiceType="connectedDevice" />
+  <!-- Bluetooth Scan Reciver -->
+  <receiver android:name="com.halleyassist.backgroundble.BackgroundBLEReceiver"></receiver>
 </application>
 ```
 
@@ -69,6 +71,7 @@ A drawable resource is also required for the notification icon. this should use 
 * [`startForegroundService()`](#startforegroundservice)
 * [`stopForegroundService()`](#stopforegroundservice)
 * [`isRunning()`](#isrunning)
+* [`didUserStop()`](#diduserstop)
 * [`getConfig()`](#getconfig)
 * [`setConfig(...)`](#setconfig)
 * [Interfaces](#interfaces)
@@ -203,6 +206,21 @@ isRunning() => Promise<Result<'running', boolean>>
 Is the background scanner running
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'running', boolean&gt;&gt;</code>
+
+**Since:** 1.0.0
+
+--------------------
+
+
+### didUserStop()
+
+```typescript
+didUserStop() => Promise<Result<'userStopped', boolean>>
+```
+
+Did the user stop the background scanner from the notification
+
+**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'userStopped', boolean&gt;&gt;</code>
 
 **Since:** 1.0.0
 
