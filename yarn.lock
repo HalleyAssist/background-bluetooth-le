@@ -16,15 +16,15 @@
   resolved "https://registry.yarnpkg.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.25.9.tgz#24b64e2c3ec7cd3b3c547729b8d16871f22cbdc7"
   integrity sha512-Ed61U6XJc3CVRfkERJWDz4dJwKe7iLmmJsbOGu9wSloNSFttHV0I8g6UAgb7qnK5ly5bGLPd4oXZlxCdANBOWQ==
 
-"@capacitor/android@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-7.2.0.tgz#f30e313315ab92c500bd57d9f0c4716a46b42f40"
-  integrity sha512-zdhEy3jZPG5Toe/pGzKtDgIiBGywjaoEuQWnGVjBYPlSAEUtAhpZ2At7V0SCb26yluAuzrAUV0Ue+LQeEtHwFQ==
+"@capacitor/android@^7.3.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-7.3.0.tgz#68a14f0c3ad1779852237c6932433a22e145a61a"
+  integrity sha512-TqUm+Z3Uk7/rET+adNDKD63JtA0AN+pMQlFRcLPmZJHFmJl6bUOWWELVL0Ixl5XaweTxofNKeDAjjLRIs+wd3g==
 
-"@capacitor/core@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-7.2.0.tgz#fdd1c5d2fbfa257887ce6065f66151a51f0e6d1b"
-  integrity sha512-2zCnA6RJeZ9ec4470o8QMZEQTWpekw9FNoqm5TLc10jeCrhvHVI8MPgxdZVc3mOdFlyieYu4AS1fNxSqbS57Pw==
+"@capacitor/core@^7.3.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-7.3.0.tgz#208074f35d59d8150ec2ce40c8be9639f7f78965"
+  integrity sha512-t/DdTyBchQ2eAZuCmAARlqQsrEm0WyeNwh5zeRuv+cR6gnAsw+86/EWvJ/em5dTnZyaqEy8vlmOMdWarrUbnuQ==
   dependencies:
     tslib "^2.1.0"
 
@@ -39,10 +39,10 @@
     minimist "^1.2.8"
     typescript "~4.2.4"
 
-"@capacitor/ios@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-7.2.0.tgz#c3d9435582e5267b57085229e5678d1d53b15b5a"
-  integrity sha512-MQgRZcXZpbpjN83bjkGrzQd7s3XeHBZplmWf38/msF/siMGJKLrXNmNzmmPIWA5Xpi/aH6UoJFk1wXuU2U+zMg==
+"@capacitor/ios@^7.3.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-7.3.0.tgz#d7de85f32557df7eea4a46261c6a1f20402c5674"
+  integrity sha512-gHEERjA8wG/GBBZJD8i7eiX0QwGY2HMh3H3KPw5a1CGhmNhtr/1bsrgwF7s6LP+KC4kKWseYo+ZrHjw1JC3JGA==
 
 "@capacitor/preferences@^7.0.1":
   version "7.0.1"
