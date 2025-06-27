@@ -63,6 +63,7 @@ public class BackgroundBLEService extends Service {
     public static final String EXTRA_ICON = "icon";
     public static final String EXTRA_DEBUG_MODE = "debugMode";
     public static final String EXTRA_DEVICE_TIMEOUT = "deviceTimeout";
+    public static final String EXTRA_THRESHOLD = "threshold";
 
     private BluetoothLeScanner bluetoothLeScanner;
 
@@ -78,8 +79,8 @@ public class BackgroundBLEService extends Service {
     private boolean isRunning = false;
 
     private boolean debugMode = false;
-
     private int deviceTimeout = 30000;
+    private int threshold = -100;
 
     //  singleton
     private static BackgroundBLEService instance;
@@ -146,8 +147,8 @@ public class BackgroundBLEService extends Service {
             }
 
             debugMode = intent.getBooleanExtra(EXTRA_DEBUG_MODE, false);
-
             deviceTimeout = intent.getIntExtra(EXTRA_DEVICE_TIMEOUT, 30000);
+            threshold = intent.getIntExtra(EXTRA_THRESHOLD, -100);
 
             notificationManager = getSystemService(NotificationManager.class);
             createNotificationChannel();
@@ -336,9 +337,9 @@ public class BackgroundBLEService extends Service {
         //  get the closest devices
         List<Device> closeDevices;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            closeDevices = devices.stream().filter(d -> d.rssi > -100).toList();
+            closeDevices = devices.stream().filter(d -> d.rssi > threshold).toList();
         } else {
-            closeDevices = devices.stream().filter(d -> d.rssi > -100).collect(Collectors.toList());
+            closeDevices = devices.stream().filter(d -> d.rssi > threshold).collect(Collectors.toList());
         }
         //  create a list of actions, one for stopping the scan, one for the closest device, and one for the second closest device
         //  if no devices are close, only show the stop action
@@ -377,7 +378,7 @@ public class BackgroundBLEService extends Service {
             StringBuilder debugText = new StringBuilder();
             devices
                 .stream()
-                .filter(d -> d.rssi > -100)
+                .filter(d -> d.rssi > threshold)
                 .forEach(device -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
             //  deep link to the closest device, if present
             StringBuilder deepLink = new StringBuilder();
@@ -427,8 +428,8 @@ public class BackgroundBLEService extends Service {
     }
 
     private boolean shouldStopTimer() {
-        //  stop the timer if all devices have an rssi less than -101 (effectively out of range)
-        return devices.stream().allMatch(d -> d.rssi < -101);
+        //  stop the timer if all devices have an rssi less than threshold - 1 (effectively out of range)
+        return devices.stream().allMatch(d -> d.rssi < (threshold - 1));
     }
 
     private void stopTimer() {

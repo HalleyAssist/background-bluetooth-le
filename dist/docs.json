@@ -38,10 +38,6 @@
           {
             "name": "param",
             "text": "options The options to initialise the background scanner"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
           }
         ],
         "docs": "Initialise the background scanner",
@@ -53,12 +49,7 @@
         "signature": "() => Promise<Result<'devices', Device[]>>",
         "parameters": [],
         "returns": "Promise<Result<'devices', Device[]>>",
-        "tags": [
-          {
-            "name": "since",
-            "text": "1.0.0"
-          }
-        ],
+        "tags": [],
         "docs": "Get the current list of devices",
         "complexTypes": [
           "Result",
@@ -108,10 +99,6 @@
           {
             "name": "returns",
             "text": "The list of devices"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
           }
         ],
         "docs": "Clear the list of devices to scan for",
@@ -130,10 +117,6 @@
           {
             "name": "returns",
             "text": "The result of starting the background scanner"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
           }
         ],
         "docs": "Start the background scanner",
@@ -147,12 +130,7 @@
         "signature": "() => Promise<void>",
         "parameters": [],
         "returns": "Promise<void>",
-        "tags": [
-          {
-            "name": "since",
-            "text": "1.0.0"
-          }
-        ],
+        "tags": [],
         "docs": "Stop the background scanner",
         "complexTypes": [],
         "slug": "stopforegroundservice"
@@ -166,10 +144,6 @@
           {
             "name": "returns",
             "text": "The result of whether the background scanner is running"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
           }
         ],
         "docs": "Is the background scanner running",
@@ -187,10 +161,6 @@
           {
             "name": "returns",
             "text": "The result of whether the user stopped the background scanner"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
           }
         ],
         "docs": "Did the user stop the background scanner from the notification",
@@ -208,10 +178,6 @@
           {
             "name": "returns",
             "text": "The scanner configuration"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
           }
         ],
         "docs": "Get the scanner configuration",
@@ -240,10 +206,6 @@
           {
             "name": "returns",
             "text": "The new scanner configuration"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
           }
         ],
         "docs": "Set the scanner configuration",
@@ -304,60 +266,35 @@
       "properties": [
         {
           "name": "serial",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
+          "tags": [],
           "docs": "The serial of the device",
           "complexTypes": [],
           "type": "string"
         },
         {
           "name": "name",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
+          "tags": [],
           "docs": "The display name of the device",
           "complexTypes": [],
           "type": "string"
         },
         {
           "name": "rssi",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
+          "tags": [],
           "docs": "The RSSI of the device\n\n0 = device is not in range",
           "complexTypes": [],
           "type": "number"
         },
         {
           "name": "txPower",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
+          "tags": [],
           "docs": "The TX power of the device\n\n-127 = unknown TX power",
           "complexTypes": [],
           "type": "number"
         },
         {
           "name": "lastUpdated",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
+          "tags": [],
           "docs": "The last time the device was updated\n\nin milliseconds since epoch",
           "complexTypes": [],
           "type": "number"
@@ -378,12 +315,7 @@
       "properties": [
         {
           "name": "devices",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
+          "tags": [],
           "docs": "The devices to add to the list of devices to scan for",
           "complexTypes": [
             "AddDeviceOptions"
@@ -406,24 +338,14 @@
       "properties": [
         {
           "name": "serial",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
+          "tags": [],
           "docs": "The serial of the device",
           "complexTypes": [],
           "type": "string"
         },
         {
           "name": "name",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
+          "tags": [],
           "docs": "The display name of the device",
           "complexTypes": [],
           "type": "string"
@@ -447,10 +369,6 @@
             {
               "text": "ScanMode.LOW_POWER",
               "name": "default"
-            },
-            {
-              "text": "1.0.0",
-              "name": "since"
             }
           ],
           "docs": "The scan mode",
@@ -465,10 +383,6 @@
             {
               "text": "false",
               "name": "default"
-            },
-            {
-              "text": "1.0.0",
-              "name": "since"
             }
           ],
           "docs": "The debug mode",
@@ -481,13 +395,21 @@
             {
               "text": "30000",
               "name": "default"
-            },
-            {
-              "text": "1.0.0",
-              "name": "since"
             }
           ],
           "docs": "The device timeout in milliseconds\n\nIf a device has not had a scan result for this amount of time, it will be assumed to be out of range and will be pushed down the list",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "threshold",
+          "tags": [
+            {
+              "text": "-100",
+              "name": "default"
+            }
+          ],
+          "docs": "The minimum RSSI to consider a device in range\n\nIf a device has an RSSI below this value, it will be considered out of range\n\nThe value is clamped to the range of -10 to -100.",
           "complexTypes": [],
           "type": "number"
         }
@@ -502,12 +424,7 @@
       "properties": [
         {
           "name": "config",
-          "tags": [
-            {
-              "text": "1.0.0",
-              "name": "since"
-            }
-          ],
+          "tags": [],
           "docs": "The configuration to set",
           "complexTypes": [
             "Partial",

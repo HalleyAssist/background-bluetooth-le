@@ -115,8 +115,6 @@ initialise() => Promise<void>
 
 Initialise the background scanner
 
-**Since:** 1.0.0
-
 --------------------
 
 
@@ -129,8 +127,6 @@ getDevices() => Promise<Result<'devices', Device[]>>
 Get the current list of devices
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
-
-**Since:** 1.0.0
 
 --------------------
 
@@ -164,8 +160,6 @@ Clear the list of devices to scan for
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
 
-**Since:** 1.0.0
-
 --------------------
 
 
@@ -179,8 +173,6 @@ Start the background scanner
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
 
-**Since:** 1.0.0
-
 --------------------
 
 
@@ -191,8 +183,6 @@ stopForegroundService() => Promise<void>
 ```
 
 Stop the background scanner
-
-**Since:** 1.0.0
 
 --------------------
 
@@ -207,8 +197,6 @@ Is the background scanner running
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'running', boolean&gt;&gt;</code>
 
-**Since:** 1.0.0
-
 --------------------
 
 
@@ -222,8 +210,6 @@ Did the user stop the background scanner from the notification
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'userStopped', boolean&gt;&gt;</code>
 
-**Since:** 1.0.0
-
 --------------------
 
 
@@ -236,8 +222,6 @@ getConfig() => Promise<Result<'config', ScanConfig>>
 Get the scanner configuration
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'config', <a href="#scanconfig">ScanConfig</a>&gt;&gt;</code>
-
-**Since:** 1.0.0
 
 --------------------
 
@@ -255,8 +239,6 @@ Set the scanner configuration
 | **`options`** | <code><a href="#setconfigoptions">SetConfigOptions</a></code> | The options to set the scanner configuration |
 
 **Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'config', <a href="#scanconfig">ScanConfig</a>&gt;&gt;</code>
-
-**Since:** 1.0.0
 
 --------------------
 
@@ -284,22 +266,22 @@ The permission state is a string that can be one of the following:
 
 A device
 
-| Prop              | Type                | Description                                                      | Since |
-| ----------------- | ------------------- | ---------------------------------------------------------------- | ----- |
-| **`serial`**      | <code>string</code> | The serial of the device                                         | 1.0.0 |
-| **`name`**        | <code>string</code> | The display name of the device                                   | 1.0.0 |
-| **`rssi`**        | <code>number</code> | The RSSI of the device 0 = device is not in range                | 1.0.0 |
-| **`txPower`**     | <code>number</code> | The TX power of the device -127 = unknown TX power               | 1.0.0 |
-| **`lastUpdated`** | <code>number</code> | The last time the device was updated in milliseconds since epoch | 1.0.0 |
+| Prop              | Type                | Description                                                      |
+| ----------------- | ------------------- | ---------------------------------------------------------------- |
+| **`serial`**      | <code>string</code> | The serial of the device                                         |
+| **`name`**        | <code>string</code> | The display name of the device                                   |
+| **`rssi`**        | <code>number</code> | The RSSI of the device 0 = device is not in range                |
+| **`txPower`**     | <code>number</code> | The TX power of the device -127 = unknown TX power               |
+| **`lastUpdated`** | <code>number</code> | The last time the device was updated in milliseconds since epoch |
 
 
 #### AddDevicesOptions
 
 The options to add multiple devices
 
-| Prop          | Type                            | Description                                           | Since |
-| ------------- | ------------------------------- | ----------------------------------------------------- | ----- |
-| **`devices`** | <code>AddDeviceOptions[]</code> | The devices to add to the list of devices to scan for | 1.0.0 |
+| Prop          | Type                            | Description                                           |
+| ------------- | ------------------------------- | ----------------------------------------------------- |
+| **`devices`** | <code>AddDeviceOptions[]</code> | The devices to add to the list of devices to scan for |
 
 
 #### AddDeviceOptions
@@ -308,30 +290,31 @@ The options to add a device
 
 Only requires the serial and name of the device
 
-| Prop         | Type                | Description                    | Since |
-| ------------ | ------------------- | ------------------------------ | ----- |
-| **`serial`** | <code>string</code> | The serial of the device       | 1.0.0 |
-| **`name`**   | <code>string</code> | The display name of the device | 1.0.0 |
+| Prop         | Type                | Description                    |
+| ------------ | ------------------- | ------------------------------ |
+| **`serial`** | <code>string</code> | The serial of the device       |
+| **`name`**   | <code>string</code> | The display name of the device |
 
 
 #### ScanConfig
 
 The scan configuration
 
-| Prop                | Type                                          | Description                                                                                                                                                              | Default                         | Since |
-| ------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- | ----- |
-| **`mode`**          | <code><a href="#scanmode">ScanMode</a></code> | The scan mode                                                                                                                                                            | <code>ScanMode.LOW_POWER</code> | 1.0.0 |
-| **`debug`**         | <code>boolean</code>                          | The debug mode                                                                                                                                                           | <code>false</code>              | 1.0.0 |
-| **`deviceTimeout`** | <code>number</code>                           | The device timeout in milliseconds If a device has not had a scan result for this amount of time, it will be assumed to be out of range and will be pushed down the list | <code>30000</code>              | 1.0.0 |
+| Prop                | Type                                          | Description                                                                                                                                                                   | Default                         |
+| ------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| **`mode`**          | <code><a href="#scanmode">ScanMode</a></code> | The scan mode                                                                                                                                                                 | <code>ScanMode.LOW_POWER</code> |
+| **`debug`**         | <code>boolean</code>                          | The debug mode                                                                                                                                                                | <code>false</code>              |
+| **`deviceTimeout`** | <code>number</code>                           | The device timeout in milliseconds If a device has not had a scan result for this amount of time, it will be assumed to be out of range and will be pushed down the list      | <code>30000</code>              |
+| **`threshold`**     | <code>number</code>                           | The minimum RSSI to consider a device in range If a device has an RSSI below this value, it will be considered out of range The value is clamped to the range of -10 to -100. | <code>-100</code>               |
 
 
 #### SetConfigOptions
 
 The options to set the configuration
 
-| Prop         | Type                                                                                    | Description              | Since |
-| ------------ | --------------------------------------------------------------------------------------- | ------------------------ | ----- |
-| **`config`** | <code><a href="#partial">Partial</a>&lt;<a href="#scanconfig">ScanConfig</a>&gt;</code> | The configuration to set | 1.0.0 |
+| Prop         | Type                                                                                    | Description              |
+| ------------ | --------------------------------------------------------------------------------------- | ------------------------ |
+| **`config`** | <code><a href="#partial">Partial</a>&lt;<a href="#scanconfig">ScanConfig</a>&gt;</code> | The configuration to set |
 
 
 ### Type Aliases

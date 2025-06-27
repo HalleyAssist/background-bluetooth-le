@@ -24,38 +24,28 @@ export interface PermissionStatus {
 export interface Device {
   /**
    * The serial of the device
-   *
-   * @since 1.0.0
    */
   serial: string;
   /**
    * The display name of the device
-   *
-   * @since 1.0.0
    */
   name: string;
   /**
    * The RSSI of the device
    *
    * 0 = device is not in range
-   *
-   * @since 1.0.0
    */
   rssi: number;
   /**
    * The TX power of the device
    *
    * -127 = unknown TX power
-   *
-   * @since 1.0.0
    */
   txPower: number;
   /**
    * The last time the device was updated
    *
    * in milliseconds since epoch
-   *
-   * @since 1.0.0
    */
   lastUpdated: number;
 }
@@ -70,14 +60,10 @@ export interface Device {
 export interface AddDeviceOptions {
   /**
    * The serial of the device
-   *
-   * @since 1.0.0
    */
   serial: string;
   /**
    * The display name of the device
-   *
-   * @since 1.0.0
    */
   name: string;
 }
@@ -90,8 +76,6 @@ export interface AddDeviceOptions {
 export interface AddDevicesOptions {
   /**
    * The devices to add to the list of devices to scan for
-   *
-   * @since 1.0.0
    */
   devices: AddDeviceOptions[];
 }
@@ -106,8 +90,6 @@ export interface AddDevicesOptions {
 export interface RemoveDeviceOptions {
   /**
    * The serial of the device
-   *
-   * @since 1.0.0
    */
   serial: string;
 }
@@ -159,16 +141,12 @@ export interface ScanConfig {
    * @see ScanMode
    *
    * @default ScanMode.LOW_POWER
-   *
-   * @since 1.0.0
    */
   mode: ScanMode;
   /**
    * The debug mode
    *
    * @default false
-   *
-   * @since 1.0.0
    */
   debug: boolean;
   /**
@@ -177,10 +155,18 @@ export interface ScanConfig {
    * If a device has not had a scan result for this amount of time, it will be assumed to be out of range and will be pushed down the list
    *
    * @default 30000
-   *
-   * @since 1.0.0
    */
   deviceTimeout: number;
+  /**
+   * The minimum RSSI to consider a device in range
+   *
+   * If a device has an RSSI below this value, it will be considered out of range
+   *
+   * The value is clamped to the range of -10 to -100.
+   *
+   * @default -100
+   */
+  threshold: number;
 }
 
 /**
@@ -189,8 +175,6 @@ export interface ScanConfig {
 export interface SetConfigOptions {
   /**
    * The configuration to set
-   *
-   * @since 1.0.0
    */
   config: Partial<ScanConfig>;
 }
@@ -205,14 +189,10 @@ export interface BackgroundBLEPlugin {
    * Initialise the background scanner
    *
    * @param options The options to initialise the background scanner
-   *
-   * @since 1.0.0
    */
   initialise(): Promise<void>;
   /**
    * Get the current list of devices
-   *
-   * @since 1.0.0
    */
   getDevices(): Promise<Result<'devices', Device[]>>;
   /**
@@ -227,38 +207,28 @@ export interface BackgroundBLEPlugin {
    * Clear the list of devices to scan for
    *
    * @returns The list of devices
-   *
-   * @since 1.0.0
    */
   clearDevices(): Promise<Result<'devices', Device[]>>;
   /**
    * Start the background scanner
    *
    * @returns The result of starting the background scanner
-   *
-   * @since 1.0.0
    */
   startForegroundService(): Promise<Result<'result', string>>;
   /**
    * Stop the background scanner
-   *
-   * @since 1.0.0
    */
   stopForegroundService(): Promise<void>;
   /**
    * Is the background scanner running
    *
    * @returns The result of whether the background scanner is running
-   *
-   * @since 1.0.0
    */
   isRunning(): Promise<Result<'running', boolean>>;
   /**
    * Did the user stop the background scanner from the notification
    *
    * @returns The result of whether the user stopped the background scanner
-   *
-   * @since 1.0.0
    */
   didUserStop(): Promise<Result<'userStopped', boolean>>;
 
@@ -266,8 +236,6 @@ export interface BackgroundBLEPlugin {
    * Get the scanner configuration
    *
    * @returns The scanner configuration
-   *
-   * @since 1.0.0
    */
   getConfig(): Promise<Result<'config', ScanConfig>>;
   /**
@@ -275,8 +243,6 @@ export interface BackgroundBLEPlugin {
    *
    * @param options The options to set the scanner configuration
    * @returns The new scanner configuration
-   *
-   * @since 1.0.0
    */
   setConfig(options: SetConfigOptions): Promise<Result<'config', ScanConfig>>;
 }

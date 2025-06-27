@@ -83,6 +83,7 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
           mode: ScanMode.OPPORTUNISTIC,
           debug: false,
           deviceTimeout: 30000,
+          threshold: -100,
         },
       });
     }

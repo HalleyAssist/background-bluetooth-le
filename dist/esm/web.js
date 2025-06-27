@@ -60,6 +60,7 @@ export class BackgroundBLEWeb extends WebPlugin {
           mode: ScanMode.OPPORTUNISTIC,
           debug: false,
           deviceTimeout: 30000,
+          threshold: -100,
         },
       });
     }

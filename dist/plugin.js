@@ -96,6 +96,7 @@ var capacitorBackgroundBLE = (function (exports, core, preferences) {
             mode: exports.ScanMode.OPPORTUNISTIC,
             debug: false,
             deviceTimeout: 30000,
+            threshold: -100,
           },
         });
       }

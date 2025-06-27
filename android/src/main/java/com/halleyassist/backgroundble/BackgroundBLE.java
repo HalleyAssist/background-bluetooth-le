@@ -5,11 +5,13 @@ import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEBUG;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEVICE_TIMEOUT;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_SCAN_MODE;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_STOPPED;
+import static com.halleyassist.backgroundble.BLEDataStore.KEY_THRESHOLD;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_DEBUG_MODE;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_DEVICES;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_DEVICE_TIMEOUT;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_ICON;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_SCAN_MODE;
+import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_THRESHOLD;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -93,6 +95,7 @@ public class BackgroundBLE {
                 serviceIntent.putExtra(EXTRA_SCAN_MODE, config.getMode());
                 serviceIntent.putExtra(EXTRA_DEBUG_MODE, config.isDebug());
                 serviceIntent.putExtra(EXTRA_DEVICE_TIMEOUT, config.getDeviceTimeout());
+                serviceIntent.putExtra(EXTRA_THRESHOLD, config.getThreshold());
                 context.startForegroundService(serviceIntent);
 
                 return "Started";
@@ -149,6 +152,9 @@ public class BackgroundBLE {
                         case KEY_DEVICE_TIMEOUT:
                             config.setDeviceTimeout((int) pref.get(PreferencesKeys.intKey(key)));
                             break;
+                        case KEY_THRESHOLD:
+                            config.setThreshold((int) pref.get(PreferencesKeys.intKey(key)));
+                            break;
                     }
                 }
             }
@@ -164,6 +170,7 @@ public class BackgroundBLE {
                 mutablePreferences.set(PreferencesKeys.intKey(KEY_SCAN_MODE), config.getMode());
                 mutablePreferences.set(PreferencesKeys.booleanKey(KEY_DEBUG), config.isDebug());
                 mutablePreferences.set(PreferencesKeys.intKey(KEY_DEVICE_TIMEOUT), config.getDeviceTimeout());
+                mutablePreferences.set(PreferencesKeys.intKey(KEY_THRESHOLD), config.getThreshold());
                 return Single.just(mutablePreferences);
             })
             .map(preferences -> config);
@@ -234,14 +241,19 @@ public class BackgroundBLE {
             ScanConfig config = new ScanConfig();
             for (Map.Entry<Preferences.Key<?>, ?> entry : prefs.entrySet()) {
                 switch (entry.getKey().toString()) {
-                    case "mode":
+                    case KEY_SCAN_MODE:
                         config.setMode((int) entry.getValue());
                         break;
-                    case "debug":
+                    case KEY_DEBUG:
                         config.setDebug((boolean) entry.getValue());
                         break;
-                    case "deviceTimeout":
+                    case KEY_DEVICE_TIMEOUT:
                         config.setDeviceTimeout((int) entry.getValue());
+                        break;
+                    case KEY_THRESHOLD:
+                        config.setThreshold((int) entry.getValue());
+                        break;
+                    case KEY_STOPPED:
                         break;
                     default:
                         config.devices.add(new Device(entry.getKey().toString(), entry.getValue().toString()));
