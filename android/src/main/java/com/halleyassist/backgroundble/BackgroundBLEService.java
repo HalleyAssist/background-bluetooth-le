@@ -26,12 +26,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.PreferencesKeys;
 import com.getcapacitor.Logger;
 import com.halleyassist.backgroundble.Device.Device;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.subjects.BehaviorSubject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -82,9 +85,12 @@ public class BackgroundBLEService extends Service {
     private int deviceTimeout = 30000;
     private int threshold = -100;
 
+    private BehaviorSubject<List<Device>> devicesSubject;
+
     //  singleton
     private static BackgroundBLEService instance;
 
+    @Nullable
     public static BackgroundBLEService getInstance() {
         return instance;
     }
@@ -95,6 +101,8 @@ public class BackgroundBLEService extends Service {
         BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+
+        devicesSubject = BehaviorSubject.create();
 
         instance = this;
     }
@@ -444,6 +452,11 @@ public class BackgroundBLEService extends Service {
         timerRunning.set(false);
     }
 
+    public Observable<List<Device>> getDevicesObservable() {
+        // create an observable to return the devices list
+        return devicesSubject.hide();
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -453,6 +466,7 @@ public class BackgroundBLEService extends Service {
             Logger.error(TAG, e.getMessage(), e);
         }
         stopTimer();
+        devicesSubject.onComplete();
     }
 
     @Override
@@ -463,6 +477,7 @@ public class BackgroundBLEService extends Service {
     private void sortDevices() {
         //  sort the devices by rssi, largest first
         devices.sort((device1, device2) -> (int) (device2.rssi - device1.rssi));
+        devicesSubject.onNext(devices);
     }
 
     public List<Device> getDevices() {

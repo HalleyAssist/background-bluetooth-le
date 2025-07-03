@@ -46,20 +46,19 @@
       },
       {
         "name": "getDevices",
-        "signature": "() => Promise<Result<'devices', Device[]>>",
+        "signature": "() => Promise<Devices>",
         "parameters": [],
-        "returns": "Promise<Result<'devices', Device[]>>",
+        "returns": "Promise<Devices>",
         "tags": [],
         "docs": "Get the current list of devices",
         "complexTypes": [
-          "Result",
-          "Device"
+          "Devices"
         ],
         "slug": "getdevices"
       },
       {
         "name": "setDevices",
-        "signature": "(options: AddDevicesOptions) => Promise<Result<'devices', Device[]>>",
+        "signature": "(options: AddDevicesOptions) => Promise<Devices>",
         "parameters": [
           {
             "name": "options",
@@ -67,7 +66,7 @@
             "type": "AddDevicesOptions"
           }
         ],
-        "returns": "Promise<Result<'devices', Device[]>>",
+        "returns": "Promise<Devices>",
         "tags": [
           {
             "name": "param",
@@ -84,17 +83,16 @@
         ],
         "docs": "Set the list of devices to scan for",
         "complexTypes": [
-          "Result",
-          "Device",
+          "Devices",
           "AddDevicesOptions"
         ],
         "slug": "setdevices"
       },
       {
         "name": "clearDevices",
-        "signature": "() => Promise<Result<'devices', Device[]>>",
+        "signature": "() => Promise<Devices>",
         "parameters": [],
-        "returns": "Promise<Result<'devices', Device[]>>",
+        "returns": "Promise<Devices>",
         "tags": [
           {
             "name": "returns",
@@ -103,16 +101,15 @@
         ],
         "docs": "Clear the list of devices to scan for",
         "complexTypes": [
-          "Result",
-          "Device"
+          "Devices"
         ],
         "slug": "cleardevices"
       },
       {
         "name": "startForegroundService",
-        "signature": "() => Promise<Result<'result', string>>",
+        "signature": "() => Promise<StartResult>",
         "parameters": [],
-        "returns": "Promise<Result<'result', string>>",
+        "returns": "Promise<StartResult>",
         "tags": [
           {
             "name": "returns",
@@ -121,7 +118,7 @@
         ],
         "docs": "Start the background scanner",
         "complexTypes": [
-          "Result"
+          "StartResult"
         ],
         "slug": "startforegroundservice"
       },
@@ -137,9 +134,9 @@
       },
       {
         "name": "isRunning",
-        "signature": "() => Promise<Result<'running', boolean>>",
+        "signature": "() => Promise<RunningResult>",
         "parameters": [],
-        "returns": "Promise<Result<'running', boolean>>",
+        "returns": "Promise<RunningResult>",
         "tags": [
           {
             "name": "returns",
@@ -148,15 +145,15 @@
         ],
         "docs": "Is the background scanner running",
         "complexTypes": [
-          "Result"
+          "RunningResult"
         ],
         "slug": "isrunning"
       },
       {
         "name": "didUserStop",
-        "signature": "() => Promise<Result<'userStopped', boolean>>",
+        "signature": "() => Promise<UserStoppedResult>",
         "parameters": [],
-        "returns": "Promise<Result<'userStopped', boolean>>",
+        "returns": "Promise<UserStoppedResult>",
         "tags": [
           {
             "name": "returns",
@@ -165,15 +162,15 @@
         ],
         "docs": "Did the user stop the background scanner from the notification",
         "complexTypes": [
-          "Result"
+          "UserStoppedResult"
         ],
         "slug": "diduserstop"
       },
       {
         "name": "getConfig",
-        "signature": "() => Promise<Result<'config', ScanConfig>>",
+        "signature": "() => Promise<Config>",
         "parameters": [],
-        "returns": "Promise<Result<'config', ScanConfig>>",
+        "returns": "Promise<Config>",
         "tags": [
           {
             "name": "returns",
@@ -182,14 +179,13 @@
         ],
         "docs": "Get the scanner configuration",
         "complexTypes": [
-          "Result",
-          "ScanConfig"
+          "Config"
         ],
         "slug": "getconfig"
       },
       {
         "name": "setConfig",
-        "signature": "(options: SetConfigOptions) => Promise<Result<'config', ScanConfig>>",
+        "signature": "(options: SetConfigOptions) => Promise<Config>",
         "parameters": [
           {
             "name": "options",
@@ -197,7 +193,7 @@
             "type": "SetConfigOptions"
           }
         ],
-        "returns": "Promise<Result<'config', ScanConfig>>",
+        "returns": "Promise<Config>",
         "tags": [
           {
             "name": "param",
@@ -210,11 +206,43 @@
         ],
         "docs": "Set the scanner configuration",
         "complexTypes": [
-          "Result",
-          "ScanConfig",
+          "Config",
           "SetConfigOptions"
         ],
         "slug": "setconfig"
+      },
+      {
+        "name": "addListener",
+        "signature": "(eventName: 'devicesChanged', event: DevicesChangedListener) => Promise<PluginListenerHandle>",
+        "parameters": [
+          {
+            "name": "eventName",
+            "docs": "",
+            "type": "'devicesChanged'"
+          },
+          {
+            "name": "event",
+            "docs": "The listener function to call when the list of devices changes",
+            "type": "DevicesChangedListener"
+          }
+        ],
+        "returns": "Promise<PluginListenerHandle>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "event The listener function to call when the list of devices changes"
+          },
+          {
+            "name": "returns",
+            "text": "A handle to remove the listener"
+          }
+        ],
+        "docs": "Add a listener for when the list of devices changes",
+        "complexTypes": [
+          "PluginListenerHandle",
+          "DevicesChangedListener"
+        ],
+        "slug": "addlistenerdeviceschanged-"
       }
     ],
     "properties": []
@@ -249,6 +277,24 @@
             "PermissionState"
           ],
           "type": "PermissionState"
+        }
+      ]
+    },
+    {
+      "name": "Devices",
+      "slug": "devices",
+      "docs": "The list of devices",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "devices",
+          "tags": [],
+          "docs": "The list of devices",
+          "complexTypes": [
+            "Device"
+          ],
+          "type": "Device[]"
         }
       ]
     },
@@ -353,6 +399,72 @@
       ]
     },
     {
+      "name": "StartResult",
+      "slug": "startresult",
+      "docs": "The result of starting the background scanner",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "result",
+          "tags": [],
+          "docs": "The result of starting the background scanner",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "RunningResult",
+      "slug": "runningresult",
+      "docs": "The result of checking if the background scanner is running",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "running",
+          "tags": [],
+          "docs": "The result of checking if the background scanner is running",
+          "complexTypes": [],
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "UserStoppedResult",
+      "slug": "userstoppedresult",
+      "docs": "The result of checking if the user stopped the background scanner",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "userStopped",
+          "tags": [],
+          "docs": "The result of checking if the user stopped the background scanner",
+          "complexTypes": [],
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "Config",
+      "slug": "config",
+      "docs": "The current configuration of the scanner",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "config",
+          "tags": [],
+          "docs": "The result of getting the scanner configuration",
+          "complexTypes": [
+            "ScanConfig"
+          ],
+          "type": "ScanConfig"
+        }
+      ]
+    },
+    {
       "name": "ScanConfig",
       "slug": "scanconfig",
       "docs": "The scan configuration",
@@ -433,6 +545,22 @@
           "type": "Partial<ScanConfig>"
         }
       ]
+    },
+    {
+      "name": "PluginListenerHandle",
+      "slug": "pluginlistenerhandle",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "remove",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "() => Promise<void>"
+        }
+      ]
     }
   ],
   "enums": [
@@ -492,20 +620,6 @@
       ]
     },
     {
-      "name": "Result",
-      "slug": "result",
-      "docs": "The result type is used to define the result of a function",
-      "types": [
-        {
-          "text": "{\n  [key in Key]: T;\n}",
-          "complexTypes": [
-            "Key",
-            "T"
-          ]
-        }
-      ]
-    },
-    {
       "name": "Partial",
       "slug": "partial",
       "docs": "Make all properties in T optional",
@@ -515,6 +629,19 @@
           "complexTypes": [
             "T",
             "P"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DevicesChangedListener",
+      "slug": "deviceschangedlistener",
+      "docs": "A listener that is called when the list of devices changes",
+      "types": [
+        {
+          "text": "(devices: Devices): void",
+          "complexTypes": [
+            "Devices"
           ]
         }
       ]

@@ -1,6 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
-import { ScanMode } from './definitions';
 import { Preferences } from '@capacitor/preferences';
+import { ScanMode } from './definitions';
 const DEVICES_KEY = 'backgroundble.devices';
 const CONFIG_KEY = 'backgroundble.config';
 const RUNNING_KEY = 'backgroundble.running';
@@ -64,6 +64,11 @@ export class BackgroundBLEWeb extends WebPlugin {
         },
       });
     }
+  }
+  addListener(_eventName, _event) {
+    return Promise.resolve({
+      remove: () => Promise.resolve(),
+    });
   }
 }
 //# sourceMappingURL=web.js.map

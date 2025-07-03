@@ -3,6 +3,7 @@
     "ADST",
     "androidx",
     "backgroundble",
+    "Behavior",
     "RENOTIFY"
   ],
   "java.configuration.updateBuildConfiguration": "automatic",

@@ -19,12 +19,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.Preferences;
 import androidx.datastore.preferences.core.PreferencesKeys;
 import com.getcapacitor.plugin.util.AssetUtil;
 import com.halleyassist.backgroundble.Device.Device;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +56,21 @@ public class BackgroundBLE {
 
         if (bluetoothAdapter == null) {
             throw new RuntimeException("BLE is not available.");
+        }
+    }
+
+    public Observable<List<Device>> getDevicesObservable() {
+        if (!isRunning()) {
+            Log.d(TAG, "getDevicesObservable: not running");
+            return loadDevices().toObservable();
+        } else {
+            BackgroundBLEService service = BackgroundBLEService.getInstance();
+            if (service == null) {
+                Log.d(TAG, "getDevicesObservable: service is null");
+                return loadDevices().toObservable();
+            }
+            Log.d(TAG, "getDevicesObservable: running");
+            return service.getDevicesObservable();
         }
     }
 

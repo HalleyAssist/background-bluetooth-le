@@ -1,24 +1,28 @@
-import { WebPlugin } from '@capacitor/core';
+import { PluginListenerHandle, WebPlugin } from '@capacitor/core';
 import {
   AddDevicesOptions,
   BackgroundBLEPlugin,
-  Device,
+  Config,
+  Devices,
+  DevicesChangedListener,
   PermissionStatus,
-  Result,
-  ScanConfig,
+  RunningResult,
   SetConfigOptions,
+  StartResult,
+  UserStoppedResult,
 } from './definitions';
 export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   checkPermissions(): Promise<PermissionStatus>;
   requestPermissions(): Promise<PermissionStatus>;
   initialise(): Promise<void>;
-  getDevices(): Promise<Result<'devices', Device[]>>;
-  setDevices(_options: AddDevicesOptions): Promise<Result<'devices', Device[]>>;
-  clearDevices(): Promise<Result<'devices', Device[]>>;
-  startForegroundService(): Promise<Result<'result', string>>;
+  getDevices(): Promise<Devices>;
+  setDevices(_options: AddDevicesOptions): Promise<Devices>;
+  clearDevices(): Promise<Devices>;
+  startForegroundService(): Promise<StartResult>;
   stopForegroundService(): Promise<void>;
-  isRunning(): Promise<Result<'running', boolean>>;
-  didUserStop(): Promise<Result<'userStopped', boolean>>;
-  setConfig(options: SetConfigOptions): Promise<Result<'config', ScanConfig>>;
-  getConfig(): Promise<Result<'config', ScanConfig>>;
+  isRunning(): Promise<RunningResult>;
+  didUserStop(): Promise<UserStoppedResult>;
+  setConfig(options: SetConfigOptions): Promise<Config>;
+  getConfig(): Promise<Config>;
+  addListener(_eventName: 'devicesChanged', _event: DevicesChangedListener): Promise<PluginListenerHandle>;
 }

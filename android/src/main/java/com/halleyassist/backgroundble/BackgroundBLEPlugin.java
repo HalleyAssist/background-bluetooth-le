@@ -39,6 +39,8 @@ public class BackgroundBLEPlugin extends Plugin {
     private BackgroundBLE implementation;
     private List<String> permissions;
 
+    private Disposable devicesDisposable;
+
     @Override
     public void load() {
         implementation = new BackgroundBLE(getContext());
@@ -148,6 +150,16 @@ public class BackgroundBLEPlugin extends Plugin {
             .startForegroundService()
             .subscribe(
                 result -> {
+                    // subscribe to the implementation's getDevicesObservable()
+                    devicesDisposable = implementation
+                        .getDevicesObservable()
+                        .subscribe(devices -> {
+                            JSObject ret = new JSObject();
+                            JSArray deviceArray = devicesToJSArray(devices);
+                            ret.put("devices", deviceArray);
+                            notifyListeners("devicesChanged", ret);
+                        });
+
                     JSObject ret = new JSObject();
                     ret.put("result", result);
                     call.resolve(ret);
@@ -158,6 +170,8 @@ public class BackgroundBLEPlugin extends Plugin {
 
     @PluginMethod
     public void stopForegroundService(@NonNull PluginCall call) {
+        //  unsubscribe from the implementation's getDevicesObservable()
+        devicesDisposable.dispose();
         String result = implementation.stopForegroundService();
         Logger.info(TAG, "Stopped Foreground Service: " + result);
         call.resolve();

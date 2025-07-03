@@ -1,16 +1,21 @@
-import { WebPlugin } from '@capacitor/core';
+import { PluginListenerHandle, WebPlugin } from '@capacitor/core';
 
+import { Preferences } from '@capacitor/preferences';
 import {
   AddDevicesOptions,
   BackgroundBLEPlugin,
+  Config,
   Device,
+  Devices,
+  DevicesChangedListener,
   PermissionStatus,
-  Result,
+  RunningResult,
   ScanConfig,
   ScanMode,
   SetConfigOptions,
+  StartResult,
+  UserStoppedResult,
 } from './definitions';
-import { Preferences } from '@capacitor/preferences';
 
 const DEVICES_KEY = 'backgroundble.devices';
 const CONFIG_KEY = 'backgroundble.config';
@@ -30,7 +35,7 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     return;
   }
 
-  async getDevices(): Promise<Result<'devices', Device[]>> {
+  async getDevices(): Promise<Devices> {
     const devices = await Preferences.get({ key: DEVICES_KEY });
     if (devices && devices.value) {
       return { devices: JSON.parse(devices.value) };
@@ -38,16 +43,16 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     return { devices: [] };
   }
 
-  async setDevices(_options: AddDevicesOptions): Promise<Result<'devices', Device[]>> {
+  async setDevices(_options: AddDevicesOptions): Promise<Devices> {
     await Preferences.set({ key: DEVICES_KEY, value: JSON.stringify(_options.devices) });
     return { devices: _options.devices as Device[] };
   }
 
-  async clearDevices(): Promise<Result<'devices', Device[]>> {
+  async clearDevices(): Promise<Devices> {
     return this.setDevices({ devices: [] });
   }
 
-  async startForegroundService(): Promise<Result<'result', string>> {
+  async startForegroundService(): Promise<StartResult> {
     await Preferences.set({ key: RUNNING_KEY, value: 'true' });
     return { result: 'started' };
   }
@@ -56,22 +61,22 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     await Preferences.set({ key: RUNNING_KEY, value: 'false' });
   }
 
-  async isRunning(): Promise<Result<'running', boolean>> {
+  async isRunning(): Promise<RunningResult> {
     const running = await Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');
     return { running };
   }
 
-  async didUserStop(): Promise<Result<'userStopped', boolean>> {
+  async didUserStop(): Promise<UserStoppedResult> {
     const stopped = await Preferences.get({ key: STOPPED_KEY }).then((res) => res.value === 'true');
     return { userStopped: stopped };
   }
 
-  async setConfig(options: SetConfigOptions): Promise<Result<'config', ScanConfig>> {
+  async setConfig(options: SetConfigOptions): Promise<Config> {
     await Preferences.set({ key: CONFIG_KEY, value: JSON.stringify(options.config) });
     return { config: options.config as ScanConfig };
   }
 
-  async getConfig(): Promise<Result<'config', ScanConfig>> {
+  async getConfig(): Promise<Config> {
     const config = await Preferences.get({ key: CONFIG_KEY }).then((res) =>
       res.value ? (JSON.parse(res.value) as ScanConfig) : undefined,
     );
@@ -87,5 +92,11 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
         },
       });
     }
+  }
+
+  addListener(_eventName: 'devicesChanged', _event: DevicesChangedListener): Promise<PluginListenerHandle> {
+    return Promise.resolve({
+      remove: () => Promise.resolve(),
+    });
   }
 }

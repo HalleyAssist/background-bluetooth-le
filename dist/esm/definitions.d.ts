@@ -1,4 +1,4 @@
-import type { PermissionState } from '@capacitor/core';
+import type { PermissionState, Plugin, PluginListenerHandle } from '@capacitor/core';
 /**
  * The permission state
  *
@@ -89,16 +89,6 @@ export interface RemoveDeviceOptions {
   serial: string;
 }
 /**
- * The result type is used to define the result of a function
- *
- * @default { result: string }
- *
- * @since 1.0.0
- */
-export type Result<Key extends string = 'result', T = string> = {
-  [key in Key]: T;
-};
-/**
  * The scan mode, taken from the Android API
  */
 export declare enum ScanMode {
@@ -170,9 +160,58 @@ export interface SetConfigOptions {
   config: Partial<ScanConfig>;
 }
 /**
+ * The list of devices
+ */
+export interface Devices {
+  /**
+   * The list of devices
+   */
+  devices: Device[];
+}
+/**
+ * The result of starting the background scanner
+ */
+export interface StartResult {
+  /**
+   * The result of starting the background scanner
+   */
+  result: string;
+}
+/**
+ * The result of checking if the background scanner is running
+ */
+export interface RunningResult {
+  /**
+   * The result of checking if the background scanner is running
+   */
+  running: boolean;
+}
+/**
+ * The result of checking if the user stopped the background scanner
+ */
+export interface UserStoppedResult {
+  /**
+   * The result of checking if the user stopped the background scanner
+   */
+  userStopped: boolean;
+}
+/**
+ * The current configuration of the scanner
+ */
+export interface Config {
+  /**
+   * The result of getting the scanner configuration
+   */
+  config: ScanConfig;
+}
+/**
+ * A listener that is called when the list of devices changes
+ */
+export type DevicesChangedListener = (devices: Devices) => void;
+/**
  * The background BLE plugin
  */
-export interface BackgroundBLEPlugin {
+export interface BackgroundBLEPlugin extends Plugin {
   checkPermissions(): Promise<PermissionStatus>;
   requestPermissions(): Promise<PermissionStatus>;
   /**
@@ -184,7 +223,7 @@ export interface BackgroundBLEPlugin {
   /**
    * Get the current list of devices
    */
-  getDevices(): Promise<Result<'devices', Device[]>>;
+  getDevices(): Promise<Devices>;
   /**
    * Set the list of devices to scan for
    *
@@ -192,19 +231,19 @@ export interface BackgroundBLEPlugin {
    * @returns The new list of devices
    * @since 1.0.0
    */
-  setDevices(options: AddDevicesOptions): Promise<Result<'devices', Device[]>>;
+  setDevices(options: AddDevicesOptions): Promise<Devices>;
   /**
    * Clear the list of devices to scan for
    *
    * @returns The list of devices
    */
-  clearDevices(): Promise<Result<'devices', Device[]>>;
+  clearDevices(): Promise<Devices>;
   /**
    * Start the background scanner
    *
    * @returns The result of starting the background scanner
    */
-  startForegroundService(): Promise<Result<'result', string>>;
+  startForegroundService(): Promise<StartResult>;
   /**
    * Stop the background scanner
    */
@@ -214,24 +253,31 @@ export interface BackgroundBLEPlugin {
    *
    * @returns The result of whether the background scanner is running
    */
-  isRunning(): Promise<Result<'running', boolean>>;
+  isRunning(): Promise<RunningResult>;
   /**
    * Did the user stop the background scanner from the notification
    *
    * @returns The result of whether the user stopped the background scanner
    */
-  didUserStop(): Promise<Result<'userStopped', boolean>>;
+  didUserStop(): Promise<UserStoppedResult>;
   /**
    * Get the scanner configuration
    *
    * @returns The scanner configuration
    */
-  getConfig(): Promise<Result<'config', ScanConfig>>;
+  getConfig(): Promise<Config>;
   /**
    * Set the scanner configuration
    *
    * @param options The options to set the scanner configuration
    * @returns The new scanner configuration
    */
-  setConfig(options: SetConfigOptions): Promise<Result<'config', ScanConfig>>;
+  setConfig(options: SetConfigOptions): Promise<Config>;
+  /**
+   * Add a listener for when the list of devices changes
+   *
+   * @param event The listener function to call when the list of devices changes
+   * @returns A handle to remove the listener
+   */
+  addListener(eventName: 'devicesChanged', event: DevicesChangedListener): Promise<PluginListenerHandle>;
 }

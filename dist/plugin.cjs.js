@@ -103,6 +103,11 @@ class BackgroundBLEWeb extends core.WebPlugin {
       });
     }
   }
+  addListener(_eventName, _event) {
+    return Promise.resolve({
+      remove: () => Promise.resolve(),
+    });
+  }
 }
 
 var web = /*#__PURE__*/ Object.freeze({

@@ -74,6 +74,7 @@ A drawable resource is also required for the notification icon. this should use 
 * [`didUserStop()`](#diduserstop)
 * [`getConfig()`](#getconfig)
 * [`setConfig(...)`](#setconfig)
+* [`addListener('devicesChanged', ...)`](#addlistenerdeviceschanged-)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 * [Enums](#enums)
@@ -121,12 +122,12 @@ Initialise the background scanner
 ### getDevices()
 
 ```typescript
-getDevices() => Promise<Result<'devices', Device[]>>
+getDevices() => Promise<Devices>
 ```
 
 Get the current list of devices
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#devices">Devices</a>&gt;</code>
 
 --------------------
 
@@ -134,7 +135,7 @@ Get the current list of devices
 ### setDevices(...)
 
 ```typescript
-setDevices(options: AddDevicesOptions) => Promise<Result<'devices', Device[]>>
+setDevices(options: AddDevicesOptions) => Promise<Devices>
 ```
 
 Set the list of devices to scan for
@@ -143,7 +144,7 @@ Set the list of devices to scan for
 | ------------- | --------------------------------------------------------------- |
 | **`options`** | <code><a href="#adddevicesoptions">AddDevicesOptions</a></code> |
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#devices">Devices</a>&gt;</code>
 
 **Since:** 1.0.0
 
@@ -153,12 +154,12 @@ Set the list of devices to scan for
 ### clearDevices()
 
 ```typescript
-clearDevices() => Promise<Result<'devices', Device[]>>
+clearDevices() => Promise<Devices>
 ```
 
 Clear the list of devices to scan for
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'devices', Device[]&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#devices">Devices</a>&gt;</code>
 
 --------------------
 
@@ -166,12 +167,12 @@ Clear the list of devices to scan for
 ### startForegroundService()
 
 ```typescript
-startForegroundService() => Promise<Result<'result', string>>
+startForegroundService() => Promise<StartResult>
 ```
 
 Start the background scanner
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'result', string&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#startresult">StartResult</a>&gt;</code>
 
 --------------------
 
@@ -190,12 +191,12 @@ Stop the background scanner
 ### isRunning()
 
 ```typescript
-isRunning() => Promise<Result<'running', boolean>>
+isRunning() => Promise<RunningResult>
 ```
 
 Is the background scanner running
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'running', boolean&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#runningresult">RunningResult</a>&gt;</code>
 
 --------------------
 
@@ -203,12 +204,12 @@ Is the background scanner running
 ### didUserStop()
 
 ```typescript
-didUserStop() => Promise<Result<'userStopped', boolean>>
+didUserStop() => Promise<UserStoppedResult>
 ```
 
 Did the user stop the background scanner from the notification
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'userStopped', boolean&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#userstoppedresult">UserStoppedResult</a>&gt;</code>
 
 --------------------
 
@@ -216,12 +217,12 @@ Did the user stop the background scanner from the notification
 ### getConfig()
 
 ```typescript
-getConfig() => Promise<Result<'config', ScanConfig>>
+getConfig() => Promise<Config>
 ```
 
 Get the scanner configuration
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'config', <a href="#scanconfig">ScanConfig</a>&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#config">Config</a>&gt;</code>
 
 --------------------
 
@@ -229,7 +230,7 @@ Get the scanner configuration
 ### setConfig(...)
 
 ```typescript
-setConfig(options: SetConfigOptions) => Promise<Result<'config', ScanConfig>>
+setConfig(options: SetConfigOptions) => Promise<Config>
 ```
 
 Set the scanner configuration
@@ -238,7 +239,25 @@ Set the scanner configuration
 | ------------- | ------------------------------------------------------------- | -------------------------------------------- |
 | **`options`** | <code><a href="#setconfigoptions">SetConfigOptions</a></code> | The options to set the scanner configuration |
 
-**Returns:** <code>Promise&lt;<a href="#result">Result</a>&lt;'config', <a href="#scanconfig">ScanConfig</a>&gt;&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#config">Config</a>&gt;</code>
+
+--------------------
+
+
+### addListener('devicesChanged', ...)
+
+```typescript
+addListener(eventName: 'devicesChanged', event: DevicesChangedListener) => Promise<PluginListenerHandle>
+```
+
+Add a listener for when the list of devices changes
+
+| Param           | Type                                                                      | Description                                                    |
+| --------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **`eventName`** | <code>'devicesChanged'</code>                                             |                                                                |
+| **`event`**     | <code><a href="#deviceschangedlistener">DevicesChangedListener</a></code> | The listener function to call when the list of devices changes |
+
+**Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
 
 --------------------
 
@@ -260,6 +279,15 @@ The permission state is a string that can be one of the following:
 | ------------------- | ----------------------------------------------------------- |
 | **`bluetooth`**     | <code><a href="#permissionstate">PermissionState</a></code> |
 | **`notifications`** | <code><a href="#permissionstate">PermissionState</a></code> |
+
+
+#### Devices
+
+The list of devices
+
+| Prop          | Type                  | Description         |
+| ------------- | --------------------- | ------------------- |
+| **`devices`** | <code>Device[]</code> | The list of devices |
 
 
 #### Device
@@ -296,6 +324,42 @@ Only requires the serial and name of the device
 | **`name`**   | <code>string</code> | The display name of the device |
 
 
+#### StartResult
+
+The result of starting the background scanner
+
+| Prop         | Type                | Description                                   |
+| ------------ | ------------------- | --------------------------------------------- |
+| **`result`** | <code>string</code> | The result of starting the background scanner |
+
+
+#### RunningResult
+
+The result of checking if the background scanner is running
+
+| Prop          | Type                 | Description                                                 |
+| ------------- | -------------------- | ----------------------------------------------------------- |
+| **`running`** | <code>boolean</code> | The result of checking if the background scanner is running |
+
+
+#### UserStoppedResult
+
+The result of checking if the user stopped the background scanner
+
+| Prop              | Type                 | Description                                                       |
+| ----------------- | -------------------- | ----------------------------------------------------------------- |
+| **`userStopped`** | <code>boolean</code> | The result of checking if the user stopped the background scanner |
+
+
+#### Config
+
+The current configuration of the scanner
+
+| Prop         | Type                                              | Description                                     |
+| ------------ | ------------------------------------------------- | ----------------------------------------------- |
+| **`config`** | <code><a href="#scanconfig">ScanConfig</a></code> | The result of getting the scanner configuration |
+
+
 #### ScanConfig
 
 The scan configuration
@@ -317,6 +381,13 @@ The options to set the configuration
 | **`config`** | <code><a href="#partial">Partial</a>&lt;<a href="#scanconfig">ScanConfig</a>&gt;</code> | The configuration to set |
 
 
+#### PluginListenerHandle
+
+| Prop         | Type                                      |
+| ------------ | ----------------------------------------- |
+| **`remove`** | <code>() =&gt; Promise&lt;void&gt;</code> |
+
+
 ### Type Aliases
 
 
@@ -325,18 +396,18 @@ The options to set the configuration
 <code>'prompt' | 'prompt-with-rationale' | 'granted' | 'denied'</code>
 
 
-#### Result
-
-The result type is used to define the result of a function
-
-<code>{ [key in Key]: T; }</code>
-
-
 #### Partial
 
 Make all properties in T optional
 
 <code>{ [P in keyof T]?: T[P]; }</code>
+
+
+#### DevicesChangedListener
+
+A listener that is called when the list of devices changes
+
+<code>(devices: <a href="#devices">Devices</a>): void</code>
 
 
 ### Enums
