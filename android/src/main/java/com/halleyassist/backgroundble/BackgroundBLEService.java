@@ -86,6 +86,7 @@ public class BackgroundBLEService extends Service {
     private int threshold = -100;
 
     private BehaviorSubject<List<Device>> devicesSubject;
+    private BehaviorSubject<List<Device>> closeDevicesSubject;
 
     //  singleton
     private static BackgroundBLEService instance;
@@ -103,6 +104,7 @@ public class BackgroundBLEService extends Service {
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
 
         devicesSubject = BehaviorSubject.create();
+        closeDevicesSubject = BehaviorSubject.create();
 
         instance = this;
     }
@@ -349,6 +351,7 @@ public class BackgroundBLEService extends Service {
         } else {
             closeDevices = devices.stream().filter(d -> d.rssi > threshold).collect(Collectors.toList());
         }
+        closeDevicesSubject.onNext(closeDevices);
         //  create a list of actions, one for stopping the scan, one for the closest device, and one for the second closest device
         //  if no devices are close, only show the stop action
         Notification.Action[] actions;
@@ -455,6 +458,11 @@ public class BackgroundBLEService extends Service {
     public Observable<List<Device>> getDevicesObservable() {
         // create an observable to return the devices list
         return devicesSubject.hide();
+    }
+
+    public Observable<List<Device>> getCloseDevicesObservable() {
+        // create an observable to return the close devices list
+        return closeDevicesSubject.hide();
     }
 
     @Override

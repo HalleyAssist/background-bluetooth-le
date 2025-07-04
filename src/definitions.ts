@@ -296,4 +296,13 @@ export interface BackgroundBLEPlugin extends Plugin {
    * @returns A handle to remove the listener
    */
   addListener(eventName: 'devicesChanged', event: DevicesChangedListener): Promise<PluginListenerHandle>;
+  /**
+   * Add a listener for when the list of close devices changes
+   *
+   * This list only includes devices that are within the configured RSSI threshold.
+   *
+   * @param event The listener function to call when the list of close devices changes
+   * @returns A handle to remove the listener
+   */
+  addListener(eventName: 'closeDevicesChanged', event: DevicesChangedListener): Promise<PluginListenerHandle>;
 }

@@ -243,6 +243,39 @@
           "DevicesChangedListener"
         ],
         "slug": "addlistenerdeviceschanged-"
+      },
+      {
+        "name": "addListener",
+        "signature": "(eventName: 'closeDevicesChanged', event: DevicesChangedListener) => Promise<PluginListenerHandle>",
+        "parameters": [
+          {
+            "name": "eventName",
+            "docs": "",
+            "type": "'closeDevicesChanged'"
+          },
+          {
+            "name": "event",
+            "docs": "The listener function to call when the list of close devices changes",
+            "type": "DevicesChangedListener"
+          }
+        ],
+        "returns": "Promise<PluginListenerHandle>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "event The listener function to call when the list of close devices changes"
+          },
+          {
+            "name": "returns",
+            "text": "A handle to remove the listener"
+          }
+        ],
+        "docs": "Add a listener for when the list of close devices changes\n\nThis list only includes devices that are within the configured RSSI threshold.",
+        "complexTypes": [
+          "PluginListenerHandle",
+          "DevicesChangedListener"
+        ],
+        "slug": "addlistenerclosedeviceschanged-"
       }
     ],
     "properties": []

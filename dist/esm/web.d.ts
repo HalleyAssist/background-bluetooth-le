@@ -24,5 +24,8 @@ export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLE
   didUserStop(): Promise<UserStoppedResult>;
   setConfig(options: SetConfigOptions): Promise<Config>;
   getConfig(): Promise<Config>;
-  addListener(_eventName: 'devicesChanged', _event: DevicesChangedListener): Promise<PluginListenerHandle>;
+  addListener(
+    _eventName: 'devicesChanged' | 'closeDevicesChanged',
+    _event: DevicesChangedListener,
+  ): Promise<PluginListenerHandle>;
 }

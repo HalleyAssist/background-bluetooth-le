@@ -94,7 +94,10 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     }
   }
 
-  addListener(_eventName: 'devicesChanged', _event: DevicesChangedListener): Promise<PluginListenerHandle> {
+  addListener(
+    _eventName: 'devicesChanged' | 'closeDevicesChanged',
+    _event: DevicesChangedListener,
+  ): Promise<PluginListenerHandle> {
     return Promise.resolve({
       remove: () => Promise.resolve(),
     });

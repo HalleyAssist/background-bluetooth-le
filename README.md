@@ -75,6 +75,7 @@ A drawable resource is also required for the notification icon. this should use 
 * [`getConfig()`](#getconfig)
 * [`setConfig(...)`](#setconfig)
 * [`addListener('devicesChanged', ...)`](#addlistenerdeviceschanged-)
+* [`addListener('closeDevicesChanged', ...)`](#addlistenerclosedeviceschanged-)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 * [Enums](#enums)
@@ -256,6 +257,26 @@ Add a listener for when the list of devices changes
 | --------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | **`eventName`** | <code>'devicesChanged'</code>                                             |                                                                |
 | **`event`**     | <code><a href="#deviceschangedlistener">DevicesChangedListener</a></code> | The listener function to call when the list of devices changes |
+
+**Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
+
+--------------------
+
+
+### addListener('closeDevicesChanged', ...)
+
+```typescript
+addListener(eventName: 'closeDevicesChanged', event: DevicesChangedListener) => Promise<PluginListenerHandle>
+```
+
+Add a listener for when the list of close devices changes
+
+This list only includes devices that are within the configured RSSI threshold.
+
+| Param           | Type                                                                      | Description                                                          |
+| --------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **`eventName`** | <code>'closeDevicesChanged'</code>                                        |                                                                      |
+| **`event`**     | <code><a href="#deviceschangedlistener">DevicesChangedListener</a></code> | The listener function to call when the list of close devices changes |
 
 **Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
 

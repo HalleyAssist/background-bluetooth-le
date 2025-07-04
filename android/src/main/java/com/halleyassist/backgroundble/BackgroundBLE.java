@@ -74,6 +74,21 @@ public class BackgroundBLE {
         }
     }
 
+    public Observable<List<Device>> getCloseDevicesObservable() {
+        if (!isRunning()) {
+            Log.d(TAG, "getCloseDevicesObservable: not running");
+            return loadDevices().toObservable();
+        } else {
+            BackgroundBLEService service = BackgroundBLEService.getInstance();
+            if (service == null) {
+                Log.d(TAG, "getCloseDevicesObservable: service is null");
+                return loadDevices().toObservable();
+            }
+            Log.d(TAG, "getCloseDevicesObservable: running");
+            return service.getCloseDevicesObservable();
+        }
+    }
+
     public Single<List<Device>> getDevices() {
         //  check if the service is running
         if (!isRunning()) {
