@@ -119,19 +119,19 @@ public class BackgroundBLEService extends Service {
                         //  set the stopped flag to true
                         BLEDataStore.getInstance(getApplicationContext())
                             .getDataStore()
-                            .updateDataAsync(preferences -> {
+                            .updateDataAsync((preferences) -> {
                                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
                                 //  set the stopped flag to true
                                 mutablePreferences.set(PreferencesKeys.booleanKey(KEY_STOPPED), true);
                                 return Single.just(mutablePreferences);
                             })
                             .subscribe(
-                                prefs -> {
+                                (prefs) -> {
                                     Logger.info(TAG, "Stopped flag set to true");
                                     stopForeground(STOP_FOREGROUND_REMOVE);
                                     stopSelf();
                                 },
-                                throwable -> {
+                                (throwable) -> {
                                     Logger.error(TAG, "Failed to set stopped flag", throwable);
                                     //  still stop the service
                                     stopForeground(STOP_FOREGROUND_REMOVE);
@@ -149,7 +149,11 @@ public class BackgroundBLEService extends Service {
                         String serial = intent.getStringExtra("serial");
                         int rssi = intent.getIntExtra("rssi", -127);
                         int txPower = intent.getIntExtra("txPower", TX_POWER_NOT_PRESENT);
-                        devices.stream().filter(d -> d.serial.equals(serial)).findFirst().ifPresent(device -> device.update(rssi, txPower));
+                        devices
+                            .stream()
+                            .filter((d) -> d.serial.equals(serial))
+                            .findFirst()
+                            .ifPresent((device) -> device.update(rssi, txPower));
                         checkClosestDevice();
                         return START_STICKY;
                     }
@@ -205,7 +209,7 @@ public class BackgroundBLEService extends Service {
         //  set the stopped flag to false
         BLEDataStore.getInstance(getApplicationContext())
             .getDataStore()
-            .updateDataAsync(preferences -> {
+            .updateDataAsync((preferences) -> {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
                 //  set the stopped flag to false
                 mutablePreferences.set(PreferencesKeys.booleanKey(KEY_STOPPED), false);
@@ -347,9 +351,15 @@ public class BackgroundBLEService extends Service {
         //  get the closest devices
         List<Device> closeDevices;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            closeDevices = devices.stream().filter(d -> d.rssi > threshold).toList();
+            closeDevices = devices
+                .stream()
+                .filter((d) -> d.rssi > threshold)
+                .toList();
         } else {
-            closeDevices = devices.stream().filter(d -> d.rssi > threshold).collect(Collectors.toList());
+            closeDevices = devices
+                .stream()
+                .filter((d) -> d.rssi > threshold)
+                .collect(Collectors.toList());
         }
         closeDevicesSubject.onNext(closeDevices);
         //  create a list of actions, one for stopping the scan, one for the closest device, and one for the second closest device
@@ -389,8 +399,8 @@ public class BackgroundBLEService extends Service {
             StringBuilder debugText = new StringBuilder();
             devices
                 .stream()
-                .filter(d -> d.rssi > threshold)
-                .forEach(device -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
+                .filter((d) -> d.rssi > threshold)
+                .forEach((device) -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
             //  deep link to the closest device, if present
             StringBuilder deepLink = new StringBuilder();
             if (closestDevice != null) {
@@ -423,8 +433,8 @@ public class BackgroundBLEService extends Service {
                 // update any devices that have not been updated in the last (timeout) seconds
                 devices
                     .stream()
-                    .filter(d -> System.currentTimeMillis() - d.lastUpdated > deviceTimeout)
-                    .forEach(d -> d.update(-127, TX_POWER_NOT_PRESENT));
+                    .filter((d) -> System.currentTimeMillis() - d.lastUpdated > deviceTimeout)
+                    .forEach((d) -> d.update(-127, TX_POWER_NOT_PRESENT));
 
                 checkClosestDevice();
 
@@ -440,7 +450,7 @@ public class BackgroundBLEService extends Service {
 
     private boolean shouldStopTimer() {
         //  stop the timer if all devices have an rssi less than threshold - 1 (effectively out of range)
-        return devices.stream().allMatch(d -> d.rssi < (threshold - 1));
+        return devices.stream().allMatch((d) -> d.rssi < (threshold - 1));
     }
 
     private void stopTimer() {

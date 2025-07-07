@@ -101,8 +101,8 @@ public class BackgroundBLEPlugin extends Plugin {
         return implementation
             .getDevices()
             .subscribe(
-                devices -> call.resolve(resolveDevices(devices)),
-                throwable -> call.reject("Failed to get devices", throwable.getMessage())
+                (devices) -> call.resolve(resolveDevices(devices)),
+                (throwable) -> call.reject("Failed to get devices", throwable.getMessage())
             );
     }
 
@@ -126,8 +126,8 @@ public class BackgroundBLEPlugin extends Plugin {
             return implementation
                 .setDevices(list)
                 .subscribe(
-                    devices1 -> call.resolve(resolveDevices(devices1)),
-                    throwable -> call.reject("Failed to set devices", throwable.getMessage())
+                    (devices1) -> call.resolve(resolveDevices(devices1)),
+                    (throwable) -> call.reject("Failed to set devices", throwable.getMessage())
                 );
         } catch (JSONException ex) {
             call.reject(ex.toString());
@@ -140,8 +140,8 @@ public class BackgroundBLEPlugin extends Plugin {
         return implementation
             .clearDevices()
             .subscribe(
-                devices -> call.resolve(resolveDevices(devices)),
-                throwable -> call.reject("Failed to clear devices", throwable.getMessage())
+                (devices) -> call.resolve(resolveDevices(devices)),
+                (throwable) -> call.reject("Failed to clear devices", throwable.getMessage())
             );
     }
 
@@ -150,11 +150,11 @@ public class BackgroundBLEPlugin extends Plugin {
         return implementation
             .startForegroundService()
             .subscribe(
-                result -> {
+                (result) -> {
                     // subscribe to the implementation's getDevicesObservable()
                     devicesDisposable = implementation
                         .getDevicesObservable()
-                        .subscribe(devices -> {
+                        .subscribe((devices) -> {
                             JSObject ret = new JSObject();
                             JSArray deviceArray = devicesToJSArray(devices);
                             ret.put("devices", deviceArray);
@@ -164,7 +164,7 @@ public class BackgroundBLEPlugin extends Plugin {
                     // subscribe to the implementation's getCloseDevicesObservable()
                     closeDevicesDisposable = implementation
                         .getCloseDevicesObservable()
-                        .subscribe(closeDevices -> {
+                        .subscribe((closeDevices) -> {
                             JSObject ret = new JSObject();
                             JSArray closeDeviceArray = devicesToJSArray(closeDevices);
                             ret.put("devices", closeDeviceArray);
@@ -175,7 +175,7 @@ public class BackgroundBLEPlugin extends Plugin {
                     ret.put("result", result);
                     call.resolve(ret);
                 },
-                throwable -> call.reject("Failed to start foreground service", throwable.getMessage())
+                (throwable) -> call.reject("Failed to start foreground service", throwable.getMessage())
             );
     }
 
@@ -201,12 +201,12 @@ public class BackgroundBLEPlugin extends Plugin {
         return implementation
             .didUserStop()
             .subscribe(
-                result -> {
+                (result) -> {
                     JSObject ret = new JSObject();
                     ret.put("userStopped", result);
                     call.resolve(ret);
                 },
-                throwable -> call.reject("Failed to check if user stopped", throwable.getMessage())
+                (throwable) -> call.reject("Failed to check if user stopped", throwable.getMessage())
             );
     }
 
@@ -216,12 +216,12 @@ public class BackgroundBLEPlugin extends Plugin {
         return implementation
             .setScanConfig(new ScanConfig(config))
             .subscribe(
-                result -> {
+                (result) -> {
                     JSObject ret = new JSObject();
                     ret.put("config", result.toJSObject());
                     call.resolve(ret);
                 },
-                throwable -> call.reject("Failed to set config", throwable.getMessage())
+                (throwable) -> call.reject("Failed to set config", throwable.getMessage())
             );
     }
 
@@ -230,12 +230,12 @@ public class BackgroundBLEPlugin extends Plugin {
         return implementation
             .getScanConfig()
             .subscribe(
-                config -> {
+                (config) -> {
                     JSObject ret = new JSObject();
                     ret.put("config", config.toJSObject());
                     call.resolve(ret);
                 },
-                throwable -> call.reject("Failed to get config", throwable.getMessage())
+                (throwable) -> call.reject("Failed to get config", throwable.getMessage())
             );
     }
 
