@@ -182,8 +182,13 @@ public class BackgroundBLEPlugin extends Plugin {
     @PluginMethod
     public void stopForegroundService(@NonNull PluginCall call) {
         //  unsubscribe from the implementation's getDevicesObservable()
-        devicesDisposable.dispose();
-        closeDevicesDisposable.dispose();
+        if (devicesDisposable != null && !devicesDisposable.isDisposed()) {
+            devicesDisposable.dispose();
+        }
+        //  unsubscribe from the implementation's getCloseDevicesObservable()
+        if (closeDevicesDisposable != null && !closeDevicesDisposable.isDisposed()) {
+            closeDevicesDisposable.dispose();
+        }
         String result = implementation.stopForegroundService();
         Logger.info(TAG, "Stopped Foreground Service: " + result);
         call.resolve();
