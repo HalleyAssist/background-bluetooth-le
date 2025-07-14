@@ -1,5 +1,6 @@
 package com.halleyassist.backgroundble;
 
+import static com.halleyassist.backgroundble.BLEDataStore.DATA_STORE_NAME;
 import static com.halleyassist.backgroundble.BLEDataStore.KEYS;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEBUG;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEVICE_TIMEOUT;
@@ -25,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.Preferences;
 import androidx.datastore.preferences.core.PreferencesKeys;
+import androidx.datastore.preferences.rxjava2.RxPreferenceDataStoreBuilder;
 import androidx.datastore.rxjava2.RxDataStore;
 import com.getcapacitor.Logger;
 import com.getcapacitor.plugin.util.AssetUtil;
@@ -51,7 +53,9 @@ public class BackgroundBLE {
     @SuppressLint("CheckResult")
     public BackgroundBLE(Context context) {
         this.context = context;
-        dataStore = BLEDataStore.getInstance(context).getDataStore();
+
+        dataStore = new RxPreferenceDataStoreBuilder(context, DATA_STORE_NAME).build();
+
         messageSubject = LocalMessaging.getSubject();
 
         messageSubject.subscribe((message) -> {
@@ -64,7 +68,7 @@ public class BackgroundBLE {
                         MutablePreferences mutablePreferences = preferences.toMutablePreferences();
                         //  set the stopped flag to false
                         Preferences.Key<Boolean> key = PreferencesKeys.booleanKey(KEY_STOPPED);
-                        mutablePreferences.set(key, false);
+                        mutablePreferences.remove(key);
                         Logger.info(TAG, "Stopped set to false");
                         return Single.just(preferences);
                     })
@@ -195,11 +199,7 @@ public class BackgroundBLE {
     }
 
     public Single<Boolean> didUserStop() {
-        Single<Map<Preferences.Key<?>, ?>> preferences = BLEDataStore.getInstance(context)
-            .getDataStore()
-            .data()
-            .firstOrError()
-            .map(Preferences::asMap);
+        Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
         return preferences.map((pref) -> {
             if (pref.containsKey(PreferencesKeys.booleanKey(KEY_STOPPED))) {
                 return (boolean) pref.get(PreferencesKeys.booleanKey(KEY_STOPPED));
@@ -209,11 +209,7 @@ public class BackgroundBLE {
     }
 
     public Single<ScanConfig> getScanConfig() {
-        Single<Map<Preferences.Key<?>, ?>> preferences = BLEDataStore.getInstance(context)
-            .getDataStore()
-            .data()
-            .firstOrError()
-            .map(Preferences::asMap);
+        Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
         return preferences.map((pref) -> {
             ScanConfig config = new ScanConfig();
             for (String key : KEYS) {
@@ -239,8 +235,7 @@ public class BackgroundBLE {
     }
 
     public Single<ScanConfig> setScanConfig(@NonNull ScanConfig config) {
-        return BLEDataStore.getInstance(context)
-            .getDataStore()
+        return dataStore
             .updateDataAsync((preferences) -> {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
                 mutablePreferences.set(PreferencesKeys.intKey(KEY_SCAN_MODE), config.getMode());
@@ -249,18 +244,17 @@ public class BackgroundBLE {
                 mutablePreferences.set(PreferencesKeys.intKey(KEY_THRESHOLD), config.getThreshold());
                 return Single.just(mutablePreferences);
             })
-            .map((preferences) -> config);
+            .map((preferences) -> {
+                Logger.info(TAG, "Scan config set: " + preferences);
+                return config;
+            });
     }
 
     //  load device list from key store
     @NonNull
     private Single<List<Device>> loadDevices() {
         //  get all the keys values
-        Single<Map<Preferences.Key<?>, ?>> preferences = BLEDataStore.getInstance(context)
-            .getDataStore()
-            .data()
-            .firstOrError()
-            .map(Preferences::asMap);
+        Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
         //  iterate map
         return preferences.map((pref) -> {
             List<Device> deviceList = new ArrayList<>();
@@ -280,8 +274,7 @@ public class BackgroundBLE {
 
     @NonNull
     private Single<List<Device>> saveDevices(@NonNull List<Device> devices) {
-        return BLEDataStore.getInstance(context)
-            .getDataStore()
+        return dataStore
             .updateDataAsync((preferences) -> {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
                 // get all the keys in the preferences
@@ -302,18 +295,18 @@ public class BackgroundBLE {
                 }
                 return Single.just(mutablePreferences);
             })
-            .map((preferences) -> devices);
+            .map((preferences) -> {
+                Logger.info(TAG, "Devices saved: " + preferences);
+                return devices;
+            });
     }
 
     @NonNull
     private Single<ScanConfig> getConfigWithDevices() {
         //  return every key in the preferences
-        Single<Map<Preferences.Key<?>, ?>> preferences = BLEDataStore.getInstance(context)
-            .getDataStore()
-            .data()
-            .firstOrError()
-            .map(Preferences::asMap);
+        Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
         return preferences.map((prefs) -> {
+            Logger.info(TAG, "Preferences: " + prefs);
             ScanConfig config = new ScanConfig();
             for (Map.Entry<Preferences.Key<?>, ?> entry : prefs.entrySet()) {
                 switch (entry.getKey().toString()) {
