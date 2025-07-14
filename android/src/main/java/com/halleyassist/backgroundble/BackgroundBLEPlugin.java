@@ -4,9 +4,7 @@ import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
 import android.Manifest;
 import android.os.Build;
-
 import androidx.annotation.NonNull;
-
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Logger;
@@ -18,16 +16,13 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 import com.halleyassist.backgroundble.Device.Device;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import io.reactivex.Single;
-import io.reactivex.disposables.Disposable;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @CapacitorPlugin(
     name = "BackgroundBLE",

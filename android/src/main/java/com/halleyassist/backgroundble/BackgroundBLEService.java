@@ -24,14 +24,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
-
 import com.getcapacitor.Logger;
 import com.halleyassist.backgroundble.Device.Device;
-
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -41,9 +40,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
-import io.reactivex.Observable;
-import io.reactivex.subjects.BehaviorSubject;
 
 public class BackgroundBLEService extends Service {
 
@@ -131,7 +127,11 @@ public class BackgroundBLEService extends Service {
                         String serial = intent.getStringExtra("serial");
                         int rssi = intent.getIntExtra("rssi", -127);
                         int txPower = intent.getIntExtra("txPower", TX_POWER_NOT_PRESENT);
-                        devices.stream().filter(d -> d.serial.equals(serial)).findFirst().ifPresent(device -> device.update(rssi, txPower));
+                        devices
+                            .stream()
+                            .filter((d) -> d.serial.equals(serial))
+                            .findFirst()
+                            .ifPresent((device) -> device.update(rssi, txPower));
                         checkClosestDevice();
                         return START_STICKY;
                     }
@@ -321,9 +321,15 @@ public class BackgroundBLEService extends Service {
         //  get the closest devices
         List<Device> closeDevices;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            closeDevices = devices.stream().filter(d -> d.rssi > threshold).toList();
+            closeDevices = devices
+                .stream()
+                .filter((d) -> d.rssi > threshold)
+                .toList();
         } else {
-            closeDevices = devices.stream().filter(d -> d.rssi > threshold).collect(Collectors.toList());
+            closeDevices = devices
+                .stream()
+                .filter((d) -> d.rssi > threshold)
+                .collect(Collectors.toList());
         }
         closeDevicesSubject.onNext(closeDevices);
         //  create a list of actions, one for stopping the scan, one for the closest device, and one for the second closest device
@@ -363,8 +369,8 @@ public class BackgroundBLEService extends Service {
             StringBuilder debugText = new StringBuilder();
             devices
                 .stream()
-                .filter(d -> d.rssi > threshold)
-                .forEach(device -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
+                .filter((d) -> d.rssi > threshold)
+                .forEach((device) -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
             //  deep link to the closest device, if present
             StringBuilder deepLink = new StringBuilder();
             if (closestDevice != null) {
@@ -397,8 +403,8 @@ public class BackgroundBLEService extends Service {
                 // update any devices that have not been updated in the last (timeout) seconds
                 devices
                     .stream()
-                    .filter(d -> System.currentTimeMillis() - d.lastUpdated > deviceTimeout)
-                    .forEach(d -> d.update(-127, TX_POWER_NOT_PRESENT));
+                    .filter((d) -> System.currentTimeMillis() - d.lastUpdated > deviceTimeout)
+                    .forEach((d) -> d.update(-127, TX_POWER_NOT_PRESENT));
 
                 checkClosestDevice();
 
@@ -414,7 +420,7 @@ public class BackgroundBLEService extends Service {
 
     private boolean shouldStopTimer() {
         //  stop the timer if all devices have an rssi less than threshold - 1 (effectively out of range)
-        return devices.stream().allMatch(d -> d.rssi < (threshold - 1));
+        return devices.stream().allMatch((d) -> d.rssi < (threshold - 1));
     }
 
     private void stopTimer() {
