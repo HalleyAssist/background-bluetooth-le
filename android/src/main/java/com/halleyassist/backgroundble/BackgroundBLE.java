@@ -13,6 +13,7 @@ import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_ICON;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_SCAN_MODE;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_THRESHOLD;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -20,20 +21,26 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.Preferences;
 import androidx.datastore.preferences.core.PreferencesKeys;
+import androidx.datastore.rxjava2.RxDataStore;
+
+import com.getcapacitor.Logger;
 import com.getcapacitor.plugin.util.AssetUtil;
 import com.halleyassist.backgroundble.Device.Device;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.subjects.Subject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.subjects.Subject;
 
 public class BackgroundBLE {
 
@@ -41,12 +48,49 @@ public class BackgroundBLE {
 
     private final Context context;
 
-    private Subject<String> messageSubject;
+    private final Subject<String> messageSubject;
 
+    private final RxDataStore<Preferences> dataStore;
+
+    @SuppressLint("CheckResult")
     public BackgroundBLE(Context context) {
         this.context = context;
-        BLEDataStore.getInstance(context);
+        dataStore = BLEDataStore.getInstance(context).getDataStore();
         messageSubject = LocalMessaging.getSubject();
+
+        messageSubject.subscribe(message -> {
+            Log.d(TAG, "Message received: " + message);
+            if (message.equals("Started")) {
+                // Handle service started
+                //  set the stopped flag to false
+                dataStore
+                    .updateDataAsync(preferences -> {
+                        MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                        //  set the stopped flag to false
+                        Preferences.Key<Boolean> key = PreferencesKeys.booleanKey(KEY_STOPPED);
+                        mutablePreferences.set(key, false);
+                        Logger.info(TAG, "Stopped set to false");
+                        return Single.just(preferences);
+                    })
+                    .subscribe(prefs -> {
+                        Logger.info(TAG, "Stopped result: " + prefs);
+                    });
+            } else if (message.equals("User Stopped")) {
+                // Handle user stopped
+                dataStore
+                    .updateDataAsync(preferences -> {
+                        MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                        //  set the stopped flag to true
+                        Preferences.Key<Boolean> key = PreferencesKeys.booleanKey(KEY_STOPPED);
+                        mutablePreferences.set(key, true);
+                        Logger.info(TAG, "Stopped set to true");
+                        return Single.just(preferences);
+                    })
+                    .subscribe(prefs -> {
+                        Logger.info(TAG, "Stopped result: " + prefs);
+                    });
+            }
+        });
     }
 
     public void canUseBluetooth() {
@@ -117,7 +161,8 @@ public class BackgroundBLE {
     }
 
     public Single<String> startForegroundService() {
-        return getConfigWithDevices().flatMap((config) -> {
+        return getConfigWithDevices()
+            .flatMap(config -> {
                 int iconResourceId = AssetUtil.getResourceID(context, AssetUtil.getResourceBaseName("ic_notification"), "drawable");
                 Bundle devicesBundle = new Bundle();
                 for (Device device : config.devices) {
@@ -134,7 +179,7 @@ public class BackgroundBLE {
                 context.startForegroundService(serviceIntent);
 
                 //  return a single that emits when the messageSubject emits "Started"
-                return messageSubject.filter((message) -> message.equals("Started")).firstOrError();
+                return messageSubject.filter(message -> message.equals("Started")).firstOrError();
             });
     }
 
@@ -160,7 +205,7 @@ public class BackgroundBLE {
             .data()
             .firstOrError()
             .map(Preferences::asMap);
-        return preferences.map((pref) -> {
+        return preferences.map(pref -> {
             if (pref.containsKey(PreferencesKeys.booleanKey(KEY_STOPPED))) {
                 return (boolean) pref.get(PreferencesKeys.booleanKey(KEY_STOPPED));
             }
@@ -174,7 +219,7 @@ public class BackgroundBLE {
             .data()
             .firstOrError()
             .map(Preferences::asMap);
-        return preferences.map((pref) -> {
+        return preferences.map(pref -> {
             ScanConfig config = new ScanConfig();
             for (String key : KEYS) {
                 if (pref.containsKey(PreferencesKeys.stringKey(key))) {
@@ -201,7 +246,7 @@ public class BackgroundBLE {
     public Single<ScanConfig> setScanConfig(@NonNull ScanConfig config) {
         return BLEDataStore.getInstance(context)
             .getDataStore()
-            .updateDataAsync((preferences) -> {
+            .updateDataAsync(preferences -> {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
                 mutablePreferences.set(PreferencesKeys.intKey(KEY_SCAN_MODE), config.getMode());
                 mutablePreferences.set(PreferencesKeys.booleanKey(KEY_DEBUG), config.isDebug());
@@ -209,7 +254,7 @@ public class BackgroundBLE {
                 mutablePreferences.set(PreferencesKeys.intKey(KEY_THRESHOLD), config.getThreshold());
                 return Single.just(mutablePreferences);
             })
-            .map((preferences) -> config);
+            .map(preferences -> config);
     }
 
     //  load device list from key store
@@ -222,11 +267,11 @@ public class BackgroundBLE {
             .firstOrError()
             .map(Preferences::asMap);
         //  iterate map
-        return preferences.map((pref) -> {
+        return preferences.map(pref -> {
             List<Device> deviceList = new ArrayList<>();
             // iterate map, if the key is in the ignore array skip
             for (Map.Entry<Preferences.Key<?>, ?> entry : pref.entrySet()) {
-                if (Arrays.stream(KEYS).anyMatch((k) -> k.equals(entry.getKey().toString()))) {
+                if (Arrays.stream(KEYS).anyMatch(k -> k.equals(entry.getKey().toString()))) {
                     continue;
                 }
                 //  get the device name
@@ -242,16 +287,16 @@ public class BackgroundBLE {
     private Single<List<Device>> saveDevices(@NonNull List<Device> devices) {
         return BLEDataStore.getInstance(context)
             .getDataStore()
-            .updateDataAsync((preferences) -> {
+            .updateDataAsync(preferences -> {
                 MutablePreferences mutablePreferences = preferences.toMutablePreferences();
                 // get all the keys in the preferences
                 Set<Preferences.Key<?>> keys = mutablePreferences.asMap().keySet();
                 // if any key is not in the proved device list, remove the entry
                 for (Preferences.Key<?> key : keys) {
-                    if (Arrays.stream(KEYS).anyMatch((k) -> k.equals(key.toString()))) {
+                    if (Arrays.stream(KEYS).anyMatch(k -> k.equals(key.toString()))) {
                         continue;
                     }
-                    if (devices.stream().noneMatch((device) -> device.serial.equals(key.toString()))) {
+                    if (devices.stream().noneMatch(device -> device.serial.equals(key.toString()))) {
                         mutablePreferences.remove(key);
                     }
                 }
@@ -262,7 +307,7 @@ public class BackgroundBLE {
                 }
                 return Single.just(mutablePreferences);
             })
-            .map((preferences) -> devices);
+            .map(preferences -> devices);
     }
 
     @NonNull
@@ -273,7 +318,7 @@ public class BackgroundBLE {
             .data()
             .firstOrError()
             .map(Preferences::asMap);
-        return preferences.map((prefs) -> {
+        return preferences.map(prefs -> {
             ScanConfig config = new ScanConfig();
             for (Map.Entry<Preferences.Key<?>, ?> entry : prefs.entrySet()) {
                 switch (entry.getKey().toString()) {
