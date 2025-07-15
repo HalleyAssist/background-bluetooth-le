@@ -70,7 +70,7 @@ public class BackgroundBLE {
                         Preferences.Key<Boolean> key = PreferencesKeys.booleanKey(KEY_STOPPED);
                         mutablePreferences.remove(key);
                         Logger.info(TAG, "Stopped set to false");
-                        return Single.just(preferences);
+                        return Single.just(mutablePreferences);
                     })
                     .subscribe((prefs) -> {
                         Logger.info(TAG, "Stopped result: " + prefs);
@@ -84,7 +84,7 @@ public class BackgroundBLE {
                         Preferences.Key<Boolean> key = PreferencesKeys.booleanKey(KEY_STOPPED);
                         mutablePreferences.set(key, true);
                         Logger.info(TAG, "Stopped set to true");
-                        return Single.just(preferences);
+                        return Single.just(mutablePreferences);
                     })
                     .subscribe((prefs) -> {
                         Logger.info(TAG, "Stopped result: " + prefs);
@@ -161,7 +161,18 @@ public class BackgroundBLE {
     }
 
     public Single<String> startForegroundService() {
-        return getConfigWithDevices().flatMap((config) -> {
+        return dataStore
+            .updateDataAsync((preferences) -> {
+                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                //  set the stopped flag to false
+                Preferences.Key<Boolean> key = PreferencesKeys.booleanKey(KEY_STOPPED);
+                mutablePreferences.remove(key);
+                Logger.info(TAG, "Stopped set to false");
+                return Single.just(mutablePreferences);
+            })
+            .map(Preferences::asMap)
+            .map(this::getConfigWithDevices)
+            .flatMap((config) -> {
                 int iconResourceId = AssetUtil.getResourceID(context, AssetUtil.getResourceBaseName("ic_notification"), "drawable");
                 Bundle devicesBundle = new Bundle();
                 for (Device device : config.devices) {
@@ -302,34 +313,31 @@ public class BackgroundBLE {
     }
 
     @NonNull
-    private Single<ScanConfig> getConfigWithDevices() {
+    private ScanConfig getConfigWithDevices(Map<Preferences.Key<?>, ?> prefs) {
         //  return every key in the preferences
-        Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
-        return preferences.map((prefs) -> {
-            Logger.info(TAG, "Preferences: " + prefs);
-            ScanConfig config = new ScanConfig();
-            for (Map.Entry<Preferences.Key<?>, ?> entry : prefs.entrySet()) {
-                switch (entry.getKey().toString()) {
-                    case KEY_SCAN_MODE:
-                        config.setMode((int) entry.getValue());
-                        break;
-                    case KEY_DEBUG:
-                        config.setDebug((boolean) entry.getValue());
-                        break;
-                    case KEY_DEVICE_TIMEOUT:
-                        config.setDeviceTimeout((int) entry.getValue());
-                        break;
-                    case KEY_THRESHOLD:
-                        config.setThreshold((int) entry.getValue());
-                        break;
-                    case KEY_STOPPED:
-                        break;
-                    default:
-                        config.devices.add(new Device(entry.getKey().toString(), entry.getValue().toString()));
-                        break;
-                }
+        Logger.info(TAG, "Preferences: " + prefs);
+        ScanConfig config = new ScanConfig();
+        for (Map.Entry<Preferences.Key<?>, ?> entry : prefs.entrySet()) {
+            switch (entry.getKey().toString()) {
+                case KEY_SCAN_MODE:
+                    config.setMode((int) entry.getValue());
+                    break;
+                case KEY_DEBUG:
+                    config.setDebug((boolean) entry.getValue());
+                    break;
+                case KEY_DEVICE_TIMEOUT:
+                    config.setDeviceTimeout((int) entry.getValue());
+                    break;
+                case KEY_THRESHOLD:
+                    config.setThreshold((int) entry.getValue());
+                    break;
+                case KEY_STOPPED:
+                    break;
+                default:
+                    config.devices.add(new Device(entry.getKey().toString(), entry.getValue().toString()));
+                    break;
             }
-            return config;
-        });
+        }
+        return config;
     }
 }
