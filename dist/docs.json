@@ -45,6 +45,21 @@
         "slug": "initialise"
       },
       {
+        "name": "enable",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [
+          {
+            "name": "returns",
+            "text": "A promise that resolves when bluetooth is enabled"
+          }
+        ],
+        "docs": "Enable bluetooth",
+        "complexTypes": [],
+        "slug": "enable"
+      },
+      {
         "name": "getDevices",
         "signature": "() => Promise<Devices>",
         "parameters": [],
@@ -75,10 +90,6 @@
           {
             "name": "returns",
             "text": "The new list of devices"
-          },
-          {
-            "name": "since",
-            "text": "1.0.0"
           }
         ],
         "docs": "Set the list of devices to scan for",

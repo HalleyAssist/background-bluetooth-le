@@ -93,18 +93,18 @@ public class BackgroundBLE {
         });
     }
 
-    public void canUseBluetooth() {
+    public Boolean canUseBluetooth() {
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            throw new RuntimeException("BLE is not supported.");
+            return false;
         }
-
         //  get bluetooth adaptor
-        BluetoothManager bluetoothManager = context.getSystemService(BluetoothManager.class);
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+        BluetoothAdapter bluetoothAdapter = getAdapter();
+        return bluetoothAdapter != null;
+    }
 
-        if (bluetoothAdapter == null) {
-            throw new RuntimeException("BLE is not available.");
-        }
+    public BluetoothAdapter getAdapter() {
+        BluetoothManager bluetoothManager = context.getSystemService(BluetoothManager.class);
+        return bluetoothManager.getAdapter();
     }
 
     public Observable<List<Device>> getDevicesObservable() {

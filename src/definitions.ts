@@ -236,6 +236,12 @@ export interface BackgroundBLEPlugin extends Plugin {
    */
   initialise(): Promise<void>;
   /**
+   * Enable bluetooth
+   *
+   * @returns A promise that resolves when bluetooth is enabled
+   */
+  enable(): Promise<void>;
+  /**
    * Get the current list of devices
    */
   getDevices(): Promise<Devices>;
@@ -244,7 +250,6 @@ export interface BackgroundBLEPlugin extends Plugin {
    *
    * @param devices The devices to scan for
    * @returns The new list of devices
-   * @since 1.0.0
    */
   setDevices(options: AddDevicesOptions): Promise<Devices>;
   /**

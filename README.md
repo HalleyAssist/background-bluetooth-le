@@ -65,6 +65,7 @@ A drawable resource is also required for the notification icon. this should use 
 * [`checkPermissions()`](#checkpermissions)
 * [`requestPermissions()`](#requestpermissions)
 * [`initialise()`](#initialise)
+* [`enable()`](#enable)
 * [`getDevices()`](#getdevices)
 * [`setDevices(...)`](#setdevices)
 * [`clearDevices()`](#cleardevices)
@@ -120,6 +121,17 @@ Initialise the background scanner
 --------------------
 
 
+### enable()
+
+```typescript
+enable() => Promise<void>
+```
+
+Enable bluetooth
+
+--------------------
+
+
 ### getDevices()
 
 ```typescript
@@ -146,8 +158,6 @@ Set the list of devices to scan for
 | **`options`** | <code><a href="#adddevicesoptions">AddDevicesOptions</a></code> |
 
 **Returns:** <code>Promise&lt;<a href="#devices">Devices</a>&gt;</code>
-
-**Since:** 1.0.0
 
 --------------------
 

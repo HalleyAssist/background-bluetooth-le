@@ -15,6 +15,9 @@ export class BackgroundBLEWeb extends WebPlugin {
   async initialise() {
     return;
   }
+  async enable() {
+    return;
+  }
   async getDevices() {
     const devices = await Preferences.get({ key: DEVICES_KEY });
     if (devices && devices.value) {

@@ -51,6 +51,9 @@ var capacitorBackgroundBLE = (function (exports, core, preferences) {
     async initialise() {
       return;
     }
+    async enable() {
+      return;
+    }
     async getDevices() {
       const devices = await preferences.Preferences.get({ key: DEVICES_KEY });
       if (devices && devices.value) {

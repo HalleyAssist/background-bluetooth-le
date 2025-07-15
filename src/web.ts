@@ -35,6 +35,10 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     return;
   }
 
+  async enable(): Promise<void> {
+    return;
+  }
+
   async getDevices(): Promise<Devices> {
     const devices = await Preferences.get({ key: DEVICES_KEY });
     if (devices && devices.value) {

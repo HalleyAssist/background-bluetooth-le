@@ -3,8 +3,16 @@ package com.halleyassist.backgroundble;
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
+import androidx.activity.result.ActivityResult;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresPermission;
+import androidx.core.app.ActivityCompat;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Logger;
@@ -12,6 +20,7 @@ import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
@@ -82,14 +91,42 @@ public class BackgroundBLEPlugin extends Plugin {
             granted.add(getPermissionState(alias) == PermissionState.GRANTED);
         }
         if (granted.stream().allMatch(Boolean::booleanValue)) {
-            try {
-                implementation.canUseBluetooth();
+            if (implementation.canUseBluetooth()) {
                 call.resolve();
-            } catch (Exception e) {
-                call.reject(e.getMessage());
+            } else {
+                call.reject("Bluetooth not available");
             }
         } else {
             call.reject("Permission denied.");
+        }
+    }
+
+    @PluginMethod
+    @SuppressLint("MissingPermission")
+    public void enable(@NonNull PluginCall call) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Intent actionIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(call, actionIntent, "requestEnableCallback");
+        } else {
+            try {
+                BluetoothAdapter bluetoothAdapter = implementation.getAdapter();
+                if (bluetoothAdapter.enable()) {
+                    call.resolve();
+                } else {
+                    call.reject("Bluetooth not enabled");
+                }
+            } catch (Exception e) {
+                call.reject(e.getMessage(), e);
+            }
+        }
+    }
+
+    @ActivityCallback
+    private void requestEnableCallback(PluginCall call, @NonNull ActivityResult result) {
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            call.resolve();
+        } else {
+            call.reject("Bluetooth not enabled");
         }
     }
 
