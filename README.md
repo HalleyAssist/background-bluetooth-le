@@ -329,7 +329,7 @@ A device
 | ----------------- | ------------------- | ---------------------------------------------------------------- |
 | **`serial`**      | <code>string</code> | The serial of the device                                         |
 | **`name`**        | <code>string</code> | The display name of the device                                   |
-| **`rssi`**        | <code>number</code> | The RSSI of the device 0 = device is not in range                |
+| **`rssi`**        | <code>number</code> | The RSSI of the device -127 = device is not in range             |
 | **`txPower`**     | <code>number</code> | The TX power of the device -127 = unknown TX power               |
 | **`lastUpdated`** | <code>number</code> | The last time the device was updated in milliseconds since epoch |
 

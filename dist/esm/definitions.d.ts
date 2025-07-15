@@ -31,7 +31,7 @@ export interface Device {
   /**
    * The RSSI of the device
    *
-   * 0 = device is not in range
+   * -127 = device is not in range
    */
   rssi: number;
   /**

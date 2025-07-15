@@ -371,7 +371,7 @@
         {
           "name": "rssi",
           "tags": [],
-          "docs": "The RSSI of the device\n\n0 = device is not in range",
+          "docs": "The RSSI of the device\n\n-127 = device is not in range",
           "complexTypes": [],
           "type": "number"
         },
