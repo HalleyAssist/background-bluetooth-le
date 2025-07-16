@@ -54,7 +54,7 @@ public class BackgroundBLE {
     public BackgroundBLE(Context context) {
         this.context = context;
 
-        dataStore = new RxPreferenceDataStoreBuilder(context, DATA_STORE_NAME).build();
+        dataStore = BLEDataStore.getInstance(context).getDataStore();
 
         messageSubject = LocalMessaging.getSubject();
 
