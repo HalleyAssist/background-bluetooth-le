@@ -120,6 +120,9 @@ public class BackgroundBLEPlugin extends Plugin {
 
     @ActivityCallback
     private void requestEnableCallback(PluginCall call, @NonNull ActivityResult result) {
+        if (call == null) {
+            return;
+        }
         if (result.getResultCode() == Activity.RESULT_OK) {
             call.resolve();
         } else {
