@@ -1,6 +1,5 @@
 package com.halleyassist.backgroundble;
 
-import static com.halleyassist.backgroundble.BLEDataStore.DATA_STORE_NAME;
 import static com.halleyassist.backgroundble.BLEDataStore.KEYS;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEBUG;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEVICE_TIMEOUT;
@@ -26,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.Preferences;
 import androidx.datastore.preferences.core.PreferencesKeys;
-import androidx.datastore.preferences.rxjava2.RxPreferenceDataStoreBuilder;
 import androidx.datastore.rxjava2.RxDataStore;
 import com.getcapacitor.Logger;
 import com.getcapacitor.plugin.util.AssetUtil;
