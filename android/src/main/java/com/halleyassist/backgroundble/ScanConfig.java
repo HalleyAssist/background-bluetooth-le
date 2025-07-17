@@ -31,13 +31,6 @@ public class ScanConfig {
         this.threshold = -100;
     }
 
-    public ScanConfig(Integer mode, Boolean debug, Integer deviceTimeout, Integer threshold) {
-        this.mode = mode;
-        this.debug = debug;
-        this.deviceTimeout = deviceTimeout;
-        this.threshold = threshold;
-    }
-
     public ScanConfig(@NonNull JSObject config) {
         this.mode = config.getInteger(KEY_SCAN_MODE, 0);
         this.debug = config.getBoolean(KEY_DEBUG, false);

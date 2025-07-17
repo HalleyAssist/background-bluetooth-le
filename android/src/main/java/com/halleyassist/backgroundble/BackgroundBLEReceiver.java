@@ -3,7 +3,6 @@ package com.halleyassist.backgroundble;
 import static android.bluetooth.le.BluetoothLeScanner.EXTRA_ERROR_CODE;
 import static android.bluetooth.le.BluetoothLeScanner.EXTRA_LIST_SCAN_RESULT;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,30 +31,35 @@ public class BackgroundBLEReceiver extends BroadcastReceiver {
             }
             //  handle results here
             //  extract the device information from the results
-            assert results != null;
-            for (ScanResult result : results) {
-                //  get the device information
-                Intent serviceIntent = getServiceIntent(context, result);
+            if (results == null) {
+                return;
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Intent broadcastIntent = getBroadcastIntent(context, results);
+                context.sendBroadcast(broadcastIntent);
+            } else {
+                Intent serviceIntent = getServiceIntent(context, results);
                 context.startService(serviceIntent);
             }
         }
     }
 
     @NonNull
-    @SuppressLint("MissingPermission")
-    private static Intent getServiceIntent(Context context, @NonNull ScanResult result) {
-        String deviceName = result.getDevice().getName();
-        //  remove the 'H-' prefix from the device name
-        String serial = deviceName.substring(2);
-        int rssi = result.getRssi();
-        int txPower = result.getTxPower();
+    private static Intent getServiceIntent(Context context, @NonNull ArrayList<ScanResult> results) {
         //  send the device information to the service via an intent
         Intent serviceIntent = new Intent(context, BackgroundBLEService.class);
-        serviceIntent.setAction(BackgroundBLEService.ACTION_DEVICE_FOUND);
-        serviceIntent.putExtra(BackgroundBLEService.EXTRA_DEVICE_SERIAL, serial);
-        serviceIntent.putExtra(BackgroundBLEService.EXTRA_DEVICE_RSSI, rssi);
-        serviceIntent.putExtra(BackgroundBLEService.EXTRA_DEVICE_TX_POWER, txPower);
+        serviceIntent.setAction(BackgroundBLEService.ACTION_DEVICES_FOUND);
+        serviceIntent.putParcelableArrayListExtra(BackgroundBLEService.EXTRA_DEVICES, results);
         return serviceIntent;
+    }
+
+    @NonNull
+    private static Intent getBroadcastIntent(@NonNull Context context, @NonNull ArrayList<ScanResult> results) {
+        Intent intent = new Intent(BackgroundBLEService.ACTION_DEVICES_FOUND);
+        intent.setPackage(context.getPackageName()); // limit to your app
+        intent.putParcelableArrayListExtra(BackgroundBLEService.EXTRA_DEVICES, results);
+        return intent;
     }
 
     private static void handleError(Context context, int errorCode) {

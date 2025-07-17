@@ -9,6 +9,7 @@ import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_D
 import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -18,12 +19,17 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
@@ -51,10 +57,7 @@ public class BackgroundBLEService extends Service {
     //  actions
     public static final String ACTION_STOP = "STOP";
     public static final String ACTION_RENOTIFY = "RENOTIFY";
-    public static final String ACTION_DEVICE_FOUND = "DEVICE_UPDATE";
-    public static final String EXTRA_DEVICE_SERIAL = "serial";
-    public static final String EXTRA_DEVICE_RSSI = "rssi";
-    public static final String EXTRA_DEVICE_TX_POWER = "txPower";
+    public static final String ACTION_DEVICES_FOUND = "DEVICES_UPDATE";
 
     //  service extras
     public static final String EXTRA_DEVICES = "devices";
@@ -73,7 +76,9 @@ public class BackgroundBLEService extends Service {
     private ScheduledExecutorService executorService;
     private ScheduledFuture<?> timerFuture;
 
-    private PendingIntent resultIntent;
+    private PendingIntent scanIntent;
+
+    private BroadcastReceiver scanResultReceiver;
 
     private boolean isRunning = false;
 
@@ -122,17 +127,29 @@ public class BackgroundBLEService extends Service {
                         checkClosestDevice();
                         return START_STICKY;
                     }
-                    case ACTION_DEVICE_FOUND -> {
-                        //  update the device with the extras provided through the action
-                        String serial = intent.getStringExtra("serial");
-                        int rssi = intent.getIntExtra("rssi", -127);
-                        int txPower = intent.getIntExtra("txPower", TX_POWER_NOT_PRESENT);
-                        devices
-                            .stream()
-                            .filter((d) -> d.serial.equals(serial))
-                            .findFirst()
-                            .ifPresent((device) -> device.update(rssi, txPower));
-                        checkClosestDevice();
+                    case ACTION_DEVICES_FOUND -> {
+                        // update the devices with the extras provided through the action
+                        ArrayList<Parcelable> scanResultExtras = null;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            scanResultExtras = intent.getParcelableArrayListExtra(EXTRA_DEVICES, ScanResult.class);
+                        } else {
+                            scanResultExtras = intent.getParcelableArrayListExtra(EXTRA_DEVICES);
+                        }
+                        if (scanResultExtras != null) {
+                            for (Parcelable parcelable : scanResultExtras) {
+                                if (parcelable instanceof ScanResult result) {
+                                    String serial = result.getDevice().getName().substring(2); // remove the 'H-' prefix
+                                    int rssi = result.getRssi();
+                                    int txPower = result.getTxPower();
+                                    devices
+                                        .stream()
+                                        .filter((d) -> d.serial.equals(serial))
+                                        .findFirst()
+                                        .ifPresent((device) -> device.update(rssi, txPower));
+                                }
+                            }
+                            checkClosestDevice();
+                        }
                         return START_STICKY;
                     }
                 }
@@ -168,13 +185,6 @@ public class BackgroundBLEService extends Service {
                 startForeground(NOTIFICATION_ID, notification);
             }
 
-            resultIntent = PendingIntent.getBroadcast(
-                getApplicationContext(),
-                300,
-                new Intent(getApplicationContext(), BackgroundBLEReceiver.class),
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
-            );
-
             startScanning(devices, scanMode);
         } catch (SecurityException e) {
             Logger.error(TAG, "Missing permission: " + e.getMessage(), e);
@@ -202,16 +212,59 @@ public class BackgroundBLEService extends Service {
             filters.add(filter);
         }
         ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).build();
-        //  create an intent to send to the service when a device is scanned
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            //  register a receiver to handle scan results
+            scanResultReceiver = new BackgroundBLEReceiver() {
+                @Override
+                @SuppressLint("MissingPermission")
+                public void onReceive(Context context, @NonNull Intent intent) {
+                    if (ACTION_DEVICES_FOUND.equals(intent.getAction())) {
+                        ArrayList<Parcelable> scanResultExtras = intent.getParcelableArrayListExtra(EXTRA_DEVICES, ScanResult.class);
+                        if (scanResultExtras != null) {
+                            for (Parcelable parcelable : scanResultExtras) {
+                                if (parcelable instanceof ScanResult result) {
+                                    String serial = result.getDevice().getName().substring(2); // remove the 'H-' prefix
+                                    int rssi = result.getRssi();
+                                    int txPower = result.getTxPower();
+                                    devices
+                                        .stream()
+                                        .filter((d) -> d.serial.equals(serial))
+                                        .findFirst()
+                                        .ifPresent((device) -> device.update(rssi, txPower));
+                                }
+                            }
+                            checkClosestDevice();
+                        }
+                    }
+                }
+            };
+            //  register the receiver
+            IntentFilter filter = new IntentFilter(ACTION_DEVICES_FOUND);
+            registerReceiver(scanResultReceiver, filter, RECEIVER_NOT_EXPORTED);
+        }
 
-        bluetoothLeScanner.startScan(filters, settings, resultIntent);
+        //  create an intent to send to the receiver
+        scanIntent = PendingIntent.getBroadcast(
+            getApplicationContext(),
+            300,
+            new Intent(getApplicationContext(), BackgroundBLEReceiver.class),
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
+        );
+
+        bluetoothLeScanner.startScan(filters, settings, scanIntent);
         Logger.info(TAG, "Background Scan Started");
         isRunning = true;
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void stopScanning() {
-        bluetoothLeScanner.stopScan(resultIntent);
+        // stop scanning
+        bluetoothLeScanner.stopScan(scanIntent);
+        //  unregister the receiver
+        if (scanResultReceiver != null) {
+            unregisterReceiver(scanResultReceiver);
+            scanResultReceiver = null;
+        }
         Logger.info(TAG, "Background Scan Stopped");
         isRunning = false;
     }
@@ -361,6 +414,7 @@ public class BackgroundBLEService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 closestDevice = closeDevices.getFirst();
             } else {
+                //noinspection SequencedCollectionMethodCanBeUsed
                 closestDevice = closeDevices.get(0);
             }
         }
@@ -456,6 +510,8 @@ public class BackgroundBLEService extends Service {
         stopTimer();
         devicesSubject.onComplete();
         closeDevicesSubject.onComplete();
+        // close the notification
+        notificationManager.cancel(NOTIFICATION_ID);
         LocalMessaging.sendMessage("Stopped");
     }
 

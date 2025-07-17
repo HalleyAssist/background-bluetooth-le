@@ -70,9 +70,7 @@ public class BackgroundBLE {
                         Logger.info(TAG, "Stopped set to false");
                         return Single.just(mutablePreferences);
                     })
-                    .subscribe((prefs) -> {
-                        Logger.info(TAG, "Stopped result: " + prefs);
-                    });
+                    .subscribe((prefs) -> Logger.info(TAG, "Stopped result: " + prefs));
             } else if (message.equals("User Stopped")) {
                 // Handle user stopped
                 dataStore
@@ -84,9 +82,7 @@ public class BackgroundBLE {
                         Logger.info(TAG, "Stopped set to true");
                         return Single.just(mutablePreferences);
                     })
-                    .subscribe((prefs) -> {
-                        Logger.info(TAG, "Stopped result: " + prefs);
-                    });
+                    .subscribe((prefs) -> Logger.info(TAG, "Stopped result: " + prefs));
             }
         });
     }
