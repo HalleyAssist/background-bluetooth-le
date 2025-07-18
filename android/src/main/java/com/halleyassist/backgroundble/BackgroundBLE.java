@@ -201,12 +201,13 @@ public class BackgroundBLE {
             });
     }
 
-    public String stopForegroundService() {
+    public Single<String> stopForegroundService() {
         //  create the BackgroundBLEService intent
         Intent serviceIntent = new Intent(context, BackgroundBLEService.class);
         //  stop the service
         context.stopService(serviceIntent);
-        return "Stopped";
+        //  return a single that emits when the messageSubject emits "Stopped"
+        return messageSubject.filter((message) -> message.equals("Stopped")).firstOrError();
     }
 
     public boolean isRunning() {

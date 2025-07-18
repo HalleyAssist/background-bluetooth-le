@@ -8,7 +8,7 @@ import {
   PermissionStatus,
   RunningResult,
   SetConfigOptions,
-  StartResult,
+  StartStopResult,
   UserStoppedResult,
 } from './definitions';
 export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
@@ -19,8 +19,8 @@ export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLE
   getDevices(): Promise<Devices>;
   setDevices(_options: AddDevicesOptions): Promise<Devices>;
   clearDevices(): Promise<Devices>;
-  startForegroundService(): Promise<StartResult>;
-  stopForegroundService(): Promise<void>;
+  startForegroundService(): Promise<StartStopResult>;
+  stopForegroundService(): Promise<StartStopResult>;
   isRunning(): Promise<RunningResult>;
   didUserStop(): Promise<UserStoppedResult>;
   setConfig(options: SetConfigOptions): Promise<Config>;

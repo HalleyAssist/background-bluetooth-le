@@ -74,6 +74,7 @@ var capacitorBackgroundBLE = (function (exports, core, preferences) {
     }
     async stopForegroundService() {
       await preferences.Preferences.set({ key: RUNNING_KEY, value: 'false' });
+      return { result: 'stopped' };
     }
     async isRunning() {
       const running = await preferences.Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');

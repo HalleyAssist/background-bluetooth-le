@@ -13,7 +13,7 @@ import {
   ScanConfig,
   ScanMode,
   SetConfigOptions,
-  StartResult,
+  StartStopResult,
   UserStoppedResult,
 } from './definitions';
 
@@ -56,13 +56,14 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
     return this.setDevices({ devices: [] });
   }
 
-  async startForegroundService(): Promise<StartResult> {
+  async startForegroundService(): Promise<StartStopResult> {
     await Preferences.set({ key: RUNNING_KEY, value: 'true' });
     return { result: 'started' };
   }
 
-  async stopForegroundService(): Promise<void> {
+  async stopForegroundService(): Promise<StartStopResult> {
     await Preferences.set({ key: RUNNING_KEY, value: 'false' });
+    return { result: 'stopped' };
   }
 
   async isRunning(): Promise<RunningResult> {

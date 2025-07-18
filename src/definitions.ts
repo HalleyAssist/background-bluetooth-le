@@ -179,11 +179,11 @@ export interface Devices {
 }
 
 /**
- * The result of starting the background scanner
+ * The result of starting or stopping the background scanner
  */
-export interface StartResult {
+export interface StartStopResult {
   /**
-   * The result of starting the background scanner
+   * The result of starting or stopping the background scanner
    */
   result: string;
 }
@@ -263,11 +263,11 @@ export interface BackgroundBLEPlugin extends Plugin {
    *
    * @returns The result of starting the background scanner
    */
-  startForegroundService(): Promise<StartResult>;
+  startForegroundService(): Promise<StartStopResult>;
   /**
    * Stop the background scanner
    */
-  stopForegroundService(): Promise<void>;
+  stopForegroundService(): Promise<StartStopResult>;
   /**
    * Is the background scanner running
    *

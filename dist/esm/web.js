@@ -38,6 +38,7 @@ export class BackgroundBLEWeb extends WebPlugin {
   }
   async stopForegroundService() {
     await Preferences.set({ key: RUNNING_KEY, value: 'false' });
+    return { result: 'stopped' };
   }
   async isRunning() {
     const running = await Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');

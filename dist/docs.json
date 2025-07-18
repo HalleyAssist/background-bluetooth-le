@@ -118,9 +118,9 @@
       },
       {
         "name": "startForegroundService",
-        "signature": "() => Promise<StartResult>",
+        "signature": "() => Promise<StartStopResult>",
         "parameters": [],
-        "returns": "Promise<StartResult>",
+        "returns": "Promise<StartStopResult>",
         "tags": [
           {
             "name": "returns",
@@ -129,18 +129,20 @@
         ],
         "docs": "Start the background scanner",
         "complexTypes": [
-          "StartResult"
+          "StartStopResult"
         ],
         "slug": "startforegroundservice"
       },
       {
         "name": "stopForegroundService",
-        "signature": "() => Promise<void>",
+        "signature": "() => Promise<StartStopResult>",
         "parameters": [],
-        "returns": "Promise<void>",
+        "returns": "Promise<StartStopResult>",
         "tags": [],
         "docs": "Stop the background scanner",
-        "complexTypes": [],
+        "complexTypes": [
+          "StartStopResult"
+        ],
         "slug": "stopforegroundservice"
       },
       {
@@ -443,16 +445,16 @@
       ]
     },
     {
-      "name": "StartResult",
-      "slug": "startresult",
-      "docs": "The result of starting the background scanner",
+      "name": "StartStopResult",
+      "slug": "startstopresult",
+      "docs": "The result of starting or stopping the background scanner",
       "tags": [],
       "methods": [],
       "properties": [
         {
           "name": "result",
           "tags": [],
-          "docs": "The result of starting the background scanner",
+          "docs": "The result of starting or stopping the background scanner",
           "complexTypes": [],
           "type": "string"
         }

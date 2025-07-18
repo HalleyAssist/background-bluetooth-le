@@ -59,6 +59,15 @@ public class BackgroundBLEPlugin extends Plugin {
         super.handleOnDestroy();
         // Plugin destroyed, destroy the implementation
         implementation.destroy();
+        // dispose disposables
+        if (devicesDisposable != null && !devicesDisposable.isDisposed()) {
+            devicesDisposable.dispose();
+            devicesDisposable = null;
+        }
+        if (closeDevicesDisposable != null && !closeDevicesDisposable.isDisposed()) {
+            closeDevicesDisposable.dispose();
+            closeDevicesDisposable = null;
+        }
         Logger.info(TAG, "Destroyed BackgroundBLEPlugin");
     }
 
@@ -69,7 +78,7 @@ public class BackgroundBLEPlugin extends Plugin {
         try {
             requestPermissionForAliases(aliases, call, "checkPermission");
         } catch (Exception e) {
-            call.reject(e.getMessage());
+            call.reject(e.getMessage(), e);
         }
     }
 
@@ -148,7 +157,7 @@ public class BackgroundBLEPlugin extends Plugin {
             .getDevices()
             .subscribe(
                 (devices) -> call.resolve(resolveDevices(devices)),
-                (throwable) -> call.reject("Failed to get devices", throwable.getMessage())
+                (throwable) -> call.reject(throwable.getMessage(), "Get Devices Failed")
             );
     }
 
@@ -173,7 +182,7 @@ public class BackgroundBLEPlugin extends Plugin {
                 .setDevices(list)
                 .subscribe(
                     (devices1) -> call.resolve(resolveDevices(devices1)),
-                    (throwable) -> call.reject("Failed to set devices", throwable.getMessage())
+                    (throwable) -> call.reject(throwable.getMessage(), "Set Devices Failed")
                 );
         } catch (JSONException ex) {
             call.reject(ex.toString());
@@ -187,7 +196,7 @@ public class BackgroundBLEPlugin extends Plugin {
             .clearDevices()
             .subscribe(
                 (devices) -> call.resolve(resolveDevices(devices)),
-                (throwable) -> call.reject("Failed to clear devices", throwable.getMessage())
+                (throwable) -> call.reject(throwable.getMessage(), "Clear Failed")
             );
     }
 
@@ -225,12 +234,12 @@ public class BackgroundBLEPlugin extends Plugin {
                     ret.put("result", result);
                     call.resolve(ret);
                 },
-                (throwable) -> call.reject("Failed to start foreground service", throwable.getMessage())
+                (throwable) -> call.reject(throwable.getMessage(), "Start Failed")
             );
     }
 
     @PluginMethod
-    public void stopForegroundService(@NonNull PluginCall call) {
+    public Disposable stopForegroundService(@NonNull PluginCall call) {
         //  unsubscribe from the implementation's getDevicesObservable()
         if (devicesDisposable != null && !devicesDisposable.isDisposed()) {
             devicesDisposable.dispose();
@@ -239,9 +248,17 @@ public class BackgroundBLEPlugin extends Plugin {
         if (closeDevicesDisposable != null && !closeDevicesDisposable.isDisposed()) {
             closeDevicesDisposable.dispose();
         }
-        String result = implementation.stopForegroundService();
-        Logger.info(TAG, "Stopped Foreground Service: " + result);
-        call.resolve();
+        return implementation
+            .stopForegroundService()
+            .subscribe(
+                (result) -> {
+                    JSObject ret = new JSObject();
+                    ret.put("result", result);
+                    Logger.info(TAG, "Stopped Foreground Service: " + result);
+                    call.resolve(ret);
+                },
+                (throwable) -> call.reject(throwable.getMessage(), "Stop Failed")
+            );
     }
 
     @PluginMethod
@@ -261,7 +278,7 @@ public class BackgroundBLEPlugin extends Plugin {
                     ret.put("userStopped", result);
                     call.resolve(ret);
                 },
-                (throwable) -> call.reject("Failed to check if user stopped", throwable.getMessage())
+                (throwable) -> call.reject(throwable.getMessage(), "Did Stop Failed")
             );
     }
 
@@ -276,7 +293,7 @@ public class BackgroundBLEPlugin extends Plugin {
                     ret.put("config", result.toJSObject());
                     call.resolve(ret);
                 },
-                (throwable) -> call.reject("Failed to set config", throwable.getMessage())
+                (throwable) -> call.reject(throwable.getMessage(), "Set Config Failed")
             );
     }
 
@@ -290,7 +307,7 @@ public class BackgroundBLEPlugin extends Plugin {
                     ret.put("config", config.toJSObject());
                     call.resolve(ret);
                 },
-                (throwable) -> call.reject("Failed to get config", throwable.getMessage())
+                (throwable) -> call.reject(throwable.getMessage(), "Get Config Failed")
             );
     }
 

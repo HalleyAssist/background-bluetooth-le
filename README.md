@@ -178,12 +178,12 @@ Clear the list of devices to scan for
 ### startForegroundService()
 
 ```typescript
-startForegroundService() => Promise<StartResult>
+startForegroundService() => Promise<StartStopResult>
 ```
 
 Start the background scanner
 
-**Returns:** <code>Promise&lt;<a href="#startresult">StartResult</a>&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#startstopresult">StartStopResult</a>&gt;</code>
 
 --------------------
 
@@ -191,10 +191,12 @@ Start the background scanner
 ### stopForegroundService()
 
 ```typescript
-stopForegroundService() => Promise<void>
+stopForegroundService() => Promise<StartStopResult>
 ```
 
 Stop the background scanner
+
+**Returns:** <code>Promise&lt;<a href="#startstopresult">StartStopResult</a>&gt;</code>
 
 --------------------
 
@@ -355,13 +357,13 @@ Only requires the serial and name of the device
 | **`name`**   | <code>string</code> | The display name of the device |
 
 
-#### StartResult
+#### StartStopResult
 
-The result of starting the background scanner
+The result of starting or stopping the background scanner
 
-| Prop         | Type                | Description                                   |
-| ------------ | ------------------- | --------------------------------------------- |
-| **`result`** | <code>string</code> | The result of starting the background scanner |
+| Prop         | Type                | Description                                               |
+| ------------ | ------------------- | --------------------------------------------------------- |
+| **`result`** | <code>string</code> | The result of starting or stopping the background scanner |
 
 
 #### RunningResult
