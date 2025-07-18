@@ -13,7 +13,6 @@ import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_ICON;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_SCAN_MODE;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_THRESHOLD;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -22,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.Preferences;
 import androidx.datastore.preferences.core.PreferencesKeys;
@@ -31,12 +31,14 @@ import com.getcapacitor.plugin.util.AssetUtil;
 import com.halleyassist.backgroundble.Device.Device;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import kotlinx.coroutines.ExperimentalCoroutinesApi;
 
 public class BackgroundBLE {
 
@@ -48,7 +50,9 @@ public class BackgroundBLE {
 
     private final RxDataStore<Preferences> dataStore;
 
-    @SuppressLint("CheckResult")
+    Disposable messageDisposable;
+
+    @OptIn(markerClass = ExperimentalCoroutinesApi.class)
     public BackgroundBLE(Context context) {
         this.context = context;
 
@@ -56,7 +60,7 @@ public class BackgroundBLE {
 
         messageSubject = LocalMessaging.getSubject();
 
-        messageSubject.subscribe((message) -> {
+        messageDisposable = messageSubject.subscribe((message) -> {
             Log.d(TAG, "Message received: " + message);
             if (message.equals("Started")) {
                 // Handle service started
@@ -70,7 +74,7 @@ public class BackgroundBLE {
                         Logger.info(TAG, "Stopped set to false");
                         return Single.just(mutablePreferences);
                     })
-                    .subscribe((prefs) -> Logger.info(TAG, "Stopped result: " + prefs));
+                    .subscribe();
             } else if (message.equals("User Stopped")) {
                 // Handle user stopped
                 dataStore
@@ -82,9 +86,18 @@ public class BackgroundBLE {
                         Logger.info(TAG, "Stopped set to true");
                         return Single.just(mutablePreferences);
                     })
-                    .subscribe((prefs) -> Logger.info(TAG, "Stopped result: " + prefs));
+                    .subscribe();
             }
         });
+    }
+
+    // dispose the messageDisposable on destroy
+    public void destroy() {
+        if (messageDisposable != null && !messageDisposable.isDisposed()) {
+            messageDisposable.dispose();
+        }
+        messageSubject.onComplete();
+        Log.d(TAG, "BackgroundBLE destroyed");
     }
 
     public Boolean canUseBluetooth() {
@@ -154,6 +167,7 @@ public class BackgroundBLE {
         return saveDevices(new ArrayList<>());
     }
 
+    @OptIn(markerClass = ExperimentalCoroutinesApi.class)
     public Single<String> startForegroundService() {
         return dataStore
             .updateDataAsync((preferences) -> {
@@ -203,6 +217,7 @@ public class BackgroundBLE {
         return false;
     }
 
+    @OptIn(markerClass = ExperimentalCoroutinesApi.class)
     public Single<Boolean> didUserStop() {
         Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
         return preferences.map((pref) -> {
@@ -213,6 +228,7 @@ public class BackgroundBLE {
         });
     }
 
+    @OptIn(markerClass = ExperimentalCoroutinesApi.class)
     public Single<ScanConfig> getScanConfig() {
         Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
         return preferences.map((pref) -> {
@@ -239,6 +255,7 @@ public class BackgroundBLE {
         });
     }
 
+    @OptIn(markerClass = ExperimentalCoroutinesApi.class)
     public Single<ScanConfig> setScanConfig(@NonNull ScanConfig config) {
         return dataStore
             .updateDataAsync((preferences) -> {
@@ -257,6 +274,7 @@ public class BackgroundBLE {
 
     //  load device list from key store
     @NonNull
+    @OptIn(markerClass = ExperimentalCoroutinesApi.class)
     private Single<List<Device>> loadDevices() {
         //  get all the keys values
         Single<Map<Preferences.Key<?>, ?>> preferences = dataStore.data().firstOrError().map(Preferences::asMap);
@@ -278,6 +296,7 @@ public class BackgroundBLE {
     }
 
     @NonNull
+    @OptIn(markerClass = ExperimentalCoroutinesApi.class)
     private Single<List<Device>> saveDevices(@NonNull List<Device> devices) {
         return dataStore
             .updateDataAsync((preferences) -> {

@@ -25,6 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
+import androidx.core.app.ActivityCompat;
 import com.getcapacitor.Logger;
 import com.halleyassist.backgroundble.Device.Device;
 import io.reactivex.Observable;
@@ -111,6 +113,7 @@ public class BackgroundBLEService extends Service {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
             String action = intent.getAction();
@@ -213,7 +216,7 @@ public class BackgroundBLEService extends Service {
         }
         ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).build();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            //  register a receiver to handle scan results
+            //  register a receiver to handle returned scan results from the scan receiver
             scanResultReceiver = new BackgroundBLEReceiver() {
                 @Override
                 @SuppressLint("MissingPermission")
@@ -259,7 +262,11 @@ public class BackgroundBLEService extends Service {
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void stopScanning() {
         // stop scanning
-        bluetoothLeScanner.stopScan(scanIntent);
+        try {
+            bluetoothLeScanner.stopScan(scanIntent);
+        } catch (Exception e) {
+            Logger.error(TAG, "Error stopping scan: " + e.getMessage(), e);
+        }
         //  unregister the receiver
         if (scanResultReceiver != null) {
             unregisterReceiver(scanResultReceiver);
@@ -502,16 +509,18 @@ public class BackgroundBLEService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        try {
+        //  stop the scanning and timer
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
+            //  scan can only be started if the permission is granted, this check should always pass
             stopScanning();
-        } catch (SecurityException e) {
-            Logger.error(TAG, e.getMessage(), e);
         }
         stopTimer();
+        //  complete observables
         devicesSubject.onComplete();
         closeDevicesSubject.onComplete();
         // close the notification
         notificationManager.cancel(NOTIFICATION_ID);
+        //  notify the plugin that the service has stopped
         LocalMessaging.sendMessage("Stopped");
     }
 

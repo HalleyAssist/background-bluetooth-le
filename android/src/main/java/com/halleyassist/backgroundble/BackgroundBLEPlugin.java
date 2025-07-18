@@ -54,6 +54,14 @@ public class BackgroundBLEPlugin extends Plugin {
         Logger.info(TAG, "Loaded BackgroundBLEPlugin");
     }
 
+    @Override
+    protected void handleOnDestroy() {
+        super.handleOnDestroy();
+        // Plugin destroyed, destroy the implementation
+        implementation.destroy();
+        Logger.info(TAG, "Destroyed BackgroundBLEPlugin");
+    }
+
     @PluginMethod
     public void initialise(@NonNull PluginCall call) {
         String[] aliases = getRequiredPermissions().toArray(new String[0]);
@@ -100,6 +108,7 @@ public class BackgroundBLEPlugin extends Plugin {
 
     @PluginMethod
     @SuppressLint("MissingPermission")
+    @SuppressWarnings("deprecation")
     public void enable(@NonNull PluginCall call) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Intent actionIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -192,6 +201,8 @@ public class BackgroundBLEPlugin extends Plugin {
                     devicesDisposable = implementation
                         .getDevicesObservable()
                         .subscribe((devices) -> {
+                            //  if the webview is not listening to the event, return
+                            if (!hasListeners("devicesChanged")) return;
                             JSObject ret = new JSObject();
                             JSArray deviceArray = devicesToJSArray(devices);
                             ret.put("devices", deviceArray);
@@ -202,6 +213,8 @@ public class BackgroundBLEPlugin extends Plugin {
                     closeDevicesDisposable = implementation
                         .getCloseDevicesObservable()
                         .subscribe((closeDevices) -> {
+                            //  if the webview is not listening to the event, return
+                            if (!hasListeners("closeDevicesChanged")) return;
                             JSObject ret = new JSObject();
                             JSArray closeDeviceArray = devicesToJSArray(closeDevices);
                             ret.put("devices", closeDeviceArray);

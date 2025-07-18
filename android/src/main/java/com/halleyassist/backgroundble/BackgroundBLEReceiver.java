@@ -3,6 +3,7 @@ package com.halleyassist.backgroundble;
 import static android.bluetooth.le.BluetoothLeScanner.EXTRA_ERROR_CODE;
 import static android.bluetooth.le.BluetoothLeScanner.EXTRA_LIST_SCAN_RESULT;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 public class BackgroundBLEReceiver extends BroadcastReceiver {
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onReceive(Context context, @NonNull Intent intent) {
         //  handle error codes first
         if (intent.hasExtra(EXTRA_ERROR_CODE)) {
