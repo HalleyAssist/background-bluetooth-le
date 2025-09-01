@@ -146,9 +146,9 @@ public class BackgroundBLEService extends Service {
                                     int txPower = result.getTxPower();
                                     devices
                                         .stream()
-                                        .filter((d) -> d.serial.equals(serial))
+                                        .filter(d -> d.serial.equals(serial))
                                         .findFirst()
-                                        .ifPresent((device) -> device.update(rssi, txPower));
+                                        .ifPresent(device -> device.update(rssi, txPower));
                                 }
                             }
                             checkClosestDevice();
@@ -231,9 +231,9 @@ public class BackgroundBLEService extends Service {
                                     int txPower = result.getTxPower();
                                     devices
                                         .stream()
-                                        .filter((d) -> d.serial.equals(serial))
+                                        .filter(d -> d.serial.equals(serial))
                                         .findFirst()
-                                        .ifPresent((device) -> device.update(rssi, txPower));
+                                        .ifPresent(device -> device.update(rssi, txPower));
                                 }
                             }
                             checkClosestDevice();
@@ -308,14 +308,6 @@ public class BackgroundBLEService extends Service {
             .setSmallIcon(icon)
             .setOnlyAlertOnce(true);
 
-        //  create actions: Stop, and Open
-        //  Stop stops the scan and closes the notification
-        Notification.Action[] actions = new Notification.Action[1];
-        // Stop Action
-        actions[0] = getStopAction();
-        // Set actions
-        builder.setActions(actions);
-
         //  if the notification is dismissed, re notify
         Intent reNotifyIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
         reNotifyIntent.setAction(ACTION_RENOTIFY);
@@ -340,25 +332,20 @@ public class BackgroundBLEService extends Service {
         return PendingIntent.getActivity(getApplicationContext(), 1337, deepLinkIntent, getIntentFlags());
     }
 
-    private void updateNotification(String text, String deeplink, Notification.Action[] actions) {
+    private void updateNotification(String text, String deeplink, @Nullable Notification.Action[] actions) {
         //  update the notification body
         builder.setContentText(text).setOngoing(true).setAutoCancel(false);
         //  update the content intent to launch the app with the closest device
         PendingIntent pendingIntent = getPendingIntent(deeplink);
         builder.setContentIntent(pendingIntent);
         //  update the actions
-        builder.setActions(actions);
+        if (actions == null || actions.length == 0) {
+            builder.setActions();
+        } else {
+            builder.setActions(actions);
+        }
         //  update the notification
         notificationManager.notify(NOTIFICATION_ID, builder.build());
-    }
-
-    @NonNull
-    private Notification.Action getStopAction() {
-        Intent stopIntent = new Intent(getApplicationContext(), BackgroundBLEService.class);
-        stopIntent.setAction(ACTION_STOP);
-        stopIntent.putExtra("buttonId", 0);
-        PendingIntent stopPendingIntent = PendingIntent.getService(getApplicationContext(), 100, stopIntent, getIntentFlags());
-        return new Notification.Action.Builder(null, "Stop Scan", stopPendingIntent).build();
     }
 
     /**
@@ -381,15 +368,9 @@ public class BackgroundBLEService extends Service {
         //  get the closest devices
         List<Device> closeDevices;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            closeDevices = devices
-                .stream()
-                .filter((d) -> d.rssi > threshold)
-                .toList();
+            closeDevices = devices.stream().filter(d -> d.rssi > threshold).toList();
         } else {
-            closeDevices = devices
-                .stream()
-                .filter((d) -> d.rssi > threshold)
-                .collect(Collectors.toList());
+            closeDevices = devices.stream().filter(d -> d.rssi > threshold).collect(Collectors.toList());
         }
         closeDevicesSubject.onNext(closeDevices);
 
@@ -405,7 +386,7 @@ public class BackgroundBLEService extends Service {
 
         //  create a list of actions, one for stopping the scan, one for the closest device, and one for the second closest device
         //  if no devices are close, only show the stop action
-        Notification.Action[] actions;
+        Notification.Action[] actions = null;
         //  get the 2 closest devices, not including the closest device
         List<Device> twoClosest;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
@@ -414,9 +395,7 @@ public class BackgroundBLEService extends Service {
             twoClosest = closeDevices.stream().skip(1).limit(2).collect(Collectors.toList());
         }
 
-        if (twoClosest.isEmpty()) {
-            actions = new Notification.Action[] {};
-        } else {
+        if (!twoClosest.isEmpty()) {
             int size = twoClosest.size();
             if (size > 3) {
                 size = 3;
@@ -431,8 +410,8 @@ public class BackgroundBLEService extends Service {
             StringBuilder debugText = new StringBuilder();
             devices
                 .stream()
-                .filter((d) -> d.rssi > threshold)
-                .forEach((device) -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
+                .filter(d -> d.rssi > threshold)
+                .forEach(device -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
             //  deep link to the closest device, if present
             StringBuilder deepLink = new StringBuilder();
             if (closestDevice != null) {
@@ -481,8 +460,8 @@ public class BackgroundBLEService extends Service {
                 // update any devices that have not been updated in the last (timeout) seconds
                 devices
                     .stream()
-                    .filter((d) -> System.currentTimeMillis() - d.lastUpdated > deviceTimeout)
-                    .forEach((d) -> d.update(-127, TX_POWER_NOT_PRESENT));
+                    .filter(d -> System.currentTimeMillis() - d.lastUpdated > deviceTimeout)
+                    .forEach(d -> d.update(-127, TX_POWER_NOT_PRESENT));
 
                 checkClosestDevice();
 
@@ -498,7 +477,7 @@ public class BackgroundBLEService extends Service {
 
     private boolean shouldStopTimer() {
         //  stop the timer if all devices have an rssi less than threshold - 1 (effectively out of range)
-        return devices.stream().allMatch((d) -> d.rssi < (threshold - 1));
+        return devices.stream().allMatch(d -> d.rssi < (threshold - 1));
     }
 
     private void stopTimer() {
