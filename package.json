@@ -42,7 +42,7 @@
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\" --plugin=prettier-plugin-java",
     "swiftlint": "node-swiftlint",
     "docgen": "docgen --api BackgroundBLEPlugin --output-readme README.md --output-json dist/docs.json",
-    "build": "yarn run clean && yarn run docgen && tsc && rollup -c rollup.config.mjs",
+    "build": "yarn run clean && yarn run docgen && tsc && rollup -c rollup.config.mjs && yarn run fmt",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "yarn run build"

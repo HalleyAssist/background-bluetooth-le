@@ -29,43 +29,49 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install dependencies
+        run: yarn
 
-      - run: yarn
-
-      - run: yarn run lint
+      - name: Run linter
+        run: yarn run lint
 
   verify-web:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
+    - name: Setup node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
 
-      - run: yarn
+    - name: Install dependencies
+      run: yarn
 
-      - run: yarn run verify:web
+    - name: Run Verification
+      run: yarn run verify:web
 
   verify-android:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
+    - name: Setup node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: adopt
-          
-      - run: chmod +x android/gradlew
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: 21
+        distribution: adopt
+        
+    - name: Make gradlew executable
+      run: chmod +x android/gradlew
 
-      - run: yarn
+    - name: Install dependencies
+      run: yarn
 
-      - run: yarn run verify:android
+    - name: Run Verification
+      run: yarn run verify:android

@@ -132,7 +132,7 @@ public class BackgroundBLEService extends Service {
                     }
                     case ACTION_DEVICES_FOUND -> {
                         // update the devices with the extras provided through the action
-                        ArrayList<Parcelable> scanResultExtras = null;
+                        ArrayList<Parcelable> scanResultExtras;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             scanResultExtras = intent.getParcelableArrayListExtra(EXTRA_DEVICES, ScanResult.class);
                         } else {
@@ -282,7 +282,7 @@ public class BackgroundBLEService extends Service {
 
     private void createNotificationChannel() {
         NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, "Bluetooth Scanner", NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription("Shows the nearest Hub, Enabling you to quickly open the app to the Hub");
+        channel.setDescription("Shows nearby Hubs, enabling you to quickly view the closest one.");
         channel.enableLights(false);
         channel.enableVibration(false);
         channel.setSound(null, null);
@@ -292,9 +292,9 @@ public class BackgroundBLEService extends Service {
 
     @NonNull
     private Notification createNotification(@NonNull Intent intent) {
-        String body = "Scanning for Nearby Hubs";
+        String body = "Looking for Nearby Hubs";
         int icon = intent.getIntExtra(EXTRA_ICON, 0);
-        String title = "Nearby Hub Scanning Active";
+        String title = "Hub Scan Active";
 
         PendingIntent pendingIntent = getPendingIntent("halleyassist://app");
 
@@ -365,9 +365,9 @@ public class BackgroundBLEService extends Service {
      * Get the action for the notification
      */
     @NonNull
-    private Notification.Action getDeviceAction(@NonNull Device device) {
+    private Notification.Action getDeviceAction(@NonNull Device device, String buttonText) {
         PendingIntent pendingIntent = getPendingIntent("halleyassist://app/clients/" + device.serial);
-        return new Notification.Action.Builder(null, "Open " + device.name, pendingIntent).build();
+        return new Notification.Action.Builder(null, buttonText, pendingIntent).build();
     }
 
     //#endregion Notification
@@ -392,6 +392,17 @@ public class BackgroundBLEService extends Service {
                 .collect(Collectors.toList());
         }
         closeDevicesSubject.onNext(closeDevices);
+
+        Device closestDevice = null;
+        if (!closeDevices.isEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                closestDevice = closeDevices.getFirst();
+            } else {
+                //noinspection SequencedCollectionMethodCanBeUsed
+                closestDevice = closeDevices.get(0);
+            }
+        }
+
         //  create a list of actions, one for stopping the scan, one for the closest device, and one for the second closest device
         //  if no devices are close, only show the stop action
         Notification.Action[] actions;
@@ -402,27 +413,17 @@ public class BackgroundBLEService extends Service {
         } else {
             twoClosest = closeDevices.stream().skip(1).limit(2).collect(Collectors.toList());
         }
+
         if (twoClosest.isEmpty()) {
-            actions = new Notification.Action[] { getStopAction() };
+            actions = new Notification.Action[] {};
         } else {
-            int size = twoClosest.size() + 1;
+            int size = twoClosest.size();
             if (size > 3) {
                 size = 3;
             }
             actions = new Notification.Action[size];
-            actions[0] = getStopAction();
-            for (int i = 0; i < size - 1; i++) {
-                actions[i + 1] = getDeviceAction(twoClosest.get(i));
-            }
-        }
-
-        Device closestDevice = null;
-        if (!closeDevices.isEmpty()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                closestDevice = closeDevices.getFirst();
-            } else {
-                //noinspection SequencedCollectionMethodCanBeUsed
-                closestDevice = closeDevices.get(0);
+            for (int i = 0; i < size; i++) {
+                actions[i + 1] = getDeviceAction(twoClosest.get(i), twoClosest.get(i).name);
             }
         }
         if (debugMode) {
@@ -444,14 +445,30 @@ public class BackgroundBLEService extends Service {
             //  get the name of the device from the devices arrayList
             if (closestDevice == null) {
                 // when no devices are found, reset the notification to default
-                updateNotification("No devices nearby", "halleyassist://app", actions);
+                updateNotification("Looking for Nearby Hubs", "halleyassist://app", actions);
                 return;
             }
+            StringBuilder bodyText = getBodyText(twoClosest, closestDevice);
+
             //  update the notification
-            updateNotification("Tap to open " + closestDevice, "halleyassist://app/clients/" + closestDevice.serial, actions);
+            updateNotification(bodyText.toString(), "halleyassist://app/clients/" + closestDevice.serial, actions);
         }
         //  start a timer to clear the notification text once no devices are in range
         startTimer();
+    }
+
+    @NonNull
+    private static StringBuilder getBodyText(@NonNull List<Device> twoClosest, @NonNull Device closestDevice) {
+        StringBuilder bodyText = new StringBuilder();
+        //  if more than 1 device in range
+        if (!twoClosest.isEmpty()) {
+            bodyText.append("Are you providing care to any of the following clients?").append("\n");
+            bodyText.append("Tap here to open ").append(closestDevice.name).append("\n");
+            bodyText.append("Tap below to open other clients");
+        } else {
+            bodyText.append("Are you providing care for ").append(closestDevice.name).append("?\nTap to Open");
+        }
+        return bodyText;
     }
 
     private void startTimer() {
