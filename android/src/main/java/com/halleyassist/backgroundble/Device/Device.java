@@ -4,6 +4,7 @@ import static android.bluetooth.le.ScanResult.TX_POWER_NOT_PRESENT;
 
 import androidx.annotation.NonNull;
 import com.getcapacitor.JSObject;
+import org.json.JSONException;
 
 public class Device {
 
@@ -25,6 +26,11 @@ public class Device {
     public Device(String serial, String name) {
         this.serial = serial;
         this.name = name;
+    }
+
+    public Device(@NonNull JSObject object) {
+        this.serial = object.getString("serial");
+        this.name = object.getString("name");
     }
 
     @NonNull

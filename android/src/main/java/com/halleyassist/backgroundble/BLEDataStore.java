@@ -18,8 +18,16 @@ public class BLEDataStore {
     static final String KEY_DEBUG = "debug";
     static final String KEY_THRESHOLD = "threshold";
     static final String KEY_STOPPED = "stopped";
+    static final String KEY_ACTIVE_DEVICE = "activeDevice";
 
-    public static final String[] KEYS = new String[] { KEY_SCAN_MODE, KEY_DEBUG, KEY_DEVICE_TIMEOUT, KEY_STOPPED, KEY_THRESHOLD };
+    public static final String[] KEYS = new String[] {
+        KEY_SCAN_MODE,
+        KEY_DEBUG,
+        KEY_DEVICE_TIMEOUT,
+        KEY_STOPPED,
+        KEY_THRESHOLD,
+        KEY_ACTIVE_DEVICE
+    };
 
     private BLEDataStore(Context context) {
         if (dataStore == null) {

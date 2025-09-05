@@ -283,6 +283,36 @@ public class BackgroundBLEPlugin extends Plugin {
     }
 
     @PluginMethod
+    public Disposable getActiveDevice(@NonNull PluginCall call) {
+        return implementation
+            .getActiveDevice()
+            .subscribe(
+                (device) -> {
+                    JSObject ret = new JSObject();
+                    ret.put("device", device);
+                    call.resolve(ret);
+                },
+                (throwable) -> call.reject(throwable.getMessage(), "Get Active Device Failed")
+            );
+    }
+
+    @PluginMethod
+    public Disposable setActiveDevice(@NonNull PluginCall call) {
+        JSObject device = call.getObject("device");
+        Device newDevice = device == null ? null : new Device(device);
+        return implementation
+            .setActiveDevice(newDevice)
+            .subscribe(
+                (result) -> {
+                    JSObject ret = new JSObject();
+                    ret.put("result", result);
+                    call.resolve(ret);
+                },
+                (throwable) -> call.reject(throwable.getMessage(), "Set Active Device Failed")
+            );
+    }
+
+    @PluginMethod
     public Disposable setConfig(@NonNull PluginCall call) {
         JSObject config = call.getObject("config");
         return implementation

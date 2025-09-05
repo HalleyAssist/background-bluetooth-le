@@ -67,13 +67,25 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   }
 
   async isRunning(): Promise<RunningResult> {
-    const running = await Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');
-    return { running };
+    const running = await Preferences.get({ key: RUNNING_KEY });
+    return { running: running.value === 'true' };
   }
 
   async didUserStop(): Promise<UserStoppedResult> {
-    const stopped = await Preferences.get({ key: STOPPED_KEY }).then((res) => res.value === 'true');
-    return { userStopped: stopped };
+    const stopped = await Preferences.get({ key: STOPPED_KEY });
+    return { userStopped: stopped.value === 'true' };
+  }
+
+  async getActiveDevice(): Promise<{ device: Device | null }> {
+    const device = await Preferences.get({ key: 'backgroundble.activeDevice' });
+    if (device && device.value) {
+      return { device: JSON.parse(device.value) as Device };
+    }
+    return { device: null };
+  }
+
+  async setActiveDevice(_device: Device | null): Promise<void> {
+    await Preferences.set({ key: 'backgroundble.activeDevice', value: JSON.stringify(_device) });
   }
 
   async setConfig(options: SetConfigOptions): Promise<Config> {
@@ -82,9 +94,8 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
   }
 
   async getConfig(): Promise<Config> {
-    const config = await Preferences.get({ key: CONFIG_KEY }).then((res) =>
-      res.value ? (JSON.parse(res.value) as ScanConfig) : undefined,
-    );
+    const storedConfig = await Preferences.get({ key: CONFIG_KEY });
+    const config = storedConfig.value ? (JSON.parse(storedConfig.value) as ScanConfig) : undefined;
     if (config) {
       return { config };
     } else {

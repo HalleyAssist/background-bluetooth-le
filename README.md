@@ -73,6 +73,8 @@ A drawable resource is also required for the notification icon. this should use 
 * [`stopForegroundService()`](#stopforegroundservice)
 * [`isRunning()`](#isrunning)
 * [`didUserStop()`](#diduserstop)
+* [`getActiveDevice()`](#getactivedevice)
+* [`setActiveDevice(...)`](#setactivedevice)
 * [`getConfig()`](#getconfig)
 * [`setConfig(...)`](#setconfig)
 * [`addListener('devicesChanged', ...)`](#addlistenerdeviceschanged-)
@@ -223,6 +225,34 @@ didUserStop() => Promise<UserStoppedResult>
 Did the user stop the background scanner from the notification
 
 **Returns:** <code>Promise&lt;<a href="#userstoppedresult">UserStoppedResult</a>&gt;</code>
+
+--------------------
+
+
+### getActiveDevice()
+
+```typescript
+getActiveDevice() => Promise<{ device: Device | null; }>
+```
+
+Get the active <a href="#device">Device</a>
+
+**Returns:** <code>Promise&lt;{ device: <a href="#device">Device</a> | null; }&gt;</code>
+
+--------------------
+
+
+### setActiveDevice(...)
+
+```typescript
+setActiveDevice(device: Device | null) => Promise<void>
+```
+
+Set a device as active
+
+| Param        | Type                                              | Description                 |
+| ------------ | ------------------------------------------------- | --------------------------- |
+| **`device`** | <code><a href="#device">Device</a> \| null</code> | The device to set as active |
 
 --------------------
 

@@ -77,21 +77,30 @@ var capacitorBackgroundBLE = (function (exports, core, preferences) {
       return { result: 'stopped' };
     }
     async isRunning() {
-      const running = await preferences.Preferences.get({ key: RUNNING_KEY }).then((res) => res.value === 'true');
-      return { running };
+      const running = await preferences.Preferences.get({ key: RUNNING_KEY });
+      return { running: running.value === 'true' };
     }
     async didUserStop() {
-      const stopped = await preferences.Preferences.get({ key: STOPPED_KEY }).then((res) => res.value === 'true');
-      return { userStopped: stopped };
+      const stopped = await preferences.Preferences.get({ key: STOPPED_KEY });
+      return { userStopped: stopped.value === 'true' };
+    }
+    async getActiveDevice() {
+      const device = await preferences.Preferences.get({ key: 'backgroundble.activeDevice' });
+      if (device && device.value) {
+        return { device: JSON.parse(device.value) };
+      }
+      return { device: null };
+    }
+    async setActiveDevice(_device) {
+      await preferences.Preferences.set({ key: 'backgroundble.activeDevice', value: JSON.stringify(_device) });
     }
     async setConfig(options) {
       await preferences.Preferences.set({ key: CONFIG_KEY, value: JSON.stringify(options.config) });
       return { config: options.config };
     }
     async getConfig() {
-      const config = await preferences.Preferences.get({ key: CONFIG_KEY }).then((res) =>
-        res.value ? JSON.parse(res.value) : undefined,
-      );
+      const storedConfig = await preferences.Preferences.get({ key: CONFIG_KEY });
+      const config = storedConfig.value ? JSON.parse(storedConfig.value) : null;
       if (config) {
         return { config };
       } else {

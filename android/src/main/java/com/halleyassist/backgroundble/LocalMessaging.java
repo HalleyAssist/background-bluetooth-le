@@ -5,13 +5,13 @@ import io.reactivex.subjects.Subject;
 
 public class LocalMessaging {
 
-    private static final Subject<String> subject = PublishSubject.create();
+    private static final Subject<LocalMessage> subject = PublishSubject.create();
 
-    public static void sendMessage(String message) {
+    public static void sendMessage(LocalMessage message) {
         subject.onNext(message);
     }
 
-    public static Subject<String> getSubject() {
+    public static Subject<LocalMessage> getSubject() {
         return subject;
     }
 }

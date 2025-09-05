@@ -2,14 +2,15 @@ package com.halleyassist.backgroundble;
 
 import static android.bluetooth.le.BluetoothLeScanner.EXTRA_ERROR_CODE;
 import static android.bluetooth.le.BluetoothLeScanner.EXTRA_LIST_SCAN_RESULT;
+import static com.halleyassist.backgroundble.BackgroundBLE.TAG;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import androidx.annotation.NonNull;
+import com.getcapacitor.Logger;
 import java.util.ArrayList;
 
 public class BackgroundBLEReceiver extends BroadcastReceiver {
@@ -20,11 +21,15 @@ public class BackgroundBLEReceiver extends BroadcastReceiver {
         //  handle error codes first
         if (intent.hasExtra(EXTRA_ERROR_CODE)) {
             int errorCode = intent.getIntExtra(EXTRA_ERROR_CODE, 0);
-            //  handle error here
-            handleError(context, errorCode);
-            return;
-        }
-        if (intent.hasExtra(EXTRA_LIST_SCAN_RESULT)) {
+            //  send error to the service
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Intent broadcastIntent = getBroadcastErrorIntent(context, errorCode);
+                context.sendBroadcast(broadcastIntent);
+            } else {
+                Intent serviceIntent = getServiceErrorIntent(context, errorCode);
+                context.startService(serviceIntent);
+            }
+        } else if (intent.hasExtra(EXTRA_LIST_SCAN_RESULT)) {
             ArrayList<ScanResult> results;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 results = intent.getParcelableArrayListExtra(EXTRA_LIST_SCAN_RESULT, ScanResult.class);
@@ -64,8 +69,20 @@ public class BackgroundBLEReceiver extends BroadcastReceiver {
         return intent;
     }
 
-    private static void handleError(Context context, int errorCode) {
-        //  handle error here
+    @NonNull
+    private static Intent getServiceErrorIntent(Context context, int errorCode) {
         //  send the error code to the service via an intent
+        Intent serviceIntent = new Intent(context, BackgroundBLEService.class);
+        serviceIntent.setAction(BackgroundBLEService.ACTION_DEVICE_ERROR);
+        serviceIntent.putExtra(BackgroundBLEService.EXTRA_ERROR_CODE, errorCode);
+        return serviceIntent;
+    }
+
+    @NonNull
+    private static Intent getBroadcastErrorIntent(Context context, int errorCode) {
+        Intent intent = new Intent(BackgroundBLEService.ACTION_DEVICE_ERROR);
+        intent.setPackage(context.getPackageName()); // limit to your app
+        intent.putExtra(BackgroundBLEService.EXTRA_ERROR_CODE, errorCode);
+        return intent;
     }
 }

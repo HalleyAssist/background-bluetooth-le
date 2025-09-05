@@ -3,6 +3,7 @@ import {
   AddDevicesOptions,
   BackgroundBLEPlugin,
   Config,
+  Device,
   Devices,
   DevicesChangedListener,
   PermissionStatus,
@@ -23,6 +24,10 @@ export declare class BackgroundBLEWeb extends WebPlugin implements BackgroundBLE
   stopForegroundService(): Promise<StartStopResult>;
   isRunning(): Promise<RunningResult>;
   didUserStop(): Promise<UserStoppedResult>;
+  getActiveDevice(): Promise<{
+    device: Device | null;
+  }>;
+  setActiveDevice(_device: Device | null): Promise<void>;
   setConfig(options: SetConfigOptions): Promise<Config>;
   getConfig(): Promise<Config>;
   addListener(

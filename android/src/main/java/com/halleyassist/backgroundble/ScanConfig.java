@@ -22,6 +22,7 @@ public class ScanConfig {
     private Integer threshold;
 
     public List<Device> devices = new ArrayList<>();
+    public String activeDevice = null;
 
     public ScanConfig() {
         // Default values

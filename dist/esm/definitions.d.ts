@@ -266,6 +266,21 @@ export interface BackgroundBLEPlugin extends Plugin {
    */
   didUserStop(): Promise<UserStoppedResult>;
   /**
+   * Get the active Device
+   *
+   * @returns The active device
+   */
+  getActiveDevice(): Promise<{
+    device: Device | null;
+  }>;
+  /**
+   * Set a device as active
+   *
+   * @param device The device to set as active
+   * @returns A promise that resolves when the device is set as active
+   */
+  setActiveDevice(device: Device | null): Promise<void>;
+  /**
    * Get the scanner configuration
    *
    * @returns The scanner configuration

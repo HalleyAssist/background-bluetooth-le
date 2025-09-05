@@ -38,6 +38,7 @@ import androidx.core.app.ActivityCompat;
 import com.getcapacitor.Logger;
 import com.halleyassist.backgroundble.Device.Device;
 import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,7 @@ public class BackgroundBLEService extends Service {
     public static final String ACTION_STOP = "STOP";
     public static final String ACTION_RENOTIFY = "RENOTIFY";
     public static final String ACTION_DEVICES_FOUND = "DEVICES_UPDATE";
+    public static final String ACTION_DEVICE_ERROR = "DEVICE_ERROR";
 
     //  service extras
     public static final String EXTRA_DEVICES = "devices";
@@ -68,6 +70,8 @@ public class BackgroundBLEService extends Service {
     public static final String EXTRA_DEBUG_MODE = "debugMode";
     public static final String EXTRA_DEVICE_TIMEOUT = "deviceTimeout";
     public static final String EXTRA_THRESHOLD = "threshold";
+    public static final String EXTRA_ACTIVE_DEVICE = "activeDevice";
+    public static final String EXTRA_ERROR_CODE = "errorCode";
 
     private BluetoothLeScanner bluetoothLeScanner;
 
@@ -91,6 +95,10 @@ public class BackgroundBLEService extends Service {
     private BehaviorSubject<List<Device>> devicesSubject;
     private BehaviorSubject<List<Device>> closeDevicesSubject;
 
+    private Device activeDevice = null;
+
+    Disposable messageDisposable;
+
     //  singleton
     private static BackgroundBLEService instance;
 
@@ -109,6 +117,15 @@ public class BackgroundBLEService extends Service {
         devicesSubject = BehaviorSubject.create();
         closeDevicesSubject = BehaviorSubject.create();
 
+        messageDisposable = LocalMessaging.getSubject()
+            .subscribe(message -> {
+                if (message.type == LocalMessage.Type.Device) {
+                    //  get the device from the list using the message content as the device serial
+                    String serial = message.content;
+                    activeDevice = devices.stream().filter(d -> d.serial.equals(serial)).findFirst().orElse(null);
+                }
+            });
+
         instance = this;
     }
 
@@ -123,7 +140,7 @@ public class BackgroundBLEService extends Service {
                         stopForeground(STOP_FOREGROUND_REMOVE);
                         stopSelf();
                         //  notify plugin that the service has stopped
-                        LocalMessaging.sendMessage("User Stopped");
+                        LocalMessaging.sendMessage(new LocalMessage(LocalMessage.Type.Service, "User Stopped"));
                         return START_NOT_STICKY;
                     }
                     case ACTION_RENOTIFY -> {
@@ -155,16 +172,17 @@ public class BackgroundBLEService extends Service {
                         }
                         return START_STICKY;
                     }
+                    case ACTION_DEVICE_ERROR -> {
+                        int errorCode = intent.getIntExtra(EXTRA_ERROR_CODE, -1);
+                        Logger.warn(TAG, "Device Error: " + errorCode);
+                        return START_STICKY;
+                    }
                 }
             }
 
             debugMode = intent.getBooleanExtra(EXTRA_DEBUG_MODE, false);
             deviceTimeout = intent.getIntExtra(EXTRA_DEVICE_TIMEOUT, 30000);
             threshold = intent.getIntExtra(EXTRA_THRESHOLD, -100);
-
-            notificationManager = getSystemService(NotificationManager.class);
-            createNotificationChannel();
-            Notification notification = createNotification(intent);
 
             //  get the list of devices from the intent
             Bundle devicesBundle = intent.getBundleExtra(EXTRA_DEVICES);
@@ -176,11 +194,20 @@ public class BackgroundBLEService extends Service {
                 devices.add(new Device(serial, name));
             }
 
+            String activeDeviceSerial = intent.getStringExtra(EXTRA_ACTIVE_DEVICE);
+            if (activeDeviceSerial != null) {
+                activeDevice = devices.stream().filter(d -> d.serial.equals(activeDeviceSerial)).findFirst().orElse(null);
+            }
+
             int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, SCAN_MODE_LOW_POWER);
             //  validate scan mode is in range, default to low power
             if (scanMode < SCAN_MODE_OPPORTUNISTIC || scanMode > SCAN_MODE_LOW_LATENCY) {
                 scanMode = SCAN_MODE_LOW_POWER;
             }
+
+            notificationManager = getSystemService(NotificationManager.class);
+            createNotificationChannel();
+            Notification notification = createNotification(intent);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
@@ -198,7 +225,7 @@ public class BackgroundBLEService extends Service {
         }
         Logger.info(TAG, "BackgroundBLEService started");
 
-        LocalMessaging.sendMessage("Started");
+        LocalMessaging.sendMessage(new LocalMessage(LocalMessage.Type.Service, "Started"));
 
         return START_STICKY;
     }
@@ -207,7 +234,7 @@ public class BackgroundBLEService extends Service {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void startScanning(@NonNull List<Device> devices, int scanMode) {
-        //  start scanning, filtering for devices with a name that starts with "HalleyHub"
+        //  start scanning, filtering for devices with a name that starts with "H-"
         List<ScanFilter> filters = new ArrayList<>();
         // add a filter for each device in the list
         for (Device device : devices) {
@@ -221,22 +248,30 @@ public class BackgroundBLEService extends Service {
                 @Override
                 @SuppressLint("MissingPermission")
                 public void onReceive(Context context, @NonNull Intent intent) {
-                    if (ACTION_DEVICES_FOUND.equals(intent.getAction())) {
-                        ArrayList<Parcelable> scanResultExtras = intent.getParcelableArrayListExtra(EXTRA_DEVICES, ScanResult.class);
-                        if (scanResultExtras != null) {
-                            for (Parcelable parcelable : scanResultExtras) {
-                                if (parcelable instanceof ScanResult result) {
-                                    String serial = result.getDevice().getName().substring(2); // remove the 'H-' prefix
-                                    int rssi = result.getRssi();
-                                    int txPower = result.getTxPower();
-                                    devices
-                                        .stream()
-                                        .filter(d -> d.serial.equals(serial))
-                                        .findFirst()
-                                        .ifPresent(device -> device.update(rssi, txPower));
+                    String action = intent.getAction();
+                    if (action == null) return;
+                    switch (action) {
+                        case ACTION_DEVICES_FOUND -> {
+                            ArrayList<Parcelable> scanResultExtras = intent.getParcelableArrayListExtra(EXTRA_DEVICES, ScanResult.class);
+                            if (scanResultExtras != null) {
+                                for (Parcelable parcelable : scanResultExtras) {
+                                    if (parcelable instanceof ScanResult result) {
+                                        String serial = result.getDevice().getName().substring(2); // remove the 'H-' prefix
+                                        int rssi = result.getRssi();
+                                        int txPower = result.getTxPower();
+                                        devices
+                                            .stream()
+                                            .filter(d -> d.serial.equals(serial))
+                                            .findFirst()
+                                            .ifPresent(device -> device.update(rssi, txPower));
+                                    }
                                 }
+                                checkClosestDevice();
                             }
-                            checkClosestDevice();
+                        }
+                        case ACTION_DEVICE_ERROR -> {
+                            int errorCode = intent.getIntExtra(EXTRA_ERROR_CODE, -1);
+                            Logger.warn(TAG, "Device Error: " + errorCode);
                         }
                     }
                 }
@@ -293,6 +328,7 @@ public class BackgroundBLEService extends Service {
     @NonNull
     private Notification createNotification(@NonNull Intent intent) {
         String body = "Looking for Nearby Hubs";
+
         int icon = intent.getIntExtra(EXTRA_ICON, 0);
         String title = "Hub Scan Active";
 
@@ -339,21 +375,27 @@ public class BackgroundBLEService extends Service {
         PendingIntent pendingIntent = getPendingIntent(deeplink);
         builder.setContentIntent(pendingIntent);
         //  update the actions
-        if (actions == null || actions.length == 0) {
-            builder.setActions();
-        } else {
-            builder.setActions(actions);
-        }
+        builder.setActions(actions);
         //  update the notification
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
     /**
      * Get the action for the notification
+     *
+     * @param device the device to create a deeplink to
+     * @param buttonText the text to display on the button
+     * @param mark the mark to send in the deeplink (optional)
+     *             Either 'enter' or 'exit' or null
      */
     @NonNull
-    private Notification.Action getDeviceAction(@NonNull Device device, String buttonText) {
-        PendingIntent pendingIntent = getPendingIntent("halleyassist://app/clients/" + device.serial);
+    private Notification.Action getDeviceAction(@NonNull Device device, String buttonText, @Nullable String mark) {
+        StringBuilder deepLink = new StringBuilder();
+        deepLink.append("halleyassist://app/clients/").append(device.serial);
+        if (mark != null) {
+            deepLink.append("?mark=").append(mark);
+        }
+        PendingIntent pendingIntent = getPendingIntent(deepLink.toString());
         return new Notification.Action.Builder(null, buttonText, pendingIntent).build();
     }
 
@@ -394,60 +436,69 @@ public class BackgroundBLEService extends Service {
         } else {
             twoClosest = closeDevices.stream().skip(1).limit(2).collect(Collectors.toList());
         }
+        StringBuilder bodyText = new StringBuilder();
+        StringBuilder deepLink = new StringBuilder();
 
-        if (!twoClosest.isEmpty()) {
-            int size = twoClosest.size();
-            if (size > 3) {
-                size = 3;
-            }
-            actions = new Notification.Action[size];
-            for (int i = 0; i < size; i++) {
-                actions[i + 1] = getDeviceAction(twoClosest.get(i), twoClosest.get(i).name);
-            }
-        }
+        //  deeplink always opens to the closest device, or the app root if no devices are close
+        //    check in/out only occurs when the user explicitly uses the action buttons
+
         if (debugMode) {
             //  in debug mode, the notification will show the rssi of all devices sorted by closest first, separated by a newline
-            StringBuilder debugText = new StringBuilder();
             devices
                 .stream()
                 .filter(d -> d.rssi > threshold)
-                .forEach(device -> debugText.append(device.name).append(": ").append(device.rssi).append("\n"));
-            //  deep link to the closest device, if present
-            StringBuilder deepLink = new StringBuilder();
-            if (closestDevice != null) {
-                deepLink.append("halleyassist://app/clients/").append(closestDevice.serial);
-            } else {
-                deepLink.append("halleyassist://app");
-            }
-            updateNotification(debugText.toString(), deepLink.toString(), actions);
-        } else {
-            //  get the name of the device from the devices arrayList
-            if (closestDevice == null) {
-                // when no devices are found, reset the notification to default
-                updateNotification("Looking for Nearby Hubs", "halleyassist://app", actions);
-                return;
-            }
-            StringBuilder bodyText = getBodyText(twoClosest, closestDevice);
+                .forEach(device -> bodyText.append(device.name).append(": ").append(device.rssi).append("\n"));
 
-            //  update the notification
-            updateNotification(bodyText.toString(), "halleyassist://app/clients/" + closestDevice.serial, actions);
+            if (bodyText.toString().isEmpty()) {
+                bodyText.append("No devices found");
+            }
+            if (closestDevice != null) {
+                deepLink.append("halleyassist://app/clients/").append(closestDevice.name);
+            }
+        } else {
+            if (activeDevice != null && activeDevice.rssi > threshold) {
+                //  active and in range
+                bodyText.append("Are you done providing care for ").append(activeDevice.name).append("?");
+                deepLink.append("halleyassist://app/clients/").append(activeDevice.name);
+
+                actions = new Notification.Action[1];
+                actions[0] = getDeviceAction(activeDevice, "Yes", "exit");
+            } else if (!twoClosest.isEmpty()) {
+                //  multiple close devices
+                bodyText.append("Are you providing care to any of the following clients?");
+                deepLink.append("halleyassist://app/clients/").append(closestDevice.name);
+
+                int size = twoClosest.size();
+                if (size > 3) {
+                    size = 3;
+                }
+                actions = new Notification.Action[size];
+                actions[0] = getDeviceAction(closestDevice, closestDevice.name, "enter");
+                for (int i = 1; i < size; i++) {
+                    actions[i] = getDeviceAction(twoClosest.get(i - 1), twoClosest.get(i - 1).name, "enter");
+                }
+            } else if (closestDevice != null) {
+                //  one close device
+                bodyText.append("Are you providing care for ").append(closestDevice.name).append("?");
+                deepLink.append("halleyassist://app/clients/").append(closestDevice.name);
+
+                actions = new Notification.Action[1];
+                actions[0] = getDeviceAction(closestDevice, closestDevice.name, "enter");
+            }
+            if (bodyText.toString().isEmpty()) {
+                bodyText.append("Looking for Nearby Hubs");
+            }
         }
+
+        if (deepLink.toString().isEmpty()) {
+            deepLink.append("halleyassist://app");
+        }
+
+        //  update the notification
+        updateNotification(bodyText.toString(), deepLink.toString(), actions);
+
         //  start a timer to clear the notification text once no devices are in range
         startTimer();
-    }
-
-    @NonNull
-    private static StringBuilder getBodyText(@NonNull List<Device> twoClosest, @NonNull Device closestDevice) {
-        StringBuilder bodyText = new StringBuilder();
-        //  if more than 1 device in range
-        if (!twoClosest.isEmpty()) {
-            bodyText.append("Are you providing care to any of the following clients?").append("\n");
-            bodyText.append("Tap here to open ").append(closestDevice.name).append("\n");
-            bodyText.append("Tap below to open other clients");
-        } else {
-            bodyText.append("Are you providing care for ").append(closestDevice.name).append("?\nTap to Open");
-        }
-        return bodyText;
     }
 
     private void startTimer() {
@@ -517,7 +568,10 @@ public class BackgroundBLEService extends Service {
         // close the notification
         notificationManager.cancel(NOTIFICATION_ID);
         //  notify the plugin that the service has stopped
-        LocalMessaging.sendMessage("Stopped");
+        LocalMessaging.sendMessage(new LocalMessage(LocalMessage.Type.Service, "Stopped"));
+        if (messageDisposable != null && !messageDisposable.isDisposed()) {
+            messageDisposable.dispose();
+        }
     }
 
     @Override

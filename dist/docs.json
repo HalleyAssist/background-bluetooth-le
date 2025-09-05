@@ -180,6 +180,50 @@
         "slug": "diduserstop"
       },
       {
+        "name": "getActiveDevice",
+        "signature": "() => Promise<{ device: Device | null; }>",
+        "parameters": [],
+        "returns": "Promise<{ device: Device | null; }>",
+        "tags": [
+          {
+            "name": "returns",
+            "text": "The active device"
+          }
+        ],
+        "docs": "Get the active Device",
+        "complexTypes": [
+          "Device"
+        ],
+        "slug": "getactivedevice"
+      },
+      {
+        "name": "setActiveDevice",
+        "signature": "(device: Device | null) => Promise<void>",
+        "parameters": [
+          {
+            "name": "device",
+            "docs": "The device to set as active",
+            "type": "Device | null"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "device The device to set as active"
+          },
+          {
+            "name": "returns",
+            "text": "A promise that resolves when the device is set as active"
+          }
+        ],
+        "docs": "Set a device as active",
+        "complexTypes": [
+          "Device"
+        ],
+        "slug": "setactivedevice"
+      },
+      {
         "name": "getConfig",
         "signature": "() => Promise<Config>",
         "parameters": [],

@@ -1,11 +1,13 @@
 package com.halleyassist.backgroundble;
 
 import static com.halleyassist.backgroundble.BLEDataStore.KEYS;
+import static com.halleyassist.backgroundble.BLEDataStore.KEY_ACTIVE_DEVICE;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEBUG;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_DEVICE_TIMEOUT;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_SCAN_MODE;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_STOPPED;
 import static com.halleyassist.backgroundble.BLEDataStore.KEY_THRESHOLD;
+import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_ACTIVE_DEVICE;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_DEBUG_MODE;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_DEVICES;
 import static com.halleyassist.backgroundble.BackgroundBLEService.EXTRA_DEVICE_TIMEOUT;
@@ -21,6 +23,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.Preferences;
@@ -46,7 +49,7 @@ public class BackgroundBLE {
 
     private final Context context;
 
-    private final Subject<String> messageSubject;
+    private final Subject<LocalMessage> messageSubject;
 
     private final RxDataStore<Preferences> dataStore;
 
@@ -61,8 +64,9 @@ public class BackgroundBLE {
         messageSubject = LocalMessaging.getSubject();
 
         messageDisposable = messageSubject.subscribe((message) -> {
+            if (message.type == LocalMessage.Type.Service) return;
             Log.d(TAG, "Message received: " + message);
-            if (message.equals("Started")) {
+            if (message.content.equals("Started")) {
                 // Handle service started
                 //  set the stopped flag to false
                 dataStore
@@ -75,7 +79,7 @@ public class BackgroundBLE {
                         return Single.just(mutablePreferences);
                     })
                     .subscribe();
-            } else if (message.equals("User Stopped")) {
+            } else if (message.content.equals("User Stopped")) {
                 // Handle user stopped
                 dataStore
                     .updateDataAsync((preferences) -> {
@@ -194,10 +198,14 @@ public class BackgroundBLE {
                 serviceIntent.putExtra(EXTRA_DEBUG_MODE, config.isDebug());
                 serviceIntent.putExtra(EXTRA_DEVICE_TIMEOUT, config.getDeviceTimeout());
                 serviceIntent.putExtra(EXTRA_THRESHOLD, config.getThreshold());
+                serviceIntent.putExtra(EXTRA_ACTIVE_DEVICE, config.activeDevice);
                 context.startForegroundService(serviceIntent);
 
                 //  return a single that emits when the messageSubject emits "Started"
-                return messageSubject.filter((message) -> message.equals("Started")).firstOrError();
+                return messageSubject
+                    .filter((message) -> message.type == LocalMessage.Type.Service && message.content.equals("Started"))
+                    .firstOrError()
+                    .map((message) -> message.content);
             });
     }
 
@@ -207,7 +215,10 @@ public class BackgroundBLE {
         //  stop the service
         context.stopService(serviceIntent);
         //  return a single that emits when the messageSubject emits "Stopped"
-        return messageSubject.filter((message) -> message.equals("Stopped")).firstOrError();
+        return messageSubject
+            .filter((message) -> message.type == LocalMessage.Type.Service && message.content.equals("Stopped"))
+            .firstOrError()
+            .map((message) -> message.content);
     }
 
     public boolean isRunning() {
@@ -227,6 +238,47 @@ public class BackgroundBLE {
             }
             return false;
         });
+    }
+
+    @OptIn(markerClass = ExperimentalCoroutinesApi.class)
+    public Single<Device> getActiveDevice() {
+        return dataStore
+            .data()
+            .firstOrError()
+            .map((preferences) -> {
+                Preferences.Key<String> activeDeviceSerialKey = PreferencesKeys.stringKey(KEY_ACTIVE_DEVICE);
+                String activeDeviceSerial = preferences.get(activeDeviceSerialKey);
+
+                if (activeDeviceSerial == null) {
+                    return null; // Return null if no active device serial is stored
+                }
+
+                Preferences.Key<String> deviceNameKey = PreferencesKeys.stringKey(activeDeviceSerial);
+                String deviceName = preferences.get(deviceNameKey);
+
+                if (deviceName == null) {
+                    // This case might indicate inconsistent data,
+                    // you could log a warning here or handle it differently.
+                    return null; // Return null if the device name for the active serial is not found
+                }
+                return new Device(activeDeviceSerial, deviceName);
+            });
+    }
+
+    @OptIn(markerClass = ExperimentalCoroutinesApi.class)
+    public Single<Device> setActiveDevice(@Nullable Device device) {
+        return dataStore
+            .updateDataAsync((preferences) -> {
+                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                if (device != null) {
+                    mutablePreferences.set(PreferencesKeys.stringKey(KEY_ACTIVE_DEVICE), device.serial);
+                } else {
+                    mutablePreferences.remove(PreferencesKeys.stringKey(KEY_ACTIVE_DEVICE));
+                }
+                LocalMessaging.getSubject().onNext(new LocalMessage(LocalMessage.Type.Device, device != null ? device.serial : "null"));
+                return Single.just(mutablePreferences);
+            })
+            .map((preferences) -> device);
     }
 
     @OptIn(markerClass = ExperimentalCoroutinesApi.class)
@@ -267,10 +319,7 @@ public class BackgroundBLE {
                 mutablePreferences.set(PreferencesKeys.intKey(KEY_THRESHOLD), config.getThreshold());
                 return Single.just(mutablePreferences);
             })
-            .map((preferences) -> {
-                Logger.info(TAG, "Scan config set: " + preferences);
-                return config;
-            });
+            .map((preferences) -> config);
     }
 
     //  load device list from key store
@@ -320,14 +369,11 @@ public class BackgroundBLE {
                 }
                 return Single.just(mutablePreferences);
             })
-            .map((preferences) -> {
-                Logger.info(TAG, "Devices saved: " + preferences);
-                return devices;
-            });
+            .map((preferences) -> devices);
     }
 
     @NonNull
-    private ScanConfig getConfigWithDevices(Map<Preferences.Key<?>, ?> prefs) {
+    private ScanConfig getConfigWithDevices(@NonNull Map<Preferences.Key<?>, ?> prefs) {
         //  return every key in the preferences
         Logger.info(TAG, "Preferences: " + prefs);
         ScanConfig config = new ScanConfig();
@@ -347,6 +393,8 @@ public class BackgroundBLE {
                     break;
                 case KEY_STOPPED:
                     break;
+                case KEY_ACTIVE_DEVICE:
+                    config.activeDevice = entry.getValue().toString();
                 default:
                     config.devices.add(new Device(entry.getKey().toString(), entry.getValue().toString()));
                     break;
