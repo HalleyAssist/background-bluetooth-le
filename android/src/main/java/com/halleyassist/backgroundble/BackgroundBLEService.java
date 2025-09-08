@@ -462,20 +462,20 @@ public class BackgroundBLEService extends Service {
                 bodyText.append("No devices found");
             }
             if (closestDevice != null) {
-                deepLink.append("halleyassist://app/clients/").append(closestDevice.name);
+                deepLink.append("halleyassist://app/clients/").append(closestDevice.serial);
             }
         } else {
             if (activeDevice != null && activeDevice.rssi > threshold) {
                 //  active and in range
                 bodyText.append("Are you done providing care for ").append(activeDevice.name).append("?");
-                deepLink.append("halleyassist://app/clients/").append(activeDevice.name);
+                deepLink.append("halleyassist://app/clients/").append(activeDevice.serial);
 
                 actions = new Notification.Action[1];
                 actions[0] = getDeviceAction(activeDevice, "Yes", "exit");
             } else if (!twoClosest.isEmpty()) {
                 //  multiple close devices
                 bodyText.append("Are you providing care to any of the following clients?");
-                deepLink.append("halleyassist://app/clients/").append(closestDevice.name);
+                deepLink.append("halleyassist://app/clients/").append(closestDevice.serial);
 
                 int size = twoClosest.size();
                 if (size > 3) {
@@ -489,7 +489,7 @@ public class BackgroundBLEService extends Service {
             } else if (closestDevice != null) {
                 //  one close device
                 bodyText.append("Are you providing care for ").append(closestDevice.name).append("?");
-                deepLink.append("halleyassist://app/clients/").append(closestDevice.name);
+                deepLink.append("halleyassist://app/clients/").append(closestDevice.serial);
 
                 actions = new Notification.Action[1];
                 actions[0] = getDeviceAction(closestDevice, "Yes", "enter");
