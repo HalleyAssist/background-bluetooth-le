@@ -133,6 +133,15 @@ public class BackgroundBLEService extends Service {
     @SuppressWarnings("deprecation")
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
+            //  ignore null intents
+            if (intent == null) {
+                Logger.warn(TAG, "Null intent received, ignoring");
+                if (isRunning) {
+                    return START_STICKY;
+                } else {
+                    return START_NOT_STICKY;
+                }
+            }
             String action = intent.getAction();
             if (action != null) {
                 switch (action) {
@@ -483,7 +492,7 @@ public class BackgroundBLEService extends Service {
                 deepLink.append("halleyassist://app/clients/").append(closestDevice.name);
 
                 actions = new Notification.Action[1];
-                actions[0] = getDeviceAction(closestDevice, closestDevice.name, "enter");
+                actions[0] = getDeviceAction(closestDevice, "Yes", "enter");
             }
             if (bodyText.toString().isEmpty()) {
                 bodyText.append("Looking for Nearby Hubs");
@@ -495,6 +504,9 @@ public class BackgroundBLEService extends Service {
         }
 
         //  update the notification
+        if (actions == null) {
+            actions = new Notification.Action[0];
+        }
         updateNotification(bodyText.toString(), deepLink.toString(), actions);
 
         //  start a timer to clear the notification text once no devices are in range
