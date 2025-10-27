@@ -100,7 +100,7 @@ var capacitorBackgroundBLE = (function (exports, core, preferences) {
     }
     async getConfig() {
       const storedConfig = await preferences.Preferences.get({ key: CONFIG_KEY });
-      const config = storedConfig.value ? JSON.parse(storedConfig.value) : null;
+      const config = storedConfig.value ? JSON.parse(storedConfig.value) : undefined;
       if (config) {
         return { config };
       } else {

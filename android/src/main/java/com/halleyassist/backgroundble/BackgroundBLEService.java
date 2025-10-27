@@ -117,12 +117,15 @@ public class BackgroundBLEService extends Service {
         devicesSubject = BehaviorSubject.create();
         closeDevicesSubject = BehaviorSubject.create();
 
-        messageDisposable = LocalMessaging.getSubject()
-            .subscribe(message -> {
+        messageDisposable = LocalMessaging.getSubject().subscribe((message) -> {
                 if (message.type == LocalMessage.Type.Device) {
                     //  get the device from the list using the message content as the device serial
                     String serial = message.content;
-                    activeDevice = devices.stream().filter(d -> d.serial.equals(serial)).findFirst().orElse(null);
+                    activeDevice = devices
+                        .stream()
+                        .filter((d) -> d.serial.equals(serial))
+                        .findFirst()
+                        .orElse(null);
                 }
             });
 
@@ -172,9 +175,9 @@ public class BackgroundBLEService extends Service {
                                     int txPower = result.getTxPower();
                                     devices
                                         .stream()
-                                        .filter(d -> d.serial.equals(serial))
+                                        .filter((d) -> d.serial.equals(serial))
                                         .findFirst()
-                                        .ifPresent(device -> device.update(rssi, txPower));
+                                        .ifPresent((device) -> device.update(rssi, txPower));
                                 }
                             }
                             checkClosestDevice();
@@ -205,7 +208,11 @@ public class BackgroundBLEService extends Service {
 
             String activeDeviceSerial = intent.getStringExtra(EXTRA_ACTIVE_DEVICE);
             if (activeDeviceSerial != null) {
-                activeDevice = devices.stream().filter(d -> d.serial.equals(activeDeviceSerial)).findFirst().orElse(null);
+                activeDevice = devices
+                    .stream()
+                    .filter((d) -> d.serial.equals(activeDeviceSerial))
+                    .findFirst()
+                    .orElse(null);
             }
 
             int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, SCAN_MODE_LOW_POWER);
@@ -270,9 +277,9 @@ public class BackgroundBLEService extends Service {
                                         int txPower = result.getTxPower();
                                         devices
                                             .stream()
-                                            .filter(d -> d.serial.equals(serial))
+                                            .filter((d) -> d.serial.equals(serial))
                                             .findFirst()
-                                            .ifPresent(device -> device.update(rssi, txPower));
+                                            .ifPresent((device) -> device.update(rssi, txPower));
                                     }
                                 }
                                 checkClosestDevice();
@@ -419,9 +426,15 @@ public class BackgroundBLEService extends Service {
         //  get the closest devices
         List<Device> closeDevices;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            closeDevices = devices.stream().filter(d -> d.rssi > threshold).toList();
+            closeDevices = devices
+                .stream()
+                .filter((d) -> d.rssi > threshold)
+                .toList();
         } else {
-            closeDevices = devices.stream().filter(d -> d.rssi > threshold).collect(Collectors.toList());
+            closeDevices = devices
+                .stream()
+                .filter((d) -> d.rssi > threshold)
+                .collect(Collectors.toList());
         }
         closeDevicesSubject.onNext(closeDevices);
 
@@ -455,8 +468,8 @@ public class BackgroundBLEService extends Service {
             //  in debug mode, the notification will show the rssi of all devices sorted by closest first, separated by a newline
             devices
                 .stream()
-                .filter(d -> d.rssi > threshold)
-                .forEach(device -> bodyText.append(device.name).append(": ").append(device.rssi).append("\n"));
+                .filter((d) -> d.rssi > threshold)
+                .forEach((device) -> bodyText.append(device.name).append(": ").append(device.rssi).append("\n"));
 
             if (bodyText.toString().isEmpty()) {
                 bodyText.append("No devices found");
@@ -523,8 +536,8 @@ public class BackgroundBLEService extends Service {
                 // update any devices that have not been updated in the last (timeout) seconds
                 devices
                     .stream()
-                    .filter(d -> System.currentTimeMillis() - d.lastUpdated > deviceTimeout)
-                    .forEach(d -> d.update(-127, TX_POWER_NOT_PRESENT));
+                    .filter((d) -> System.currentTimeMillis() - d.lastUpdated > deviceTimeout)
+                    .forEach((d) -> d.update(-127, TX_POWER_NOT_PRESENT));
 
                 checkClosestDevice();
 
@@ -540,7 +553,7 @@ public class BackgroundBLEService extends Service {
 
     private boolean shouldStopTimer() {
         //  stop the timer if all devices have an rssi less than threshold - 1 (effectively out of range)
-        return devices.stream().allMatch(d -> d.rssi < (threshold - 1));
+        return devices.stream().allMatch((d) -> d.rssi < (threshold - 1));
     }
 
     private void stopTimer() {

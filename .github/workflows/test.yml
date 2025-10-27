@@ -23,10 +23,13 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
       - name: Install dependencies
@@ -38,40 +41,46 @@ jobs:
   verify-web:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-    - name: Setup node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
+      - name: Enable Corepack
+        run: corepack enable
 
-    - name: Install dependencies
-      run: yarn
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
 
-    - name: Run Verification
-      run: yarn run verify:web
+      - name: Install dependencies
+        run: yarn
+
+      - name: Run Verification
+        run: yarn run verify:web
 
   verify-android:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-    - name: Setup node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
+      - name: Enable Corepack
+        run: corepack enable
 
-    - name: Set up JDK
-      uses: actions/setup-java@v4
-      with:
-        java-version: 21
-        distribution: adopt
-        
-    - name: Make gradlew executable
-      run: chmod +x android/gradlew
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
 
-    - name: Install dependencies
-      run: yarn
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: adopt
 
-    - name: Run Verification
-      run: yarn run verify:android
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Run Verification
+        run: yarn run verify:android

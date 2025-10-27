@@ -64,7 +64,7 @@ export class BackgroundBLEWeb extends WebPlugin {
   }
   async getConfig() {
     const storedConfig = await Preferences.get({ key: CONFIG_KEY });
-    const config = storedConfig.value ? JSON.parse(storedConfig.value) : null;
+    const config = storedConfig.value ? JSON.parse(storedConfig.value) : undefined;
     if (config) {
       return { config };
     } else {
