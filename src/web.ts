@@ -105,6 +105,7 @@ export class BackgroundBLEWeb extends WebPlugin implements BackgroundBLEPlugin {
           debug: false,
           deviceTimeout: 30000,
           threshold: -100,
+          persistent: true,
         },
       });
     }

@@ -39,7 +39,7 @@
     "lint": "yarn run eslint && yarn run prettier --check",
     "fmt": "yarn run eslint --fix && yarn run prettier --write",
     "eslint": "eslint .",
-    "prettier": "prettier \"**/*.{css,html,ts,js,java}\" --plugin=prettier-plugin-java",
+    "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
     "docgen": "docgen --api BackgroundBLEPlugin --output-readme README.md --output-json dist/docs.json",
     "build": "yarn run clean && yarn run docgen && tsc && rollup -c rollup.config.mjs && yarn run fmt",
@@ -71,7 +71,7 @@
     "@capacitor/core": ">=7.0.0",
     "@capacitor/preferences": ">=7.0.0"
   },
-  "prettier": "@ionic/prettier-config",
+  "prettier": "./prettier.config.js",
   "capacitor": {
     "ios": {
       "src": "ios"

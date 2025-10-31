@@ -74,6 +74,7 @@ export class BackgroundBLEWeb extends WebPlugin {
           debug: false,
           deviceTimeout: 30000,
           threshold: -100,
+          persistent: true,
         },
       });
     }

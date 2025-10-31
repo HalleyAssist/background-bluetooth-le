@@ -112,6 +112,7 @@ class BackgroundBLEWeb extends core.WebPlugin {
           debug: false,
           deviceTimeout: 30000,
           threshold: -100,
+          persistent: true,
         },
       });
     }

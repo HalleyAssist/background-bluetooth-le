@@ -614,6 +614,18 @@
           "docs": "The minimum RSSI to consider a device in range\n\nIf a device has an RSSI below this value, it will be considered out of range\n\nThe value is clamped to the range of -10 to -100.",
           "complexTypes": [],
           "type": "number"
+        },
+        {
+          "name": "persistent",
+          "tags": [
+            {
+              "text": "true",
+              "name": "default"
+            }
+          ],
+          "docs": "Whether the foreground service notification is persistent\n\nIf true, the notification cannot be swiped away by the user.",
+          "complexTypes": [],
+          "type": "boolean"
         }
       ]
     },

@@ -110,6 +110,7 @@ var capacitorBackgroundBLE = (function (exports, core, preferences) {
             debug: false,
             deviceTimeout: 30000,
             threshold: -100,
+            persistent: true,
           },
         });
       }

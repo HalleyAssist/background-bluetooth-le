@@ -31,330 +31,330 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 @CapacitorPlugin(
-    name = "BackgroundBLE",
-    permissions = {
-        @Permission(alias = "BLUETOOTH", strings = { Manifest.permission.BLUETOOTH }),
-        @Permission(alias = "ACCESS_FINE_LOCATION", strings = { Manifest.permission.ACCESS_FINE_LOCATION }),
-        @Permission(alias = "BLUETOOTH_SCAN", strings = { Manifest.permission.BLUETOOTH_SCAN }),
-        @Permission(alias = "BLUETOOTH_CONNECT", strings = { Manifest.permission.BLUETOOTH_CONNECT }),
-        @Permission(alias = "POST_NOTIFICATIONS", strings = { Manifest.permission.POST_NOTIFICATIONS })
-    }
+  name = "BackgroundBLE",
+  permissions = {
+    @Permission(alias = "BLUETOOTH", strings = { Manifest.permission.BLUETOOTH }),
+    @Permission(alias = "ACCESS_FINE_LOCATION", strings = { Manifest.permission.ACCESS_FINE_LOCATION }),
+    @Permission(alias = "BLUETOOTH_SCAN", strings = { Manifest.permission.BLUETOOTH_SCAN }),
+    @Permission(alias = "BLUETOOTH_CONNECT", strings = { Manifest.permission.BLUETOOTH_CONNECT }),
+    @Permission(alias = "POST_NOTIFICATIONS", strings = { Manifest.permission.POST_NOTIFICATIONS }),
+  }
 )
 public class BackgroundBLEPlugin extends Plugin {
 
-    private BackgroundBLE implementation;
-    private List<String> permissions;
+  private BackgroundBLE implementation;
+  private List<String> permissions;
 
-    private Disposable devicesDisposable;
-    private Disposable closeDevicesDisposable;
+  private Disposable devicesDisposable;
+  private Disposable closeDevicesDisposable;
 
-    @Override
-    public void load() {
-        implementation = new BackgroundBLE(getContext());
-        Logger.info(TAG, "Loaded BackgroundBLEPlugin");
+  @Override
+  public void load() {
+    implementation = new BackgroundBLE(getContext());
+    Logger.info(TAG, "Loaded BackgroundBLEPlugin");
+  }
+
+  @Override
+  protected void handleOnDestroy() {
+    super.handleOnDestroy();
+    // Plugin destroyed, destroy the implementation
+    implementation.destroy();
+    // dispose disposables
+    if (devicesDisposable != null && !devicesDisposable.isDisposed()) {
+      devicesDisposable.dispose();
+      devicesDisposable = null;
     }
-
-    @Override
-    protected void handleOnDestroy() {
-        super.handleOnDestroy();
-        // Plugin destroyed, destroy the implementation
-        implementation.destroy();
-        // dispose disposables
-        if (devicesDisposable != null && !devicesDisposable.isDisposed()) {
-            devicesDisposable.dispose();
-            devicesDisposable = null;
-        }
-        if (closeDevicesDisposable != null && !closeDevicesDisposable.isDisposed()) {
-            closeDevicesDisposable.dispose();
-            closeDevicesDisposable = null;
-        }
-        Logger.info(TAG, "Destroyed BackgroundBLEPlugin");
+    if (closeDevicesDisposable != null && !closeDevicesDisposable.isDisposed()) {
+      closeDevicesDisposable.dispose();
+      closeDevicesDisposable = null;
     }
+    Logger.info(TAG, "Destroyed BackgroundBLEPlugin");
+  }
 
-    @PluginMethod
-    public void initialise(@NonNull PluginCall call) {
-        String[] aliases = getRequiredPermissions().toArray(new String[0]);
-        Logger.info(TAG, "requesting permissions for " + Arrays.toString(aliases));
+  @PluginMethod
+  public void initialise(@NonNull PluginCall call) {
+    String[] aliases = getRequiredPermissions().toArray(new String[0]);
+    Logger.info(TAG, "requesting permissions for " + Arrays.toString(aliases));
+    try {
+      requestPermissionForAliases(aliases, call, "checkPermission");
+    } catch (Exception e) {
+      call.reject(e.getMessage(), e);
+    }
+  }
+
+  @NonNull
+  private List<String> getRequiredPermissions() {
+    permissions = new ArrayList<>();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      permissions.add("BLUETOOTH_SCAN");
+      permissions.add("BLUETOOTH_CONNECT");
+    } else {
+      permissions.add("ACCESS_FINE_LOCATION");
+      permissions.add("BLUETOOTH");
+    }
+    permissions.add("POST_NOTIFICATIONS");
+    return permissions;
+  }
+
+  @PermissionCallback
+  private void checkPermission(PluginCall call) {
+    String[] aliases = permissions.toArray(new String[0]);
+    Logger.info(TAG, "checking permissions for " + Arrays.toString(aliases));
+    List<Boolean> granted = new ArrayList<>();
+    for (String alias : aliases) {
+      granted.add(getPermissionState(alias) == PermissionState.GRANTED);
+    }
+    if (granted.stream().allMatch(Boolean::booleanValue)) {
+      if (implementation.canUseBluetooth()) {
+        call.resolve();
+      } else {
+        call.reject("Bluetooth not available");
+      }
+    } else {
+      call.reject("Permission denied.");
+    }
+  }
+
+  @PluginMethod
+  @SuppressLint("MissingPermission")
+  @SuppressWarnings("deprecation")
+  public void enable(@NonNull PluginCall call) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      Intent actionIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+      startActivityForResult(call, actionIntent, "requestEnableCallback");
+    } else {
+      try {
+        BluetoothAdapter bluetoothAdapter = implementation.getAdapter();
+        if (bluetoothAdapter.enable()) {
+          call.resolve();
+        } else {
+          call.reject("Bluetooth not enabled");
+        }
+      } catch (Exception e) {
+        call.reject(e.getMessage(), e);
+      }
+    }
+  }
+
+  @ActivityCallback
+  private void requestEnableCallback(PluginCall call, @NonNull ActivityResult result) {
+    if (call == null) {
+      return;
+    }
+    if (result.getResultCode() == Activity.RESULT_OK) {
+      call.resolve();
+    } else {
+      call.reject("Bluetooth not enabled");
+    }
+  }
+
+  /**
+   * Gets the devices that have been found by the plugin.
+   */
+  @PluginMethod
+  public Disposable getDevices(@NonNull PluginCall call) {
+    return implementation
+      .getDevices()
+      .subscribe(
+        (devices) -> call.resolve(resolveDevices(devices)),
+        (throwable) -> call.reject(throwable.getMessage(), "Get Devices Failed")
+      );
+  }
+
+  @PluginMethod
+  public Disposable setDevices(@NonNull PluginCall call) {
+    JSArray devices = call.getArray("devices");
+    try {
+      //  extract the devices array
+      List<JSONObject> deviceList = devices.toList();
+      ArrayList<Device> list = new ArrayList<>();
+      //  parse the devices array
+      for (JSONObject object : deviceList) {
         try {
-            requestPermissionForAliases(aliases, call, "checkPermission");
-        } catch (Exception e) {
-            call.reject(e.getMessage(), e);
+          Device device = new Device(object.getString("serial"), object.getString("name"));
+          list.add(device);
+        } catch (JSONException e) {
+          Logger.error("BackgroundBLE Error parsing device: " + e.getMessage());
         }
+      }
+
+      return implementation
+        .setDevices(list)
+        .subscribe(
+          (devices1) -> call.resolve(resolveDevices(devices1)),
+          (throwable) -> call.reject(throwable.getMessage(), "Set Devices Failed")
+        );
+    } catch (JSONException ex) {
+      call.reject(ex.toString());
+      return Single.just("").subscribe();
     }
+  }
 
-    @NonNull
-    private List<String> getRequiredPermissions() {
-        permissions = new ArrayList<>();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permissions.add("BLUETOOTH_SCAN");
-            permissions.add("BLUETOOTH_CONNECT");
-        } else {
-            permissions.add("ACCESS_FINE_LOCATION");
-            permissions.add("BLUETOOTH");
-        }
-        permissions.add("POST_NOTIFICATIONS");
-        return permissions;
+  @PluginMethod
+  public Disposable clearDevices(@NonNull PluginCall call) {
+    return implementation
+      .clearDevices()
+      .subscribe(
+        (devices) -> call.resolve(resolveDevices(devices)),
+        (throwable) -> call.reject(throwable.getMessage(), "Clear Failed")
+      );
+  }
+
+  @PluginMethod
+  public Disposable startForegroundService(@NonNull PluginCall call) {
+    return implementation
+      .startForegroundService()
+      .subscribe(
+        (result) -> {
+          // subscribe to the implementation's getDevicesObservable()
+          devicesDisposable = implementation
+            .getDevicesObservable()
+            .subscribe((devices) -> {
+              //  if the webview is not listening to the event, return
+              if (!hasListeners("devicesChanged")) return;
+              JSObject ret = new JSObject();
+              JSArray deviceArray = devicesToJSArray(devices);
+              ret.put("devices", deviceArray);
+              notifyListeners("devicesChanged", ret);
+            });
+
+          // subscribe to the implementation's getCloseDevicesObservable()
+          closeDevicesDisposable = implementation
+            .getCloseDevicesObservable()
+            .subscribe((closeDevices) -> {
+              //  if the webview is not listening to the event, return
+              if (!hasListeners("closeDevicesChanged")) return;
+              JSObject ret = new JSObject();
+              JSArray closeDeviceArray = devicesToJSArray(closeDevices);
+              ret.put("devices", closeDeviceArray);
+              notifyListeners("closeDevicesChanged", ret);
+            });
+
+          JSObject ret = new JSObject();
+          ret.put("result", result);
+          call.resolve(ret);
+        },
+        (throwable) -> call.reject(throwable.getMessage(), "Start Failed")
+      );
+  }
+
+  @PluginMethod
+  public Disposable stopForegroundService(@NonNull PluginCall call) {
+    //  unsubscribe from the implementation's getDevicesObservable()
+    if (devicesDisposable != null && !devicesDisposable.isDisposed()) {
+      devicesDisposable.dispose();
     }
-
-    @PermissionCallback
-    private void checkPermission(PluginCall call) {
-        String[] aliases = permissions.toArray(new String[0]);
-        Logger.info(TAG, "checking permissions for " + Arrays.toString(aliases));
-        List<Boolean> granted = new ArrayList<>();
-        for (String alias : aliases) {
-            granted.add(getPermissionState(alias) == PermissionState.GRANTED);
-        }
-        if (granted.stream().allMatch(Boolean::booleanValue)) {
-            if (implementation.canUseBluetooth()) {
-                call.resolve();
-            } else {
-                call.reject("Bluetooth not available");
-            }
-        } else {
-            call.reject("Permission denied.");
-        }
+    //  unsubscribe from the implementation's getCloseDevicesObservable()
+    if (closeDevicesDisposable != null && !closeDevicesDisposable.isDisposed()) {
+      closeDevicesDisposable.dispose();
     }
+    return implementation
+      .stopForegroundService()
+      .subscribe(
+        (result) -> {
+          JSObject ret = new JSObject();
+          ret.put("result", result);
+          Logger.info(TAG, "Stopped Foreground Service: " + result);
+          call.resolve(ret);
+        },
+        (throwable) -> call.reject(throwable.getMessage(), "Stop Failed")
+      );
+  }
 
-    @PluginMethod
-    @SuppressLint("MissingPermission")
-    @SuppressWarnings("deprecation")
-    public void enable(@NonNull PluginCall call) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Intent actionIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(call, actionIntent, "requestEnableCallback");
-        } else {
-            try {
-                BluetoothAdapter bluetoothAdapter = implementation.getAdapter();
-                if (bluetoothAdapter.enable()) {
-                    call.resolve();
-                } else {
-                    call.reject("Bluetooth not enabled");
-                }
-            } catch (Exception e) {
-                call.reject(e.getMessage(), e);
-            }
-        }
+  @PluginMethod
+  public void isRunning(@NonNull PluginCall call) {
+    JSObject ret = new JSObject();
+    ret.put("running", implementation.isRunning());
+    call.resolve(ret);
+  }
+
+  @PluginMethod
+  public Disposable didUserStop(@NonNull PluginCall call) {
+    return implementation
+      .didUserStop()
+      .subscribe(
+        (result) -> {
+          JSObject ret = new JSObject();
+          ret.put("userStopped", result);
+          call.resolve(ret);
+        },
+        (throwable) -> call.reject(throwable.getMessage(), "Did Stop Failed")
+      );
+  }
+
+  @PluginMethod
+  public Disposable getActiveDevice(@NonNull PluginCall call) {
+    return implementation
+      .getActiveDevice()
+      .subscribe(
+        (device) -> {
+          JSObject ret = new JSObject();
+          ret.put("device", device);
+          call.resolve(ret);
+        },
+        (throwable) -> call.reject(throwable.getMessage(), "Get Active Device Failed")
+      );
+  }
+
+  @PluginMethod
+  public Disposable setActiveDevice(@NonNull PluginCall call) {
+    JSObject device = call.getObject("device");
+    Device newDevice = device == null ? null : new Device(device);
+    return implementation
+      .setActiveDevice(newDevice)
+      .subscribe(
+        (result) -> {
+          JSObject ret = new JSObject();
+          ret.put("result", result);
+          call.resolve(ret);
+        },
+        (throwable) -> call.reject(throwable.getMessage(), "Set Active Device Failed")
+      );
+  }
+
+  @PluginMethod
+  public Disposable setConfig(@NonNull PluginCall call) {
+    JSObject config = call.getObject("config");
+    return implementation
+      .setScanConfig(new ScanConfig(config))
+      .subscribe(
+        (result) -> {
+          JSObject ret = new JSObject();
+          ret.put("config", result.toJSObject());
+          call.resolve(ret);
+        },
+        (throwable) -> call.reject(throwable.getMessage(), "Set Config Failed")
+      );
+  }
+
+  @PluginMethod
+  public Disposable getConfig(@NonNull PluginCall call) {
+    return implementation
+      .getScanConfig()
+      .subscribe(
+        (config) -> {
+          JSObject ret = new JSObject();
+          ret.put("config", config.toJSObject());
+          call.resolve(ret);
+        },
+        (throwable) -> call.reject(throwable.getMessage(), "Get Config Failed")
+      );
+  }
+
+  @NonNull
+  private JSArray devicesToJSArray(@NonNull List<Device> devices) {
+    JSArray deviceArray = new JSArray();
+    for (Device device : devices) {
+      deviceArray.put(device.toObject());
     }
+    return deviceArray;
+  }
 
-    @ActivityCallback
-    private void requestEnableCallback(PluginCall call, @NonNull ActivityResult result) {
-        if (call == null) {
-            return;
-        }
-        if (result.getResultCode() == Activity.RESULT_OK) {
-            call.resolve();
-        } else {
-            call.reject("Bluetooth not enabled");
-        }
-    }
-
-    /**
-     * Gets the devices that have been found by the plugin.
-     */
-    @PluginMethod
-    public Disposable getDevices(@NonNull PluginCall call) {
-        return implementation
-            .getDevices()
-            .subscribe(
-                (devices) -> call.resolve(resolveDevices(devices)),
-                (throwable) -> call.reject(throwable.getMessage(), "Get Devices Failed")
-            );
-    }
-
-    @PluginMethod
-    public Disposable setDevices(@NonNull PluginCall call) {
-        JSArray devices = call.getArray("devices");
-        try {
-            //  extract the devices array
-            List<JSONObject> deviceList = devices.toList();
-            ArrayList<Device> list = new ArrayList<>();
-            //  parse the devices array
-            for (JSONObject object : deviceList) {
-                try {
-                    Device device = new Device(object.getString("serial"), object.getString("name"));
-                    list.add(device);
-                } catch (JSONException e) {
-                    Logger.error("BackgroundBLE Error parsing device: " + e.getMessage());
-                }
-            }
-
-            return implementation
-                .setDevices(list)
-                .subscribe(
-                    (devices1) -> call.resolve(resolveDevices(devices1)),
-                    (throwable) -> call.reject(throwable.getMessage(), "Set Devices Failed")
-                );
-        } catch (JSONException ex) {
-            call.reject(ex.toString());
-            return Single.just("").subscribe();
-        }
-    }
-
-    @PluginMethod
-    public Disposable clearDevices(@NonNull PluginCall call) {
-        return implementation
-            .clearDevices()
-            .subscribe(
-                (devices) -> call.resolve(resolveDevices(devices)),
-                (throwable) -> call.reject(throwable.getMessage(), "Clear Failed")
-            );
-    }
-
-    @PluginMethod
-    public Disposable startForegroundService(@NonNull PluginCall call) {
-        return implementation
-            .startForegroundService()
-            .subscribe(
-                (result) -> {
-                    // subscribe to the implementation's getDevicesObservable()
-                    devicesDisposable = implementation
-                        .getDevicesObservable()
-                        .subscribe((devices) -> {
-                            //  if the webview is not listening to the event, return
-                            if (!hasListeners("devicesChanged")) return;
-                            JSObject ret = new JSObject();
-                            JSArray deviceArray = devicesToJSArray(devices);
-                            ret.put("devices", deviceArray);
-                            notifyListeners("devicesChanged", ret);
-                        });
-
-                    // subscribe to the implementation's getCloseDevicesObservable()
-                    closeDevicesDisposable = implementation
-                        .getCloseDevicesObservable()
-                        .subscribe((closeDevices) -> {
-                            //  if the webview is not listening to the event, return
-                            if (!hasListeners("closeDevicesChanged")) return;
-                            JSObject ret = new JSObject();
-                            JSArray closeDeviceArray = devicesToJSArray(closeDevices);
-                            ret.put("devices", closeDeviceArray);
-                            notifyListeners("closeDevicesChanged", ret);
-                        });
-
-                    JSObject ret = new JSObject();
-                    ret.put("result", result);
-                    call.resolve(ret);
-                },
-                (throwable) -> call.reject(throwable.getMessage(), "Start Failed")
-            );
-    }
-
-    @PluginMethod
-    public Disposable stopForegroundService(@NonNull PluginCall call) {
-        //  unsubscribe from the implementation's getDevicesObservable()
-        if (devicesDisposable != null && !devicesDisposable.isDisposed()) {
-            devicesDisposable.dispose();
-        }
-        //  unsubscribe from the implementation's getCloseDevicesObservable()
-        if (closeDevicesDisposable != null && !closeDevicesDisposable.isDisposed()) {
-            closeDevicesDisposable.dispose();
-        }
-        return implementation
-            .stopForegroundService()
-            .subscribe(
-                (result) -> {
-                    JSObject ret = new JSObject();
-                    ret.put("result", result);
-                    Logger.info(TAG, "Stopped Foreground Service: " + result);
-                    call.resolve(ret);
-                },
-                (throwable) -> call.reject(throwable.getMessage(), "Stop Failed")
-            );
-    }
-
-    @PluginMethod
-    public void isRunning(@NonNull PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("running", implementation.isRunning());
-        call.resolve(ret);
-    }
-
-    @PluginMethod
-    public Disposable didUserStop(@NonNull PluginCall call) {
-        return implementation
-            .didUserStop()
-            .subscribe(
-                (result) -> {
-                    JSObject ret = new JSObject();
-                    ret.put("userStopped", result);
-                    call.resolve(ret);
-                },
-                (throwable) -> call.reject(throwable.getMessage(), "Did Stop Failed")
-            );
-    }
-
-    @PluginMethod
-    public Disposable getActiveDevice(@NonNull PluginCall call) {
-        return implementation
-            .getActiveDevice()
-            .subscribe(
-                (device) -> {
-                    JSObject ret = new JSObject();
-                    ret.put("device", device);
-                    call.resolve(ret);
-                },
-                (throwable) -> call.reject(throwable.getMessage(), "Get Active Device Failed")
-            );
-    }
-
-    @PluginMethod
-    public Disposable setActiveDevice(@NonNull PluginCall call) {
-        JSObject device = call.getObject("device");
-        Device newDevice = device == null ? null : new Device(device);
-        return implementation
-            .setActiveDevice(newDevice)
-            .subscribe(
-                (result) -> {
-                    JSObject ret = new JSObject();
-                    ret.put("result", result);
-                    call.resolve(ret);
-                },
-                (throwable) -> call.reject(throwable.getMessage(), "Set Active Device Failed")
-            );
-    }
-
-    @PluginMethod
-    public Disposable setConfig(@NonNull PluginCall call) {
-        JSObject config = call.getObject("config");
-        return implementation
-            .setScanConfig(new ScanConfig(config))
-            .subscribe(
-                (result) -> {
-                    JSObject ret = new JSObject();
-                    ret.put("config", result.toJSObject());
-                    call.resolve(ret);
-                },
-                (throwable) -> call.reject(throwable.getMessage(), "Set Config Failed")
-            );
-    }
-
-    @PluginMethod
-    public Disposable getConfig(@NonNull PluginCall call) {
-        return implementation
-            .getScanConfig()
-            .subscribe(
-                (config) -> {
-                    JSObject ret = new JSObject();
-                    ret.put("config", config.toJSObject());
-                    call.resolve(ret);
-                },
-                (throwable) -> call.reject(throwable.getMessage(), "Get Config Failed")
-            );
-    }
-
-    @NonNull
-    private JSArray devicesToJSArray(@NonNull List<Device> devices) {
-        JSArray deviceArray = new JSArray();
-        for (Device device : devices) {
-            deviceArray.put(device.toObject());
-        }
-        return deviceArray;
-    }
-
-    @NonNull
-    private JSObject resolveDevices(List<Device> devices) {
-        JSObject ret = new JSObject();
-        JSArray deviceArray = devicesToJSArray(devices);
-        ret.put("devices", deviceArray);
-        return ret;
-    }
+  @NonNull
+  private JSObject resolveDevices(List<Device> devices) {
+    JSObject ret = new JSObject();
+    JSArray deviceArray = devicesToJSArray(devices);
+    ret.put("devices", deviceArray);
+    return ret;
+  }
 }

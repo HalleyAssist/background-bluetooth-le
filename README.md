@@ -433,6 +433,7 @@ The scan configuration
 | **`debug`**         | <code>boolean</code>                          | The debug mode                                                                                                                                                                | <code>false</code>              |
 | **`deviceTimeout`** | <code>number</code>                           | The device timeout in milliseconds If a device has not had a scan result for this amount of time, it will be assumed to be out of range and will be pushed down the list      | <code>30000</code>              |
 | **`threshold`**     | <code>number</code>                           | The minimum RSSI to consider a device in range If a device has an RSSI below this value, it will be considered out of range The value is clamped to the range of -10 to -100. | <code>-100</code>               |
+| **`persistent`**    | <code>boolean</code>                          | Whether the foreground service notification is persistent If true, the notification cannot be swiped away by the user.                                                        | <code>true</code>               |
 
 
 #### SetConfigOptions

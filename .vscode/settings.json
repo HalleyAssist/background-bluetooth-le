@@ -1,11 +1,7 @@
 {
-  "cSpell.words": [
-    "ADST",
-    "androidx",
-    "backgroundble",
-    "Behavior",
-    "RENOTIFY"
-  ],
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.format.settings.url": ".vscode/java-formatter.xml"
+  "cSpell.words": ["ADST", "androidx", "backgroundble", "Behavior", "RENOTIFY"],
+  "prettier.requireConfig": true,
+  "[java]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

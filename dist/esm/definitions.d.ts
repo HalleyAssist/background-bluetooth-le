@@ -149,6 +149,14 @@ export interface ScanConfig {
    * @default -100
    */
   threshold: number;
+  /**
+   * Whether the foreground service notification is persistent
+   *
+   * If true, the notification cannot be swiped away by the user.
+   *
+   * @default true
+   */
+  persistent: boolean;
 }
 /**
  * The options to set the configuration
