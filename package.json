@@ -9,8 +9,7 @@
   "files": [
     "android/",
     "dist/",
-    "ios/Sources",
-    "ios/Tests",
+    "ios/",
     "Package.swift",
     "BackgroundBluetoothLe.podspec"
   ],
