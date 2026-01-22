@@ -908,8 +908,8 @@ __metadata:
     typescript: "npm:5.9.3"
     typescript-eslint: "npm:^8.53.1"
   peerDependencies:
-    "@capacitor/core": ">=7.0.0"
-    "@capacitor/preferences": ">=7.0.0"
+    "@capacitor/core": ">=8.0.0"
+    "@capacitor/preferences": ">=8.0.0"
   languageName: unknown
   linkType: soft
 
